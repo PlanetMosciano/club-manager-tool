@@ -313,6 +313,12 @@
   .mnt-del-btn{ background:none; border:none; color:var(--ink-dim); font-size:15px; line-height:1; cursor:pointer; padding:2px 6px; }
   .mnt-del-btn:hover{ color:var(--warn); }
   .mnt-del-btn.confirming{ color:var(--warn); font-size:10.5px; font-weight:700; }
+  .mnt-edit-btn{ background:none; border:none; color:var(--ink-dim); font-size:14px; line-height:1; cursor:pointer; padding:2px 6px; }
+  .mnt-edit-btn:hover{ color:var(--teal-deep); }
+  .or-row-actions{ display:flex; gap:2px; white-space:nowrap; }
+  .or-edit-banner{ font-size:12.5px; font-weight:600; color:var(--teal-deep); background:rgba(41,78,97,.08); border:1px solid rgba(41,78,97,.3); border-radius:8px; padding:8px 10px; margin-bottom:2px; }
+  .mnt-cancel-btn{ font:inherit; font-size:13.5px; font-weight:700; padding:8px 16px; border-radius:8px; border:1px solid var(--line); background:transparent; color:var(--ink-dim); cursor:pointer; align-self:flex-start; }
+  .mnt-cancel-btn:hover{ border-color:var(--warn); color:var(--warn); }
   .mnt-empty{ font-size:13px; color:var(--ink-dim); padding:10px 0; }
   .mnt-upcoming-more{ display:block; font-size:12.5px; font-weight:700; color:var(--teal-deep); text-decoration:none; padding:10px 18px 2px; }
   .mnt-upcoming-more:hover{ text-decoration:underline; }
@@ -534,21 +540,10 @@
       <a href="#" data-page="soglie"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20V10M12 20V4M20 20v-7"/></svg><span class="lbl">Soglie</span></a>
       <a href="#" data-page="kpi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span class="lbl">KPI</span></a>
       <a href="#" data-page="contatti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.4 4 2.4 4.5 5.8"/></svg><span class="lbl">Contatti</span></a>
-      <a href="#" data-page="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 5h4a4 4 0 0 1 0 8h-2"/><path d="M11 19H7a4 4 0 0 1 0-8h2"/></svg><span class="lbl">App</span></a>
+      <a href="#" data-page="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 5h4a4 4 0 0 1 0 8h-2"/><path d="M11 19H7a4 4 0 0 1 0-8h2"/></svg><span class="lbl">App &amp; Web</span></a>
       <a href="#" data-page="orari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="lbl">Orari &amp; Compensi</span></a>
       <a href="#" data-page="mansionario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg><span class="lbl">Mansionario</span></a>
     </nav>
-    <div class="tools-block">
-      <div class="label">Strumenti</div>
-      <div class="tools-links">
-        <a class="tool-link" id="toolLinkOrari" href="https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8" target="_blank" rel="noopener">
-          <span>Gestione Orari</span><span class="go">→</span>
-        </a>
-        <span class="tool-link pending" id="toolLinkRichiestePT" title="Sistema attivo — in attesa dell'indirizzo pubblico dell'app">
-          <span>Richieste PT</span><span class="go">⋯</span>
-        </span>
-      </div>
-    </div>
     <div class="club-block">
       <div class="label">Club</div>
       <div class="clubs" id="clubSwitcher" role="tablist" aria-label="Seleziona club"></div>
@@ -924,15 +919,19 @@
           <section class="card" id="card-app">
             <div class="hd">
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 5h4a4 4 0 0 1 0 8h-2"/><path d="M11 19H7a4 4 0 0 1 0-8h2"/></svg></span>
-              <h2>App collegate</h2>
+              <h2>App &amp; Web</h2>
             </div>
             <div class="card-body app-links">
-              <a class="app-link pending" id="linkRichiestePT" href="#" onclick="return false;">
-                <div><div class="name">Richieste PT</div><div class="desc">Sistema attivo (Google Sheet + Apps Script) — in attesa dell'indirizzo pubblico dell'app, non ancora collegabile qui</div></div>
+              <a class="app-link" id="linkTechnogym" href="https://pronext.mywellness.com/auth/login" target="_blank" rel="noopener">
+                <div><div class="name">Technogym (mywellness)</div><div class="desc">Accesso al portale Technogym mywellness</div></div>
                 <span class="go">→</span>
               </a>
-              <a class="app-link" id="linkGestioneOrari" href="https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8" target="_blank" rel="noopener">
-                <div><div class="name">Gestione Orari &amp; Compensi</div><div class="desc">Ore, presenze e compensi dello staff</div></div>
+              <a class="app-link" id="linkWellnessInCloud" href="https://new.wellness.incloud.it/login" target="_blank" rel="noopener">
+                <div><div class="name">Wellness in Cloud</div><div class="desc">Accesso al gestionale Wellness in Cloud</div></div>
+                <span class="go">→</span>
+              </a>
+              <a class="app-link" id="linkPlanetFit" href="https://planet.fit/" target="_blank" rel="noopener">
+                <div><div class="name">planet.fit</div><div class="desc">Sito aziendale Planet Fitness</div></div>
                 <span class="go">→</span>
               </a>
             </div>
@@ -971,6 +970,7 @@
 
             <div class="or-panel" data-or-panel="collaboratori">
               <form class="mnt-add-form" id="orCollabAddForm">
+                <div class="or-edit-banner" id="orCollabEditBanner" hidden></div>
                 <div class="mnt-add-row">
                   <input type="text" id="orCollabNome" placeholder="Nome collaboratore" maxlength="80" required>
                   <input type="number" id="orCollabOreComprese" placeholder="Ore/sett. comprese" min="0" step="0.5">
@@ -991,7 +991,10 @@
                   <input type="number" id="orCollabTariffaLezioneReformer" placeholder="Tariffa lezione reformer (€)" min="0" step="0.5">
                   <input type="number" id="orCollabTariffaDeskOra" placeholder="Tariffa desk/ora (€)" min="0" step="0.5">
                 </div>
-                <button type="submit">Aggiungi collaboratore</button>
+                <div class="mnt-add-row">
+                  <button type="submit" id="orCollabSubmitBtn">Aggiungi collaboratore</button>
+                  <button type="button" id="orCollabCancelEditBtn" class="mnt-cancel-btn" hidden>Annulla modifica</button>
+                </div>
               </form>
               <div class="tbl-wrap" style="margin-top:16px;">
                 <table class="or-table" id="orCollabTable"></table>
@@ -1405,18 +1408,30 @@
 
   var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, ptRequests: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
   var orariActiveTab = "collaboratori";
+  // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
+  // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
+  // dedicato in initOrCollabAddForm.
+  var orCollabEditingId = null;
   var mntState = { q: "", area: "Tutte", stato: "Tutti" };
   var mntSeedDone = false;
+  // Mentre è in corso una scrittura sequenziale massiva (import backup, seed
+  // manutenzione), il sondaggio periodico al server (ogni 15s, vedi REMOTE_DB_POLL_MS)
+  // va messo in pausa: altrimenti, a metà di un salvataggio di centinaia di elementi,
+  // il sondaggio rilegge lo stato — ancora incompleto — del server e sovrascrive lo
+  // stato locale, facendo "scomparire" temporaneamente le righe non ancora salvate
+  // anche se il salvataggio sta proseguendo correttamente in background.
+  var orSyncPauseCount = 0;
+  function orPauseSync(){ orSyncPauseCount++; }
+  function orResumeSync(){ orSyncPauseCount = Math.max(0, orSyncPauseCount - 1); }
 
   var GESTIONE_ORARI_URL = "https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8";
 
   function orariUrl(){ return GESTIONE_ORARI_URL + "#" + state.club; }
   function updateOrariLinks(){
-    var url = orariUrl();
-    ["toolLinkOrari", "linkGestioneOrari"].forEach(function(id){
-      var el = document.getElementById(id);
-      if (el) el.setAttribute("href", url);
-    });
+    // In passato aggiornava i link rapidi "Gestione Orari" (blocco "Strumenti" e
+    // pagina "App & Web"), rimossi il 13/11/2026 — lo strumento esterno è sostituito
+    // dalla scheda "Orari & Compensi" integrata qui. Funzione lasciata (vuota) perché
+    // richiamata da selectClub(); nessun elemento da aggiornare al momento.
   }
 
   var MANSIONARIO_URL = {
@@ -2780,6 +2795,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         jobs.push({ full: full, data: data });
       });
     });
+    // Precarica la cache interna del db remoto prima di rendere e di scrivere
+    // davvero, per lo stesso motivo spiegato in orImportBackup/primeCache: evita
+    // che ogni scrittura sequenziale faccia "scomparire e ricomparire" le voci non
+    // ancora scritte.
+    if (state.db && state.db.primeCache){
+      jobs.forEach(function(job){ state.db.primeCache("maintenance/" + job.full, job.data); });
+    }
     renderMaintenance();
     renderMntUpcoming();
     // Scrittura UNA ALLA VOLTA, mai tutte insieme: ~187 scritture concorrenti
@@ -2789,8 +2811,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     // sul server), ma una scrittura persa qui sparirebbe silenziosamente al primo
     // sondaggio periodico, quindi vale lo stesso rimedio.
     var idx = 0;
+    orPauseSync();
     function next(){
-      if (idx >= jobs.length) return;
+      if (idx >= jobs.length){
+        orResumeSync();
+        if (state.db && state.db.refreshAll) state.db.refreshAll().catch(function(){});
+        return;
+      }
       var job = jobs[idx];
       state.db.doc("maintenance/" + job.full).set(job.data).then(function(){
         idx++; next();
@@ -3711,6 +3738,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         var coll = parts[0], key = parts.slice(1).join("/");
         state[coll][key] = obj[path];
       });
+      // Precarica anche la cache interna del db remoto (senza inviare nulla al
+      // server): così ogni notify() scatenato dalle scritture vere qui sotto vede
+      // già l'elenco completo, invece di ricostruirlo via via da zero una chiave
+      // alla volta (vedi nota su primeCache in createRemoteDb_).
+      if (state.db && state.db.primeCache){
+        validPaths.forEach(function(path){ state.db.primeCache(path, obj[path]); });
+      }
       renderOrari();
       if (!state.db){
         if (esito) esito.textContent = "Import locale completato: " + validPaths.length + " chiavi" +
@@ -3719,12 +3753,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         return;
       }
       var ok = 0, writeFail = 0, idx = 0;
+      // Pausa il sondaggio periodico per tutta la durata dell'import: con centinaia
+      // di chiavi, il salvataggio sequenziale può richiedere diversi minuti, e senza
+      // questa pausa ogni sondaggio (ogni 15s) sovrascriverebbe lo stato locale con
+      // la verità ancora incompleta del server, facendo "scomparire" temporaneamente
+      // le righe non ancora salvate a quel punto (anche se l'import sta procedendo
+      // correttamente). Alla fine si fa un refreshAll esplicito per riallinearsi.
+      orPauseSync();
       function next(){
         if (idx >= validPaths.length){
+          orResumeSync();
           if (writeFail) showDbSyncWarning(); else hideDbSyncWarning();
           if (esito) esito.textContent = "Import completato: " + ok + " chiavi salvate sul server" +
             (writeFail ? (", " + writeFail + " NON salvate (riprovare l'import per queste)") : "") +
             (skipped ? (", " + skipped + " ignorate (tipo non riconosciuto)") : "") + ".";
+          if (state.db && state.db.refreshAll) state.db.refreshAll().catch(function(){});
           return;
         }
         var path = validPaths[idx];
@@ -3770,7 +3813,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var month = orSharedMonthKey();
     var istruttori = orCollabiForClubMonth(state.club, month).filter(function(c){ return orHasRole(c,"corsi"); });
     if (empty) empty.hidden = istruttori.length > 0;
-    var head = "<tr><th>Istruttore</th><th>N. lezioni funzionali</th><th>Tariffa €</th><th>N. coreografate</th><th>Tariffa €</th><th>N. reformer</th><th>Tariffa €</th><th>Compenso €</th></tr>";
+    var head = "<tr><th>Istruttore</th><th>N. lezioni funzionali</th><th>Tariffa €</th><th>N. " + (orCoreoIsHyrox(state.club) ? "Hyrox" : "coreografate") + "</th><th>Tariffa €</th><th>N. reformer</th><th>Tariffa €</th><th>Compenso €</th></tr>";
     var totale = 0;
     var rows = istruttori.map(function(c){
       var key = orCorsiKey(state.club, month, c.id);
@@ -4373,12 +4416,70 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     return { sala:"Sala", corsi:"Corsi", desk:"Desk", pt:"PT", pt_pilates:"PT Pilates", clubmanager:"Club Manager" }[r] || r;
   }
 
+  // A Mosciano non si fanno lezioni coreografate: la stessa voce (stesso campo dati,
+  // stessa tariffa/contatore) diventa "Lezioni Hyrox" solo nell'etichetta mostrata.
+  function orCoreoIsHyrox(club){ return club === "mosciano"; }
+  function orCoreoLabelBreve(club){ return orCoreoIsHyrox(club) ? "Hyrox" : "Coreografate"; }
+  function orCoreoLabelTariffaCol(club){ return orCoreoIsHyrox(club) ? "Tariffa Hyrox" : "Tariffa coreo."; }
+  function orCoreoLabelPlaceholder(club){ return orCoreoIsHyrox(club) ? "Tariffa lezione Hyrox (€)" : "Tariffa lezione coreografata (€)"; }
+
+  // ---------- Modifica collaboratore esistente (matita) ----------
+  // Un ruolo o una tariffa modificati valgono SEMPRE "da questo mese in avanti": non si
+  // riscrive mai il passato. Stesso principio già usato per la rimozione (chiusura di
+  // attivoAl): qui, se il collaboratore era già attivo in mesi precedenti a quello
+  // corrente, la modifica "spacca" il record in due — quello vecchio si chiude al mese
+  // precedente (storico intatto, compensi passati ricalcolati come prima), e ne nasce
+  // uno nuovo con un id diverso, attivo dal mese corrente con i valori aggiornati, che
+  // eredita saldo/storico ore accumulati finora (continuità della banca ore). Se invece
+  // il collaboratore era già attivo SOLO a partire da questo stesso mese (es. appena
+  // aggiunto), non ha senso "spaccare" nulla: si corregge direttamente lo stesso record.
+  function orBeginEditCollab(id, c){
+    orCollabEditingId = id;
+    document.getElementById("orCollabNome").value = c.nome || "";
+    document.getElementById("orCollabOreComprese").value = c.oreComprese != null ? c.oreComprese : "";
+    document.getElementById("orCollabCompensoFisso").value = c.compensoFisso != null ? c.compensoFisso : "";
+    document.getElementById("orCollabSaldoApertura").value = c.saldoApertura != null ? c.saldoApertura : "";
+    document.getElementById("orCollabTariffaLezione").value = c.tariffaLezione != null ? c.tariffaLezione : "";
+    document.getElementById("orCollabTariffaLezioneCoreografata").value = c.tariffaLezioneCoreografata != null ? c.tariffaLezioneCoreografata : "";
+    document.getElementById("orCollabTariffaLezioneReformer").value = c.tariffaLezioneReformer != null ? c.tariffaLezioneReformer : "";
+    document.getElementById("orCollabTariffaDeskOra").value = c.tariffaDeskOra != null ? c.tariffaDeskOra : "";
+    var ruoli = c.ruoli || [];
+    Array.prototype.slice.call(document.querySelectorAll('input[name="orCollabRuolo"]')).forEach(function(cb){
+      cb.checked = ruoli.indexOf(cb.value) !== -1;
+    });
+    var banner = document.getElementById("orCollabEditBanner");
+    if (banner){
+      banner.hidden = false;
+      banner.textContent = "Stai modificando " + (c.nome || "questo collaboratore") + " — le modifiche valgono dal mese di " + orFmtMonthLabel(orSharedMonthKey()) + " in avanti; i mesi precedenti restano invariati.";
+    }
+    var submitBtn = document.getElementById("orCollabSubmitBtn");
+    if (submitBtn) submitBtn.textContent = "Salva modifiche";
+    var cancelBtn = document.getElementById("orCollabCancelEditBtn");
+    if (cancelBtn) cancelBtn.hidden = false;
+    var form = document.getElementById("orCollabAddForm");
+    if (form) form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function orCancelEditCollab(){
+    orCollabEditingId = null;
+    var form = document.getElementById("orCollabAddForm");
+    if (form) form.reset();
+    var banner = document.getElementById("orCollabEditBanner");
+    if (banner) banner.hidden = true;
+    var submitBtn = document.getElementById("orCollabSubmitBtn");
+    if (submitBtn) submitBtn.textContent = "Aggiungi collaboratore";
+    var cancelBtn = document.getElementById("orCollabCancelEditBtn");
+    if (cancelBtn) cancelBtn.hidden = true;
+  }
+
   function renderOrariCollaboratori(){
     var table = document.getElementById("orCollabTable");
     if (!table) return;
+    var coreoInput = document.getElementById("orCollabTariffaLezioneCoreografata");
+    if (coreoInput) coreoInput.placeholder = orCoreoLabelPlaceholder(state.club);
     var month = orSharedMonthKey();
     var list = orCollabiForClubMonth(state.club, month);
-    var head = "<tr><th>Nome</th><th>Ruoli</th><th>Ore/sett.</th><th>Tariffa lezione</th><th>Tariffa coreo.</th><th>Tariffa reformer</th><th>Tariffa desk/ora</th><th>Compenso fisso</th><th>Saldo apertura</th><th></th></tr>";
+    var head = "<tr><th>Nome</th><th>Ruoli</th><th>Ore/sett.</th><th>Tariffa lezione</th><th>" + orCoreoLabelTariffaCol(state.club) + "</th><th>Tariffa reformer</th><th>Tariffa desk/ora</th><th>Compenso fisso</th><th>Saldo apertura</th><th></th></tr>";
     if (!list.length){
       table.innerHTML = head + '<tr><td colspan="10"><div class="mnt-empty">Nessun collaboratore per questo club in questo mese. Aggiungine uno dal modulo sopra.</div></td></tr>';
       return;
@@ -4400,9 +4501,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         '<td>' + (c.tariffaDeskOra != null ? '€ '+c.tariffaDeskOra : '—') + '</td>' +
         '<td>' + fissoCell + '</td>' +
         '<td>' + (c.saldoApertura != null ? c.saldoApertura : '0') + '</td>' +
-        '<td><button type="button" class="mnt-del-btn" data-or-del="' + c.id + '" title="Rimuovi da questo mese in avanti (resta nello storico dei mesi precedenti)">✕</button></td>' +
+        '<td><div class="or-row-actions">' +
+          '<button type="button" class="mnt-edit-btn" data-or-edit="' + c.id + '" title="Modifica ruolo/tariffe da questo mese in avanti (resta inalterato nello storico dei mesi precedenti)">✏️</button>' +
+          '<button type="button" class="mnt-del-btn" data-or-del="' + c.id + '" title="Rimuovi da questo mese in avanti (resta nello storico dei mesi precedenti)">✕</button>' +
+        '</div></td>' +
       '</tr>';
     }).join("");
+    Array.prototype.slice.call(table.querySelectorAll("[data-or-edit]")).forEach(function(btn){
+      btn.addEventListener("click", function(){
+        var id = btn.dataset.orEdit;
+        var full = orCollabId(state.club, id);
+        var c = state.orariCollaboratori[full];
+        if (!c) return;
+        orBeginEditCollab(id, c);
+      });
+    });
     Array.prototype.slice.call(table.querySelectorAll("[data-or-del]")).forEach(function(btn){
       btn.addEventListener("click", function(){
         if (btn.classList.contains("confirming")){
@@ -4449,6 +4562,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function initOrCollabAddForm(){
     var form = document.getElementById("orCollabAddForm");
     if (!form) return;
+    var cancelBtn = document.getElementById("orCollabCancelEditBtn");
+    if (cancelBtn) cancelBtn.addEventListener("click", orCancelEditCollab);
     form.addEventListener("submit", function(e){
       e.preventDefault();
       var nome = document.getElementById("orCollabNome").value.trim();
@@ -4458,17 +4573,86 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         var v = document.getElementById(id).value;
         return v === "" ? null : parseFloat(v);
       }
-      var id = "c-" + Date.now();
-      var full = orCollabId(state.club, id);
-      var data = {
-        id: id, club: state.club, nome: nome, ruoli: ruoli,
+      var campiModificabili = {
+        nome: nome, ruoli: ruoli,
         oreComprese: numOrNull("orCollabOreComprese"),
         tariffaLezione: numOrNull("orCollabTariffaLezione"),
         tariffaLezioneCoreografata: numOrNull("orCollabTariffaLezioneCoreografata"),
         tariffaLezioneReformer: numOrNull("orCollabTariffaLezioneReformer"),
         tariffaDeskOra: numOrNull("orCollabTariffaDeskOra"),
         compensoFisso: numOrNull("orCollabCompensoFisso"),
-        saldoApertura: numOrNull("orCollabSaldoApertura") || 0,
+        saldoApertura: numOrNull("orCollabSaldoApertura") || 0
+      };
+
+      if (orCollabEditingId){
+        var oldId = orCollabEditingId;
+        var oldFull = orCollabId(state.club, oldId);
+        var oldRec = state.orariCollaboratori[oldFull];
+        orCancelEditCollab(); // resetta subito il modulo/l'interfaccia, a prescindere dall'esito
+        if (!oldRec) { renderOrariCollaboratori(); return; }
+        var currentMonth = orSharedMonthKey();
+        var closeMonth = orMonthKeyAdd(currentMonth, -1);
+        if (oldRec.attivoDal && oldRec.attivoDal > closeMonth){
+          // Il collaboratore è attivo solo da questo mese (es. appena aggiunto): non ha
+          // senso creare un secondo record per lo stesso periodo, si corregge il record
+          // esistente direttamente, senza toccare attivoDal/attivoAl.
+          Object.keys(campiModificabili).forEach(function(k){ oldRec[k] = campiModificabili[k]; });
+          state.orariCollaboratori[oldFull] = oldRec;
+          if (state.db) state.db.doc("orariCollaboratori/" + oldFull).set(oldRec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+          else showDbSyncWarning();
+          renderOrari();
+          return;
+        }
+        // Collaboratore già attivo in mesi precedenti: si chiude il vecchio record alla
+        // fine del mese precedente (storico/compensi passati intatti) e si crea un nuovo
+        // record, attivo da questo mese in avanti, con i valori aggiornati — ereditando
+        // saldo/storico ore per continuità della banca ore.
+        oldRec.attivoAl = closeMonth;
+        var newId = "c-" + Date.now();
+        var newFull = orCollabId(state.club, newId);
+        var newRec = {
+          id: newId, club: state.club,
+          nome: campiModificabili.nome, ruoli: campiModificabili.ruoli,
+          oreComprese: campiModificabili.oreComprese,
+          tariffaLezione: campiModificabili.tariffaLezione,
+          tariffaLezioneCoreografata: campiModificabili.tariffaLezioneCoreografata,
+          tariffaLezioneReformer: campiModificabili.tariffaLezioneReformer,
+          tariffaDeskOra: campiModificabili.tariffaDeskOra,
+          compensoFisso: campiModificabili.compensoFisso,
+          saldoApertura: campiModificabili.saldoApertura,
+          // Banca ore: continua dallo storico del record precedente, non riparte da zero.
+          saldoRecupero: oldRec.saldoRecupero != null ? oldRec.saldoRecupero : null,
+          saldoAggiornatoAl: oldRec.saldoAggiornatoAl != null ? oldRec.saldoAggiornatoAl : null,
+          saldoStorico: oldRec.saldoStorico ? JSON.parse(JSON.stringify(oldRec.saldoStorico)) : {},
+          attivoDal: currentMonth, attivoAl: null
+        };
+        state.orariCollaboratori[oldFull] = oldRec;
+        state.orariCollaboratori[newFull] = newRec;
+        renderOrari();
+        if (state.db){
+          // Scrittura in sequenza (non in parallelo): stesso principio già adottato per
+          // gli import massivi — con solo due scritture il rischio è minimo, ma restare
+          // coerenti con quel pattern evita di reintrodurre scritture concorrenti altrove.
+          state.db.doc("orariCollaboratori/" + oldFull).set(oldRec).then(function(){
+            return state.db.doc("orariCollaboratori/" + newFull).set(newRec);
+          }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+        } else {
+          showDbSyncWarning();
+        }
+        return;
+      }
+
+      var id = "c-" + Date.now();
+      var full = orCollabId(state.club, id);
+      var data = {
+        id: id, club: state.club, nome: campiModificabili.nome, ruoli: campiModificabili.ruoli,
+        oreComprese: campiModificabili.oreComprese,
+        tariffaLezione: campiModificabili.tariffaLezione,
+        tariffaLezioneCoreografata: campiModificabili.tariffaLezioneCoreografata,
+        tariffaLezioneReformer: campiModificabili.tariffaLezioneReformer,
+        tariffaDeskOra: campiModificabili.tariffaDeskOra,
+        compensoFisso: campiModificabili.compensoFisso,
+        saldoApertura: campiModificabili.saldoApertura,
         saldoRecupero: null, saldoAggiornatoAl: null, saldoStorico: {},
         // Esiste da questo mese in avanti: non deve comparire nei mesi precedenti,
         // in cui non era ancora stato inserito.
@@ -5202,7 +5386,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       };
     }
 
-    return { doc: doc, collection: collection, refreshAll: refreshAll };
+    // Scrive subito nella cache interna SENZA avvisare gli ascoltatori (notify) e
+    // senza inviare nulla al server: serve a "preparare" in anticipo l'intera cache
+    // prima di un salvataggio sequenziale massiccio (import backup, seed manutenzione).
+    // Perché serve: ogni doc(...).set() vero aggiorna subito cache[path] e chiama
+    // notify(), che ricostruisce lo stato da ZERO leggendo solo le chiavi già presenti
+    // in cache in quel momento — durante un salvataggio sequenziale di centinaia di
+    // elementi, questo fa sì che ogni singola scrittura "ricalcoli" la lista mostrata
+    // a partire da quante chiavi sono state scritte finora, facendo sembrare che le
+    // righe scompaiano e poi ricompaiano una alla volta (il vero meccanismo dietro al
+    // bug "appaiono e poi scompaiono", scoperto il 13/11/2026 testando questa stessa
+    // correzione). Pre-caricando tutte le chiavi in cache PRIMA di iniziare le
+    // scritture vere, ogni notify() intermedio vede già l'elenco completo.
+    function primeCache(path, value){ cache[path] = value; }
+
+    return { doc: doc, collection: collection, refreshAll: refreshAll, primeCache: primeCache };
   }
 
   // Intervallo di sondaggio: non essendoci notifiche push da Apps Script, ogni
@@ -5358,6 +5556,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     })();
 
     function loadNow(){
+      if (orSyncPauseCount > 0) return Promise.resolve();
       return db.refreshAll().then(function(){
         hideDbSyncWarning();
       }).catch(function(){
