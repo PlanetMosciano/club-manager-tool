@@ -1144,7 +1144,7 @@
   // URL del Web App Apps Script (ClubManagerDB_Code.gs) che sostituisce la capacità "db"
   // dell'artifact claude.ai — vedi connectDB()/createRemoteDb_() più sotto. Finché è vuoto,
   // la pagina mostra l'avviso "sincronizzazione non attiva" e funziona in sola lettura locale.
-  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxf1PO8oaLxMl3ez2yD9oeRbtKDsOVcfWDxWfaHTHJXZHH_uiRcCOX5M9PxCdTtFEC4/exec";
+  var APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzQX3Q3yEj3ma4e42woAtgKw-6KeW9NaYwE_yrKv5m4D_1OeiC5brCmn8Vc1wIrBuEy/exec";
 
   // cm/resp/vendors: telefono ed email, dove presenti, da "CONTATTI UTILI DEL CLUB" nei
   // mansionari staff di ciascun club (MANSIONARIO_STAFF_GIULIANOVA.pdf, MANSIONARIO STAFF
@@ -1414,6 +1414,11 @@
   var orCollabEditingId = null;
   var mntState = { q: "", area: "Tutte", stato: "Tutti" };
   var mntSeedDone = false;
+  // Diventa true solo dopo che il PRIMO caricamento reale dal server (refreshAll)
+  // è andato a buon fine — vedi nota 13/11/2026 in mntSeedIfEmpty() sul perché è
+  // necessario: senza questo controllo, ogni apertura/ricarica della pagina
+  // innescava una riscrittura di tutto il seme di manutenzione.
+  var orFirstDbLoadDone = false;
   // Mentre è in corso una scrittura sequenziale massiva (import backup, seed
   // manutenzione), il sondaggio periodico al server (ogni 15s, vedi REMOTE_DB_POLL_MS)
   // va messo in pausa: altrimenti, a metà di un salvataggio di centinaia di elementi,
@@ -1423,6 +1428,11 @@
   var orSyncPauseCount = 0;
   function orPauseSync(){ orSyncPauseCount++; }
   function orResumeSync(){ orSyncPauseCount = Math.max(0, orSyncPauseCount - 1); }
+  // Scritture multiple raggruppate in blocchi di questa dimensione (vedi db.batchWrite
+  // in createRemoteDb_): un numero prudente, non al limite di ciò che il backend
+  // potrebbe reggere in una sola esecuzione, per restare entro il tempo massimo di
+  // esecuzione di Apps Script anche su foglio molto più grande di oggi.
+  var OR_BATCH_SIZE = 40;
 
   var GESTIONE_ORARI_URL = "https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8";
 
@@ -2778,6 +2788,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // (collezione "maintenance" senza alcun documento per nessun club) — evita di
   // sovrascrivere dati reali già inseriti da un CM con il catalogo di partenza.
   function mntSeedIfEmpty(){
+    // BUG corretto il 13/11/2026: collection("maintenance").onSnapshot(cb) chiama
+    // subito cb() con la cache ancora vuota (vedi notify() in createRemoteDb_),
+    // cioè PRIMA che il primo refreshAll() reale dal server sia arrivato. Senza
+    // questo controllo, mntSeedIfEmpty() vedeva state.maintenance vuoto — non
+    // perché lo fosse davvero, ma solo perché i dati reali non erano ancora
+    // arrivati — e riscriveva tutto il seme di manutenzione a OGNI apertura o
+    // ricarica della pagina, sovrascrivendo con i valori di default (fatto:false,
+    // dataPrevista:null) eventuali progressi reali già salvati sulle stesse chiavi.
+    if (!orFirstDbLoadDone) return;
     if (mntSeedDone) return;
     if (!state.db || Object.keys(state.maintenance).length > 0) return;
     mntSeedDone = true;
@@ -2804,25 +2823,27 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     }
     renderMaintenance();
     renderMntUpcoming();
-    // Scrittura UNA ALLA VOLTA, mai tutte insieme: ~187 scritture concorrenti
-    // verso l'endpoint Apps Script possono fallirne una parte sotto carico
-    // (stesso problema diagnosticato e corretto il 13/11/2026 in orImportBackup).
-    // Questo seed avviene una sola volta per club (solo se "maintenance" è vuota
-    // sul server), ma una scrittura persa qui sparirebbe silenziosamente al primo
-    // sondaggio periodico, quindi vale lo stesso rimedio.
-    var idx = 0;
+    // Scritture a blocchi (OR_BATCH_SIZE alla volta, mai tutte insieme): stesso
+    // principio e stesso meccanismo di orImportBackup (vedi lì per i dettagli) —
+    // ~187 scritture diventano pochi blocchi invece di 187 richieste separate.
+    var jobBatches = [];
+    for (var jbi = 0; jbi < jobs.length; jbi += OR_BATCH_SIZE){
+      jobBatches.push(jobs.slice(jbi, jbi + OR_BATCH_SIZE));
+    }
+    var jobBatchIdx = 0;
     orPauseSync();
     function next(){
-      if (idx >= jobs.length){
+      if (jobBatchIdx >= jobBatches.length){
         orResumeSync();
         if (state.db && state.db.refreshAll) state.db.refreshAll().catch(function(){});
         return;
       }
-      var job = jobs[idx];
-      state.db.doc("maintenance/" + job.full).set(job.data).then(function(){
-        idx++; next();
+      var batchJobs = jobBatches[jobBatchIdx];
+      var writes = batchJobs.map(function(job){ return { action: "set", key: "maintenance/" + job.full, value: job.data }; });
+      state.db.batchWrite(writes).then(function(){
+        jobBatchIdx++; next();
       }).catch(function(){
-        idx++; next();
+        jobBatchIdx++; next();
       });
     }
     next();
@@ -3752,16 +3773,28 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           ". Nessuna connessione al database: non ancora salvato sul server.";
         return;
       }
-      var ok = 0, writeFail = 0, idx = 0;
-      // Pausa il sondaggio periodico per tutta la durata dell'import: con centinaia
-      // di chiavi, il salvataggio sequenziale può richiedere diversi minuti, e senza
-      // questa pausa ogni sondaggio (ogni 15s) sovrascriverebbe lo stato locale con
-      // la verità ancora incompleta del server, facendo "scomparire" temporaneamente
-      // le righe non ancora salvate a quel punto (anche se l'import sta procedendo
-      // correttamente). Alla fine si fa un refreshAll esplicito per riallinearsi.
+      var ok = 0, writeFail = 0;
+      // Scritture raggruppate in blocchi (OR_BATCH_SIZE chiavi per richiesta, vedi
+      // db.batchWrite), inviati in sequenza — mai tutti insieme: un import di
+      // centinaia di chiavi diventa così poche decine di richieste invece di
+      // centinaia, con un solo ciclo di lock e una sola ricostruzione dell'indice
+      // lato server per blocco (fix 13/11/2026 lato server) invece che per singola
+      // chiave — molto più veloce, restando comunque sequenziale per non sovraccaricare
+      // l'endpoint con richieste concorrenti (il problema originale di questo bug).
+      var batches = [];
+      for (var bi = 0; bi < validPaths.length; bi += OR_BATCH_SIZE){
+        batches.push(validPaths.slice(bi, bi + OR_BATCH_SIZE));
+      }
+      var batchIdx = 0;
+      // Pausa il sondaggio periodico per tutta la durata dell'import: anche a blocchi,
+      // centinaia di chiavi possono richiedere tempo, e senza questa pausa ogni
+      // sondaggio (ogni 15s) sovrascriverebbe lo stato locale con la verità ancora
+      // incompleta del server, facendo "scomparire" temporaneamente le righe non
+      // ancora salvate (anche se l'import sta procedendo correttamente). Alla fine
+      // si fa un refreshAll esplicito per riallinearsi.
       orPauseSync();
       function next(){
-        if (idx >= validPaths.length){
+        if (batchIdx >= batches.length){
           orResumeSync();
           if (writeFail) showDbSyncWarning(); else hideDbSyncWarning();
           if (esito) esito.textContent = "Import completato: " + ok + " chiavi salvate sul server" +
@@ -3770,14 +3803,20 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           if (state.db && state.db.refreshAll) state.db.refreshAll().catch(function(){});
           return;
         }
-        var path = validPaths[idx];
-        var parts = path.split("/");
-        var coll = parts[0], key = parts.slice(1).join("/");
-        if (esito) esito.textContent = "Salvataggio sul server in corso… " + (idx + 1) + "/" + validPaths.length;
-        state.db.doc(coll + "/" + key).set(obj[path]).then(function(){
-          ok++; idx++; next();
+        var batchPaths = batches[batchIdx];
+        var writes = batchPaths.map(function(path){ return { action: "set", key: path, value: obj[path] }; });
+        if (esito) esito.textContent = "Salvataggio sul server in corso… blocco " + (batchIdx + 1) + "/" + batches.length +
+          " (" + Math.min((batchIdx + 1) * OR_BATCH_SIZE, validPaths.length) + "/" + validPaths.length + " chiavi)";
+        state.db.batchWrite(writes).then(function(res){
+          var results = (res && res.results) || [];
+          if (results.length === writes.length){
+            results.forEach(function(r){ if (r && r.ok) ok++; else writeFail++; });
+          } else {
+            ok += writes.length; // risposta senza dettaglio per singola chiave: il blocco ha risposto ok
+          }
+          batchIdx++; next();
         }).catch(function(){
-          writeFail++; idx++; next();
+          writeFail += batchPaths.length; batchIdx++; next();
         });
       }
       next();
@@ -5344,6 +5383,12 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         var fresh = {};
         Object.keys(all).forEach(function(key){ fresh[key] = all[key].value; });
         cache = fresh;
+        // Deve diventare true PRIMA di notify(): notify() qui sotto è quello che
+        // innesca mntSeedIfEmpty() con i dati reali appena arrivati — se il flag
+        // venisse impostato solo dopo (es. nel .then() di loadNow più in basso),
+        // mntSeedIfEmpty() lo troverebbe ancora false proprio nel momento in cui
+        // viene chiamato con i dati reali, vanificando il controllo.
+        orFirstDbLoadDone = true;
         Object.keys(listeners).forEach(notify);
       });
     }
@@ -5376,6 +5421,24 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       };
     }
 
+    // Più scritture in UNA sola richiesta HTTP (il backend ClubManagerDB_Code.gs
+    // supporta già action:"batch"), invece di una richiesta per chiave: per un
+    // import di centinaia di elementi significa decine di richieste invece di
+    // centinaia — meno round-trip di rete, un solo ciclo di lock lato server per
+    // blocco, e una sola ricostruzione dell'indice chiave→riga lato server per
+    // blocco invece di una per singola scrittura (vedi fix 13/11/2026 lato server).
+    // writes: [{action:"set", key, value} | {action:"delete", key}, ...]
+    function batchWrite(writes){
+      var collections = {};
+      writes.forEach(function(w){
+        if (w.action === "delete") delete cache[w.key];
+        else cache[w.key] = w.value;
+        collections[w.key.split("/")[0]] = true;
+      });
+      Object.keys(collections).forEach(notify);
+      return postWrite_({ action: "batch", writes: writes });
+    }
+
     function collection(name){
       return {
         onSnapshot: function(cb){
@@ -5400,7 +5463,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     // scritture vere, ogni notify() intermedio vede già l'elenco completo.
     function primeCache(path, value){ cache[path] = value; }
 
-    return { doc: doc, collection: collection, refreshAll: refreshAll, primeCache: primeCache };
+    return { doc: doc, collection: collection, refreshAll: refreshAll, primeCache: primeCache, batchWrite: batchWrite };
   }
 
   // Intervallo di sondaggio: non essendoci notifiche push da Apps Script, ogni
@@ -5558,6 +5621,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     function loadNow(){
       if (orSyncPauseCount > 0) return Promise.resolve();
       return db.refreshAll().then(function(){
+        orFirstDbLoadDone = true;
         hideDbSyncWarning();
       }).catch(function(){
         showDbSyncWarning();
