@@ -6,7 +6,7 @@
 <title>Postazione Club Manager</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Source+Sans+3:wght@400;600;700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;600;700&display=swap">
 <style>
   /* Layout: dashboard operativa — sidebar fissa a sinistra (brand, nav a scorrimento, selettore
      club in fondo), colonna principale con header (saluto/data/pulsante prossime scadenze),
@@ -42,7 +42,7 @@
   *{ box-sizing: border-box; }
   body{ background: var(--paper); color: var(--ink); margin:0;
     font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; }
-  h1,h2,h3{ font-family: "Fraunces", Georgia, serif; font-weight: 600; margin: 0; text-wrap: balance; }
+  h1,h2,h3{ font-family: "Source Sans 3", "Segoe UI", system-ui, sans-serif; font-weight: 700; margin: 0; text-wrap: balance; }
   a{ color: var(--teal-deep); }
   button{ font-family: inherit; }
 
@@ -139,7 +139,7 @@
   .upcoming-row{ display:flex; align-items:center; gap:12px; padding:10px 18px; border-top:1px solid var(--line); }
   .upcoming-row:first-child{ border-top:none; }
   .upcoming-row .u-date{ width:58px; flex:none; text-align:center; }
-  .upcoming-row .u-date .d{ font-family:"Fraunces",Georgia,serif; font-size:18px; font-weight:700; line-height:1.1; }
+  .upcoming-row .u-date .d{ font-family:"Source Sans 3","Segoe UI",system-ui,sans-serif; font-size:18px; font-weight:700; line-height:1.1; }
   .upcoming-row .u-date .m{ font-size:10px; text-transform:uppercase; letter-spacing:.06em; color:var(--ink-dim); }
   .upcoming-row .u-main{ min-width:0; flex:1; }
   .upcoming-row .u-title{ font-size:13.5px; font-weight:600; }
@@ -157,7 +157,7 @@
   .stat-tile.t-b .icon{ background:rgba(163,118,31,.14); color:var(--amber); }
   .stat-tile.t-c .icon{ background:rgba(41,78,97,.12); color:var(--teal-deep); }
   .stat-tile.t-d .icon{ background:rgba(174,163,113,.18); color:var(--gold); }
-  .stat-tile .num{ font-family:"Fraunces",Georgia,serif; font-size:21px; font-weight:600; line-height:1.1; }
+  .stat-tile .num{ font-family:"Source Sans 3","Segoe UI",system-ui,sans-serif; font-size:21px; font-weight:700; line-height:1.1; }
   .stat-tile .lbl{ font-size:11.5px; color:var(--ink-dim); margin-top:3px; }
 
   /* ---------- Card grid (contenuto esistente) ---------- */
@@ -269,7 +269,7 @@
   .mnt-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:10px; margin-bottom:14px; }
   @media (max-width:760px){ .mnt-stats{ grid-template-columns:repeat(2,1fr); } }
   .mnt-stat{ background: var(--surface); border:1px solid var(--line); border-radius:12px; padding:11px 14px; box-shadow:var(--shadow); }
-  .mnt-stat .n{ font-family:"Fraunces",Georgia,serif; font-size:20px; font-weight:600; line-height:1.1; }
+  .mnt-stat .n{ font-family:"Source Sans 3","Segoe UI",system-ui,sans-serif; font-size:20px; font-weight:700; line-height:1.1; }
   .mnt-stat .l{ font-size:11px; color:var(--ink-dim); margin-top:3px; text-transform:uppercase; letter-spacing:.04em; }
   .mnt-stat.ok .n{ color:var(--good); } .mnt-stat.chk .n{ color:var(--amber); } .mnt-stat.todo .n{ color:var(--warn); }
   .mnt-toolbar{ display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-bottom:16px; }
@@ -372,13 +372,44 @@
   .or-role-chip{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(41,78,97,.1); color:var(--teal-deep); white-space:nowrap; }
   .or-fisso-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(174,163,113,.18); color:var(--ink); }
   .or-holiday-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(179,68,47,.12); color:var(--warn); }
-  .or-cov-grid{ display:flex; gap:1px; margin:10px 0; overflow-x:auto; padding-bottom:4px; }
-  .or-cov-cell{ width:9px; height:30px; border-radius:2px; flex:0 0 auto; background:var(--line); }
-  .or-cov-cell.empty{ background:repeating-linear-gradient(45deg, rgba(179,68,47,.2), rgba(179,68,47,.2) 3px, transparent 3px, transparent 6px); }
+  #orCovTable{ border-collapse:collapse; margin:10px 0; }
+  #orCovTable th{ position:sticky; top:0; background:var(--surface); font-size:10.5px; text-align:center; padding:5px 3px; border:1px solid var(--line); z-index:2; }
+  #orCovTable th:first-child, #orCovTable td:first-child{ position:sticky; left:0; background:var(--surface); z-index:3; text-align:right; padding-right:8px; white-space:nowrap; font-family:"IBM Plex Mono",monospace; font-size:11px; }
+  .or-covm-cell{ width:22px; height:22px; border:1px solid var(--line); padding:0; }
+  .or-covm-cell.or-covm-closed{ background:repeating-linear-gradient(45deg, var(--line), var(--line) 3px, transparent 3px, transparent 6px); }
   .or-cov-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:12px; color:var(--ink-dim); }
   .or-cov-legend-item{ display:flex; align-items:center; gap:5px; }
   .or-cov-swatch{ width:11px; height:11px; border-radius:3px; display:inline-block; }
   .or-cov-stats{ font-size:13px; color:var(--ink-dim); margin-top:10px; }
+  .or-month-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
+  .or-month-row label{ font-size:12px; font-weight:700; color:var(--ink-dim); }
+  .or-month-row input[type="month"]{ font:inherit; font-size:13px; padding:6px 9px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
+  .or-month-note{ font-size:11.5px; color:var(--ink-dim); }
+  .or-empty-note{ font-size:13px; color:var(--ink-dim); padding:14px 0; }
+  .or-pt-stats{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+  .or-pt-stats .or-stat{ background:rgba(174,163,113,.1); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:12.5px; }
+  .or-pt-stats .or-stat b{ display:block; font-size:16px; }
+  .or-table .or-total-row td{ font-weight:700; border-top:2px solid var(--line); background:rgba(174,163,113,.1); }
+  .or-subhead{ font-size:15px; margin:22px 0 2px; }
+  .or-settings-label{ display:flex; flex-direction:column; gap:4px; font-size:11.5px; font-weight:600; color:var(--ink-dim); }
+  .or-settings-label input{ font-weight:400; color:var(--ink); }
+  .or-festivita-list{ display:flex; flex-wrap:wrap; gap:7px; margin-top:10px; }
+  .or-festivita-chip{ font-size:11.5px; font-weight:600; padding:3px 8px; border-radius:999px; background:rgba(179,68,47,.12); color:var(--warn); display:inline-flex; align-items:center; gap:5px; }
+  .or-festivita-chip button{ background:none; border:none; color:inherit; cursor:pointer; font:inherit; padding:0; }
+  .or-riep-card{ border:1px solid var(--line); border-radius:9px; margin-bottom:14px; overflow:hidden; }
+  .or-riep-card-head{ display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:rgba(174,163,113,.08); border-bottom:1px solid var(--line); flex-wrap:wrap; gap:10px; }
+  .or-riep-card-head h4{ font-size:14px; font-weight:700; margin:0; }
+  .or-riep-week-table{ width:100%; font-size:12.5px; border-collapse:collapse; }
+  .or-riep-week-table th{ text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:.04em; color:var(--ink-dim); padding:6px 8px; border-bottom:1px solid var(--line); }
+  .or-riep-week-table td{ padding:6px 8px; border-bottom:1px solid var(--line); }
+  .or-riep-summary{ display:flex; flex-wrap:wrap; gap:14px; padding:10px 14px; font-size:12px; }
+  .or-riep-summary .lbl{ display:block; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.04em; font-size:10px; }
+  .or-riep-summary .val{ font-weight:700; font-size:13.5px; }
+  .or-riep-total{ display:flex; justify-content:space-between; padding:10px 14px; border-top:2px solid var(--line); background:rgba(174,163,113,.1); border-radius:0 0 8px 8px; font-weight:700; margin-bottom:18px; }
+  .or-riep-stats{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:16px; }
+  .or-riep-stats .or-stat{ background:rgba(174,163,113,.1); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:12.5px; min-width:120px; }
+  .or-riep-stats .or-stat b{ display:block; font-size:16px; }
+  .or-riep-warn{ background:rgba(179,68,47,.1); color:var(--warn); border-radius:6px; padding:6px 10px; font-size:12px; margin:0 14px 10px; }
 
   [hidden]{ display:none !important; }
 
@@ -912,6 +943,12 @@
               <button type="button" class="or-tab" data-or-tab="compensi">Compensi finali</button>
             </div>
 
+            <div class="or-month-row">
+              <label for="orPresMonth">Mese</label>
+              <input type="month" id="orPresMonth">
+              <span class="or-month-note">Mese applicato a Presenze, Copertura, Corsi, Desk, Ore PT, Riepilogo e Compensi finali.</span>
+            </div>
+
             <div class="or-panel" data-or-panel="collaboratori">
               <form class="mnt-add-form" id="orCollabAddForm">
                 <div class="mnt-add-row">
@@ -925,6 +962,8 @@
                   <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="corsi"> Corsi</label>
                   <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="desk"> Desk</label>
                   <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="pt"> PT</label>
+                  <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="pt_pilates"> PT Pilates</label>
+                  <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="clubmanager"> Club Manager</label>
                 </div>
                 <div class="mnt-add-row">
                   <input type="number" id="orCollabTariffaLezione" placeholder="Tariffa lezione (€)" min="0" step="0.5">
@@ -937,6 +976,32 @@
               <div class="tbl-wrap" style="margin-top:16px;">
                 <table class="or-table" id="orCollabTable"></table>
               </div>
+
+              <h3 class="or-subhead">Impostazioni generali</h3>
+              <div class="sub" style="margin-top:0;">Parametri usati nei calcoli automatici del riepilogo. Le ore festive/domenicali non generano compenso a parte: contano come ore normali verso la soglia settimanale.</div>
+              <form class="mnt-add-form" id="orSettingsForm">
+                <div class="mnt-add-row">
+                  <label class="or-settings-label">Tariffa oraria extra sala (€/h)<input type="number" step="0.5" min="0" id="orSetTariffaExtra"></label>
+                  <label class="or-settings-label">Obiettivo ore PT /mese<input type="number" step="1" min="0" id="orSetObiettivoPT"></label>
+                  <label class="or-settings-label">N. personal trainer<input type="number" step="1" min="0" id="orSetNumeroPT"></label>
+                  <label class="or-settings-label">Budget mensile (€)<input type="number" step="10" min="0" id="orSetBudgetMensile"></label>
+                </div>
+                <button type="submit">Salva impostazioni</button>
+              </form>
+              <div class="mnt-add-row" style="margin-top:14px;">
+                <input type="date" id="orFestivitaExtraInput">
+                <button type="button" id="orAddFestivitaBtn">+ Aggiungi festività locale</button>
+              </div>
+              <div class="or-festivita-list" id="orFestivitaExtraList"></div>
+
+              <h3 class="or-subhead">Backup &amp; Ripristino</h3>
+              <div class="sub" style="margin-top:0;">Esporta tutti i dati di questo club in un file JSON, oppure ripristinali da un file esportato in precedenza.</div>
+              <div class="mnt-add-row">
+                <button type="button" id="orExportBackupBtn">📤 Esporta backup (JSON)</button>
+                <button type="button" id="orImportBackupBtn">📥 Importa backup (JSON)</button>
+                <input type="file" id="orImportBackupFile" accept="application/json" hidden>
+              </div>
+              <div class="mnt-empty" id="orBackupEsito"></div>
             </div>
 
             <div class="or-panel" data-or-panel="presenze" hidden>
@@ -947,28 +1012,68 @@
                   <input type="time" id="orPresInizio" required>
                   <input type="time" id="orPresFine" required>
                 </div>
+                <label class="mnt-radio"><input type="checkbox" id="orPresRipeti"> Ripeti questo turno ogni <strong id="orPresRipetiGiorno">&nbsp;</strong> del mese</label>
                 <button type="submit">Aggiungi presenza</button>
               </form>
               <div class="mnt-add-row" style="margin-top:12px;">
-                <input type="month" id="orPresMonth">
+                <button type="button" id="orCopiaMesePrecedenteBtn">Copia orari del mese precedente per il collaboratore selezionato</button>
+                <span class="or-empty-note" id="orCopiaMesePrecedenteEsito" style="padding:0;"></span>
               </div>
               <div class="tbl-wrap" style="margin-top:10px;">
                 <table class="or-table" id="orPresTable"></table>
               </div>
             </div>
             <div class="or-panel" data-or-panel="copertura" hidden>
-              <div class="mnt-add-row">
-                <input type="date" id="orCovDate">
+              <div class="sub" style="margin-top:0;" id="orCovMonthLabel"></div>
+              <div class="tbl-wrap">
+                <table id="orCovTable"></table>
               </div>
               <div class="or-cov-legend" id="orCovLegend"></div>
-              <div class="or-cov-grid" id="orCovGrid"></div>
               <div class="or-cov-stats" id="orCovStats"></div>
             </div>
-            <div class="or-panel" data-or-panel="corsi" hidden><div class="or-placeholder">Scheda "Corsi" — in costruzione.</div></div>
-            <div class="or-panel" data-or-panel="desk" hidden><div class="or-placeholder">Scheda "Desk" — in costruzione.</div></div>
-            <div class="or-panel" data-or-panel="pt" hidden><div class="or-placeholder">Scheda "Ore PT" — in costruzione.</div></div>
-            <div class="or-panel" data-or-panel="riepilogo" hidden><div class="or-placeholder">Scheda "Riepilogo" — in costruzione.</div></div>
-            <div class="or-panel" data-or-panel="compensi" hidden><div class="or-placeholder">Scheda "Compensi finali" — in costruzione.</div></div>
+            <div class="or-panel" data-or-panel="corsi" hidden>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orCorsiTable"></table>
+              </div>
+              <div class="or-empty-note" id="orCorsiEmpty" hidden>Nessun istruttore corsi configurato. Assegna il ruolo "Corsi" in Collaboratori.</div>
+            </div>
+            <div class="or-panel" data-or-panel="desk" hidden>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orDeskTable"></table>
+              </div>
+              <div class="or-empty-note" id="orDeskEmpty" hidden>Nessuno con ruolo "Desk" configurato ancora.</div>
+            </div>
+            <div class="or-panel" data-or-panel="pt" hidden>
+              <div class="sub" style="margin-top:0;">Ore PT settimanali (ciclo giovedì → mercoledì), verso l'obiettivo mensile.</div>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orPtTable"></table>
+              </div>
+              <div class="or-empty-note" id="orPtEmpty" hidden>Nessun PT configurato ancora.</div>
+              <div class="or-pt-stats" id="orPtStats"></div>
+
+              <div class="sub" style="margin-top:22px;">Ore PT Pilates settimanali (tenute separate, non si somma al totale PT sala).</div>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orPtPilatesTable"></table>
+              </div>
+              <div class="or-empty-note" id="orPtPilatesEmpty" hidden>Nessun PT Pilates configurato ancora.</div>
+              <div class="or-pt-stats" id="orPtPilatesStats"></div>
+            </div>
+            <div class="or-panel" data-or-panel="riepilogo" hidden>
+              <div class="sub" style="margin-top:0;" id="orRiepTitle"></div>
+              <div id="orRiepSalaCards"></div>
+              <div class="or-riep-total" id="orRiepSalaTotale"></div>
+              <div class="or-riep-stats" id="orRiepStats"></div>
+              <h3 class="or-subhead">Budget mensile</h3>
+              <div class="or-riep-stats" id="orRiepBudget"></div>
+            </div>
+            <div class="or-panel" data-or-panel="compensi" hidden>
+              <div class="sub" style="margin-top:0;" id="orCompFinaliTitle"></div>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orCompFinaliTable"></table>
+              </div>
+              <div class="or-empty-note" id="orCompFinaliEmpty" hidden>Nessun collaboratore con compensi da calcolare questo mese.</div>
+              <div class="mnt-empty">"Bonus" è un importo libero che si somma al totale calcolato automaticamente — non modifica i calcoli di sala/corsi/desk.</div>
+            </div>
           </section>
 
         </div>
@@ -1252,7 +1357,7 @@
   // scritto una sola volta nel db condiviso al primo avvio (vedi connectDB/mntSeedIfEmpty).
   var MAINTENANCE_SEED = {"giulianova":[{"id":"m01","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Lubrificazione guide e pulegge","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Uso intenso, evitare cigolii","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m02","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Controllo cavi, viti, blocchi pesi","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Se richiede smontaggio parziale, contattare assistenza specifica","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m03","area":"Sala Pesi","elemento":"Macchinari carico libero","intervento":"Controllo bulloneria e stabilità strutture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m04","area":"Sala Pesi","elemento":"Postazioni cavi","intervento":"Verifica scorrimento, tensione e carrucole","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m05","area":"Sala Pesi","elemento":"Panche / panchette","intervento":"Controllo viti, saldature, imbottiture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m06","area":"Sala Pesi","elemento":"Manubri","intervento":"Verifica filettature e impugnature","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"Rotture comuni su modelli gommati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m07","area":"Sala Pesi","elemento":"Dischi","intervento":"Controllo integrità e crepe","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m08","area":"Sala Pesi","elemento":"Tappetini","intervento":"Verifica usura, sostituzione","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m09","area":"Sala Pesi","elemento":"Televisori sospesi","intervento":"Verifica fissaggi e funzionamento display","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m10","area":"Funzionale","elemento":"Sacchi boxe","intervento":"Controllo stato, verifica stabilità ganci e catenelle","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m11","area":"Funzionale","elemento":"Binario scorrimento sacchi","intervento":"Verifica scorrimento, eventuale lubrificazione","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m12","area":"Funzionale","elemento":"Kettlebell & wall ball","intervento":"Stato attrezzi, riverniciatura","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Manutentore","note":"Il Club Manager valuta la necessità dell'intervento","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m13","area":"Funzionale","elemento":"Griglie condotti areazione","intervento":"Rimozione e pulizia grate","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"Il Club Manager comunica all'impresa la mansione","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m14","area":"Funzionale","elemento":"Pavimentazione","intervento":"Valutazione stato usura","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m15","area":"Funzionale","elemento":"Attrezzature varie (TRX, tappetini, ecc.)","intervento":"Controllo stato e valutazione intervento/acquisto","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Coach funzionale","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m16","area":"Reception","elemento":"Illuminazione desk","intervento":"Controllo luci e sostituzione lampadine","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Compresa insegna reception","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m17","area":"Reception","elemento":"Tornelli elettronici","intervento":"Verifica elettronica centralina e cablaggio","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Tecnico esterno","note":"Include controllo del software, se necessario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m18","area":"Reception","elemento":"Tornelli elettronici","intervento":"Test badge, reset sistema, verifica sensori","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Club Manager","note":"Uso frequente, accesso prioritario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m19","area":"Reception","elemento":"PC","intervento":"Aggiornamento software, antivirus, backup","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Tecnico informatico","note":"Coordinarsi con sede centrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m20","area":"Reception","elemento":"Pannello desk","intervento":"Controllo integrità, viti, graffi visibili","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"Estetica + stabilità","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m21","area":"Reception","elemento":"Monitor/TV info","intervento":"Verifica supporto e segnale","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Manutentore interno","note":"Se presente","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m22","area":"Reception","elemento":"Sgabelli","intervento":"Stabilità e pulizia","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m23","area":"Sale Corsi","elemento":"Illuminazione","intervento":"Verifica funzionamento completo","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m24","area":"Sale Corsi","elemento":"Casse audio + mixer","intervento":"Test audio","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Coach Corsi / Tecnico audio","note":"Alessandro Toccacelli se intervento non gestibile internamente","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m25","area":"Sale Corsi","elemento":"Palchetto","intervento":"Sicurezza struttura e integrità, anche estetica","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m26","area":"Sale Corsi","elemento":"Specchi","intervento":"Pulizia, sicurezza e integrità","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa Pulizie / Manutentore/ditta specializzata","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m27","area":"Sale Corsi","elemento":"Kit allenamento/step","intervento":"Integrità e igienizzazione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Coach Corsi","note":"Supervisione del Club Manager semestrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m28","area":"Sale Corsi","elemento":"Griglie aspirazione","intervento":"Pulizia","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m29","area":"Sale Corsi","elemento":"Attrezzatura spinning","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m30","area":"Sale Corsi","elemento":"Tappeti walking","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m31","area":"Sale Corsi","elemento":"Idrante pompieri","intervento":"Controllo pressione","tipo":null,"frequenza":"Semestrale","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m32","area":"Spogliatoio","elemento":"Centralina docce","intervento":"Test funzionamento","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Coach / Club Manager/Ditta esterna","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m33","area":"Spogliatoio","elemento":"Docce","intervento":"Pulizia anticalcare, test pressione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m34","area":"Spogliatoio","elemento":"Scoli e fughe acqua","intervento":"Ispezione visiva, spurgo","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m35","area":"Spogliatoio","elemento":"Sistema aspirazione","intervento":"Pulizia filtri","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m36","area":"Spogliatoio","elemento":"Armadietti","intervento":"Serrature e cerniere","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m37","area":"Spogliatoio","elemento":"Divanetti","intervento":"Integrità e pulizia","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Impresa di pulizie / Impresa di pulizie","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" per lo stesso elemento — frequenza da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m38","area":"Spogliatoio","elemento":"Faretti illuminazione","intervento":"Sostituzione luci bruciate","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Club Manager/manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m39","area":"Spogliatoio","elemento":"Asciuga capelli","intervento":"Test accensione","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m40","area":"Spogliatoio","elemento":"Lavandini/sanitari","intervento":"Scarichi, rubinetteria","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Settimanale\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m41","area":"Spogliatoio","elemento":"Specchi","intervento":"Pulizia","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m42","area":"Spogliatoio","elemento":"Secchi (raccolta rifiuti)","intervento":"Svuotamento e sanificazione","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m43","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Manutenzione tecnica e lampade","tipo":null,"frequenza":"Semestrale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m44","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Rimozione elementi di ostruzione (capelli)","tipo":null,"frequenza":"Ogni 3 settimane","chi":"Club Manager/impresa di pulizia","note":"Fonte originale: \"settimanale ogni 3\" — interpretato come ogni 3 settimane, da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m45","area":"Solarium","elemento":"Luce con sensore","intervento":"Test funzionamento","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m46","area":"Massage Area","elemento":"Poltrona massaggiante","intervento":"Test programmi, stato motore e stato poltrona","tipo":null,"frequenza":"Mensile","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m47","area":"Area Ristoro","elemento":"Distributore bevande","intervento":"Pulizia tubi di scarico","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m48","area":"Area Ristoro","elemento":"Distributore barrette","intervento":"Verifica corretto funzionamento","tipo":null,"frequenza":"Settimanale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m49","area":"Area Ristoro","elemento":"Tavolini e sedie","intervento":"Pulizia e integrità","tipo":null,"frequenza":"Settimanale","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m50","area":"Club Generale","elemento":"Estintori","intervento":"Verifica pressione","tipo":null,"frequenza":"Mensile/Trimestrale","chi":"Club Manager/ditta esterna","note":"Frequenza doppia riportata nella fonte (\"mensile/trimestrale\") — da chiarire","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m51","area":"Club Generale","elemento":"DAE","intervento":"Verifica funzionamento e scadenze","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m52","area":"Club Generale","elemento":"Cassetta primo soccorso","intervento":"Reintegro materiali","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m53","area":"Club Generale","elemento":"Uscite emergenza","intervento":"Controllo vie libere, segnaletica","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m54","area":"Impianti","elemento":"Impianto Elettrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m55","area":"Impianti","elemento":"Impianto Climatizzazione","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m56","area":"Impianti","elemento":"Impianto Idrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m57","area":"Impianti","elemento":"Caldaia / pompa di calore","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m58","area":"Impianti","elemento":"Impianto Fotovoltaico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m59","area":"Servizi Club","elemento":"Pedana vibrante","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m60","area":"Servizi Club","elemento":"Distributore generico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m61","area":"Servizi Club","elemento":"Macchina caffè","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m62","area":"Outdoor","elemento":"Attrezzature ed elementi outdoor","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale (la sezione Outdoor conteneva solo una copia errata dei dati di Sala Pesi)","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m63","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Pulizia del piano di appoggio della borraccia","tipo":null,"frequenza":"Bisettimanale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m64","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Controllo dello scarico del distributore","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Da fare il 15 del mese","costo":null,"ultimaVerifica":null,"storico":[],"custom":false}],"roseto":[{"id":"m01","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Lubrificazione guide e pulegge","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Uso intenso, evitare cigolii","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m02","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Controllo cavi, viti, blocchi pesi","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Se richiede smontaggio parziale, contattare assistenza specifica","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m03","area":"Sala Pesi","elemento":"Macchinari carico libero","intervento":"Controllo bulloneria e stabilità strutture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m04","area":"Sala Pesi","elemento":"Postazioni cavi","intervento":"Verifica scorrimento, tensione e carrucole","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m05","area":"Sala Pesi","elemento":"Panche / panchette","intervento":"Controllo viti, saldature, imbottiture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m06","area":"Sala Pesi","elemento":"Manubri","intervento":"Verifica filettature e impugnature","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"Rotture comuni su modelli gommati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m07","area":"Sala Pesi","elemento":"Dischi","intervento":"Controllo integrità e crepe","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m08","area":"Sala Pesi","elemento":"Tappetini","intervento":"Verifica usura, sostituzione","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m09","area":"Sala Pesi","elemento":"Televisori sospesi","intervento":"Verifica fissaggi e funzionamento display","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m10","area":"Funzionale","elemento":"Sacchi boxe","intervento":"Controllo stato, verifica stabilità ganci e catenelle","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m11","area":"Funzionale","elemento":"Binario scorrimento sacchi","intervento":"Verifica scorrimento, eventuale lubrificazione","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m12","area":"Funzionale","elemento":"Kettlebell & wall ball","intervento":"Stato attrezzi, riverniciatura","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Manutentore","note":"Il Club Manager valuta la necessità dell'intervento","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m13","area":"Funzionale","elemento":"Griglie condotti areazione","intervento":"Rimozione e pulizia grate","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"Il Club Manager comunica all'impresa la mansione","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m14","area":"Funzionale","elemento":"Pavimentazione","intervento":"Valutazione stato usura","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m15","area":"Funzionale","elemento":"Attrezzature varie (TRX, tappetini, ecc.)","intervento":"Controllo stato e valutazione intervento/acquisto","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Coach funzionale","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m16","area":"Reception","elemento":"Illuminazione desk","intervento":"Controllo luci e sostituzione lampadine","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Compresa insegna reception","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m17","area":"Reception","elemento":"Tornelli elettronici","intervento":"Verifica elettronica centralina e cablaggio","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Tecnico esterno","note":"Include controllo del software, se necessario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m18","area":"Reception","elemento":"Tornelli elettronici","intervento":"Test badge, reset sistema, verifica sensori","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Club Manager","note":"Uso frequente, accesso prioritario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m19","area":"Reception","elemento":"PC","intervento":"Aggiornamento software, antivirus, backup","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Tecnico informatico","note":"Coordinarsi con sede centrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m20","area":"Reception","elemento":"Pannello desk","intervento":"Controllo integrità, viti, graffi visibili","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"Estetica + stabilità","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m21","area":"Reception","elemento":"Monitor/TV info","intervento":"Verifica supporto e segnale","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Manutentore interno","note":"Se presente","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m22","area":"Reception","elemento":"Sgabelli","intervento":"Stabilità e pulizia","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m23","area":"Sale Corsi","elemento":"Illuminazione","intervento":"Verifica funzionamento completo","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m24","area":"Sale Corsi","elemento":"Casse audio + mixer","intervento":"Test audio","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Coach Corsi / Tecnico audio","note":"Alessandro Toccacelli se intervento non gestibile internamente","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m25","area":"Sale Corsi","elemento":"Palchetto","intervento":"Sicurezza struttura e integrità, anche estetica","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m26","area":"Sale Corsi","elemento":"Specchi","intervento":"Pulizia, sicurezza e integrità","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa Pulizie / Manutentore/ditta specializzata","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m27","area":"Sale Corsi","elemento":"Kit allenamento/step","intervento":"Integrità e igienizzazione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Coach Corsi","note":"Supervisione del Club Manager semestrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m28","area":"Sale Corsi","elemento":"Griglie aspirazione","intervento":"Pulizia","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m29","area":"Sale Corsi","elemento":"Attrezzatura spinning","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m30","area":"Sale Corsi","elemento":"Tappeti walking","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m31","area":"Sale Corsi","elemento":"Idrante pompieri","intervento":"Controllo pressione","tipo":null,"frequenza":"Semestrale","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m32","area":"Spogliatoio","elemento":"Centralina docce","intervento":"Test funzionamento","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Coach / Club Manager/Ditta esterna","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m33","area":"Spogliatoio","elemento":"Docce","intervento":"Pulizia anticalcare, test pressione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m34","area":"Spogliatoio","elemento":"Scoli e fughe acqua","intervento":"Ispezione visiva, spurgo","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m35","area":"Spogliatoio","elemento":"Sistema aspirazione","intervento":"Pulizia filtri","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m36","area":"Spogliatoio","elemento":"Armadietti","intervento":"Serrature e cerniere","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m37","area":"Spogliatoio","elemento":"Divanetti","intervento":"Integrità e pulizia","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Impresa di pulizie / Impresa di pulizie","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" per lo stesso elemento — frequenza da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m38","area":"Spogliatoio","elemento":"Faretti illuminazione","intervento":"Sostituzione luci bruciate","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Club Manager/manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m39","area":"Spogliatoio","elemento":"Asciuga capelli","intervento":"Test accensione","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m40","area":"Spogliatoio","elemento":"Lavandini/sanitari","intervento":"Scarichi, rubinetteria","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Settimanale\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m41","area":"Spogliatoio","elemento":"Specchi","intervento":"Pulizia","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m42","area":"Spogliatoio","elemento":"Secchi (raccolta rifiuti)","intervento":"Svuotamento e sanificazione","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m43","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Manutenzione tecnica e lampade","tipo":null,"frequenza":"Semestrale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m44","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Rimozione elementi di ostruzione (capelli)","tipo":null,"frequenza":"Ogni 3 settimane","chi":"Club Manager/impresa di pulizia","note":"Fonte originale: \"settimanale ogni 3\" — interpretato come ogni 3 settimane, da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m45","area":"Solarium","elemento":"Luce con sensore","intervento":"Test funzionamento","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m46","area":"Massage Area","elemento":"Poltrona massaggiante","intervento":"Test programmi, stato motore e stato poltrona","tipo":null,"frequenza":"Mensile","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m47","area":"Area Ristoro","elemento":"Distributore bevande","intervento":"Pulizia tubi di scarico","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m48","area":"Area Ristoro","elemento":"Distributore barrette","intervento":"Verifica corretto funzionamento","tipo":null,"frequenza":"Settimanale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m49","area":"Area Ristoro","elemento":"Tavolini e sedie","intervento":"Pulizia e integrità","tipo":null,"frequenza":"Settimanale","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m50","area":"Club Generale","elemento":"Estintori","intervento":"Verifica pressione","tipo":null,"frequenza":"Mensile/Trimestrale","chi":"Club Manager/ditta esterna","note":"Frequenza doppia riportata nella fonte (\"mensile/trimestrale\") — da chiarire","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m51","area":"Club Generale","elemento":"DAE","intervento":"Verifica funzionamento e scadenze","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m52","area":"Club Generale","elemento":"Cassetta primo soccorso","intervento":"Reintegro materiali","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m53","area":"Club Generale","elemento":"Uscite emergenza","intervento":"Controllo vie libere, segnaletica","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m54","area":"Impianti","elemento":"Impianto Elettrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m55","area":"Impianti","elemento":"Impianto Climatizzazione","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m56","area":"Impianti","elemento":"Impianto Idrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m57","area":"Impianti","elemento":"Caldaia / pompa di calore","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m58","area":"Impianti","elemento":"Impianto Fotovoltaico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m59","area":"Servizi Club","elemento":"Pedana vibrante","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m60","area":"Servizi Club","elemento":"Distributore generico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m61","area":"Servizi Club","elemento":"Macchina caffè","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m62","area":"Outdoor","elemento":"Attrezzature ed elementi outdoor","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale (la sezione Outdoor conteneva solo una copia errata dei dati di Sala Pesi)","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m63","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Pulizia del piano di appoggio della borraccia","tipo":null,"frequenza":"Bisettimanale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m64","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Controllo dello scarico del distributore","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Da fare il 15 del mese","costo":null,"ultimaVerifica":null,"storico":[],"custom":false}],"mosciano":[{"id":"m01","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Lubrificazione guide e pulegge","tipo":"Ordinaria","frequenza":"Mensile","chi":"MIRCO CONSALVO","note":"Uso intenso, evitare cigolii","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-09-14","2026-10-15"],"custom":false},{"id":"m02","area":"Sala Pesi","elemento":"Macchinari isotonici","intervento":"Controllo cavi, viti, blocchi pesi","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Se richiede smontaggio parziale, contattare assistenza specifica","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-09-14","2026-10-15"],"custom":false},{"id":"m03","area":"Sala Pesi","elemento":"Macchinari carico libero","intervento":"Controllo bulloneria e stabilità strutture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m04","area":"Sala Pesi","elemento":"Postazioni cavi","intervento":"Verifica scorrimento, tensione e carrucole","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m05","area":"Sala Pesi","elemento":"Panche / panchette","intervento":"Controllo viti, saldature, imbottiture","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m06","area":"Sala Pesi","elemento":"Manubri","intervento":"Verifica filettature e impugnature","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"Rotture comuni su modelli gommati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m07","area":"Sala Pesi","elemento":"Dischi","intervento":"Controllo integrità e crepe","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m08","area":"Sala Pesi","elemento":"Tappetini","intervento":"Verifica usura, sostituzione","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m09","area":"Sala Pesi","elemento":"Televisori sospesi","intervento":"Verifica fissaggi e funzionamento display","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m10","area":"Funzionale","elemento":"Sacchi boxe","intervento":"Controllo stato, verifica stabilità ganci e catenelle","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m11","area":"Funzionale","elemento":"Binario scorrimento sacchi","intervento":"Verifica scorrimento, eventuale lubrificazione","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager/Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m12","area":"Funzionale","elemento":"Kettlebell & wall ball","intervento":"Stato attrezzi, riverniciatura","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Manutentore","note":"Il Club Manager valuta la necessità dell'intervento","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-10-15"],"custom":false},{"id":"m13","area":"Funzionale","elemento":"Griglie condotti areazione","intervento":"Rimozione e pulizia grate","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"Il Club Manager comunica all'impresa la mansione","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-10-15"],"custom":false},{"id":"m14","area":"Funzionale","elemento":"Pavimentazione","intervento":"Valutazione stato usura","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-10-15"],"custom":false},{"id":"m15","area":"Funzionale","elemento":"Attrezzature varie (TRX, tappetini, ecc.)","intervento":"Controllo stato e valutazione intervento/acquisto","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Coach funzionale","note":"","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-10-15"],"custom":false},{"id":"m16","area":"Reception","elemento":"Illuminazione desk","intervento":"Controllo luci e sostituzione lampadine","tipo":"Ordinaria","frequenza":"Mensile","chi":"Manutentore interno","note":"Compresa insegna reception","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m17","area":"Reception","elemento":"Tornelli elettronici","intervento":"Verifica elettronica centralina e cablaggio","tipo":"Straordinaria","frequenza":"Semestrale","chi":"Tecnico esterno","note":"Include controllo del software, se necessario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m18","area":"Reception","elemento":"Tornelli elettronici","intervento":"Test badge, reset sistema, verifica sensori","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Club Manager","note":"Uso frequente, accesso prioritario","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m19","area":"Reception","elemento":"PC","intervento":"Aggiornamento software, antivirus, backup","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Tecnico informatico","note":"Coordinarsi con sede centrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m20","area":"Reception","elemento":"Pannello desk","intervento":"Controllo integrità, viti, graffi visibili","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager","note":"Estetica + stabilità","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m21","area":"Reception","elemento":"Monitor/TV info","intervento":"Verifica supporto e segnale","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Manutentore interno","note":"Se presente","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m22","area":"Reception","elemento":"Sgabelli","intervento":"Stabilità e pulizia","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m23","area":"Sale Corsi","elemento":"Illuminazione","intervento":"Verifica funzionamento completo","tipo":"Ordinaria","frequenza":"Mensile","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m24","area":"Sale Corsi","elemento":"Casse audio + mixer","intervento":"Test audio","tipo":"Ordinaria","frequenza":"Bisettimanale","chi":"Coach Corsi / Tecnico audio","note":"Alessandro Toccacelli se intervento non gestibile internamente","costo":null,"ultimaVerifica":"2026-10-15","storico":["2026-10-15"],"custom":false},{"id":"m25","area":"Sale Corsi","elemento":"Palchetto","intervento":"Sicurezza struttura e integrità, anche estetica","tipo":"Straordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m26","area":"Sale Corsi","elemento":"Specchi","intervento":"Pulizia, sicurezza e integrità","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa Pulizie / Manutentore/ditta specializzata","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m27","area":"Sale Corsi","elemento":"Kit allenamento/step","intervento":"Integrità e igienizzazione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Coach Corsi","note":"Supervisione del Club Manager semestrale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m28","area":"Sale Corsi","elemento":"Griglie aspirazione","intervento":"Pulizia","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di Pulizia","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m29","area":"Sale Corsi","elemento":"Attrezzatura spinning","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m30","area":"Sale Corsi","elemento":"Tappeti walking","intervento":"Pulizia e lubrificazione","tipo":"Ordinaria","frequenza":"Bimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m31","area":"Sale Corsi","elemento":"Idrante pompieri","intervento":"Controllo pressione","tipo":null,"frequenza":"Semestrale","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m32","area":"Spogliatoio","elemento":"Centralina docce","intervento":"Test funzionamento","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Coach / Club Manager/Ditta esterna","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m33","area":"Spogliatoio","elemento":"Docce","intervento":"Pulizia anticalcare, test pressione","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m34","area":"Spogliatoio","elemento":"Scoli e fughe acqua","intervento":"Ispezione visiva, spurgo","tipo":"Ordinaria","frequenza":"Settimanale","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m35","area":"Spogliatoio","elemento":"Sistema aspirazione","intervento":"Pulizia filtri","tipo":"Ordinaria","frequenza":"Mensile","chi":"Impresa di pulizie","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m36","area":"Spogliatoio","elemento":"Armadietti","intervento":"Serrature e cerniere","tipo":"Ordinaria","frequenza":"Trimestrale","chi":"Club Manager / Manutentore","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m37","area":"Spogliatoio","elemento":"Divanetti","intervento":"Integrità e pulizia","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Impresa di pulizie / Impresa di pulizie","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" per lo stesso elemento — frequenza da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m38","area":"Spogliatoio","elemento":"Faretti illuminazione","intervento":"Sostituzione luci bruciate","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Club Manager/manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m39","area":"Spogliatoio","elemento":"Asciuga capelli","intervento":"Test accensione","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Mensile\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m40","area":"Spogliatoio","elemento":"Lavandini/sanitari","intervento":"Scarichi, rubinetteria","tipo":"Ordinaria","frequenza":"Giornaliera","chi":"Manutentore","note":"Un'altra fonte (\"Foglio1\") indica \"Settimanale\" — da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m41","area":"Spogliatoio","elemento":"Specchi","intervento":"Pulizia","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m42","area":"Spogliatoio","elemento":"Secchi (raccolta rifiuti)","intervento":"Svuotamento e sanificazione","tipo":null,"frequenza":"Giornaliera","chi":"—","note":"Tipo e responsabile non specificati nella fonte originale (presente solo in \"Foglio1\")","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m43","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Manutenzione tecnica e lampade","tipo":null,"frequenza":"Semestrale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m44","area":"Solarium","elemento":"Doccia abbronzante","intervento":"Rimozione elementi di ostruzione (capelli)","tipo":null,"frequenza":"Ogni 3 settimane","chi":"Club Manager/impresa di pulizia","note":"Fonte originale: \"settimanale ogni 3\" — interpretato come ogni 3 settimane, da confermare","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m45","area":"Solarium","elemento":"Luce con sensore","intervento":"Test funzionamento","tipo":null,"frequenza":"Mensile","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m46","area":"Massage Area","elemento":"Poltrona massaggiante","intervento":"Test programmi, stato motore e stato poltrona","tipo":null,"frequenza":"Mensile","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m47","area":"Area Ristoro","elemento":"Distributore bevande","intervento":"Pulizia tubi di scarico","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":"2026-09-14","storico":["2026-09-14"],"custom":false},{"id":"m48","area":"Area Ristoro","elemento":"Distributore barrette","intervento":"Verifica corretto funzionamento","tipo":null,"frequenza":"Settimanale","chi":"Club Manager","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m49","area":"Area Ristoro","elemento":"Tavolini e sedie","intervento":"Pulizia e integrità","tipo":null,"frequenza":"Settimanale","chi":"—","note":"Tipo e responsabile non specificati","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m50","area":"Club Generale","elemento":"Estintori","intervento":"Verifica pressione","tipo":null,"frequenza":"Mensile/Trimestrale","chi":"Club Manager/ditta esterna","note":"Frequenza doppia riportata nella fonte (\"mensile/trimestrale\") — da chiarire","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m51","area":"Club Generale","elemento":"DAE","intervento":"Verifica funzionamento e scadenze","tipo":null,"frequenza":"Mensile","chi":"CM","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m52","area":"Club Generale","elemento":"Cassetta primo soccorso","intervento":"Reintegro materiali","tipo":null,"frequenza":"Mensile","chi":"CM","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m53","area":"Club Generale","elemento":"Uscite emergenza","intervento":"Controllo vie libere, segnaletica","tipo":null,"frequenza":"Mensile","chi":"Addetto sicurezza Club","note":"Tipo non specificato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m54","area":"Impianti","elemento":"Impianto Elettrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m55","area":"Impianti","elemento":"Impianto Climatizzazione","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m56","area":"Impianti","elemento":"Impianto Idrico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m57","area":"Impianti","elemento":"Caldaia / pompa di calore","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m58","area":"Impianti","elemento":"Impianto Fotovoltaico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m59","area":"Servizi Club","elemento":"Pedana vibrante","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m60","area":"Servizi Club","elemento":"Distributore generico","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m61","area":"Servizi Club","elemento":"Macchina caffè","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m62","area":"Outdoor","elemento":"Attrezzature ed elementi outdoor","intervento":"—","tipo":null,"frequenza":null,"chi":"—","note":"Nessun dato nella fonte originale (la sezione Outdoor conteneva solo una copia errata dei dati di Sala Pesi)","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m63","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Pulizia del piano di appoggio della borraccia","tipo":null,"frequenza":"Bisettimanale","chi":"Club Manager","note":"","costo":null,"ultimaVerifica":null,"storico":[],"custom":false},{"id":"m64","area":"Area Ristoro","elemento":"Distributore Witway","intervento":"Controllo dello scarico del distributore","tipo":null,"frequenza":"Mensile","chi":"Manutentore/coach","note":"Da fare il 15 del mese","costo":null,"ultimaVerifica":null,"storico":[],"custom":false}]};
 
-  var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, ptRequests: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, ptRequests: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
   var orariActiveTab = "collaboratori";
   var mntState = { q: "", area: "Tutte", stato: "Tutti" };
   var mntSeedDone = false;
@@ -1324,27 +1429,23 @@
   }
 
   // ---------- Coach in sala oggi ----------
-  // Automatica, in sola lettura, un documento per club+giorno (chiave "<club>__<data>"),
-  // scritta ogni 3 ore da un task programmato che legge le presenze registrate per la
-  // copertura sala nel foglio GestioneOrari-DB (chiave kv "presenze-<mese>__<club>") e
-  // risolve i nomi tramite "collaboratori__<club>". Eventuali sostituzioni dell'ultimo
-  // minuto vanno corrette direttamente in Gestione Orari & Compensi, non qui: questa
-  // card è solo uno specchio di quei dati, niente nota manuale separata.
-  function coachOggiId(){ return state.club + "__" + todayISO(); }
-
+  // Dal 13/11/2026: letta direttamente e immediatamente da state.orariPresenze/
+  // state.orariCollaboratori (ora integrati in questo stesso strumento, stesso db
+  // condiviso) — non più uno specchio scritto ogni 3 ore da un task programmato che
+  // leggeva il foglio GestioneOrari-DB separato. Qualunque presenza aggiunta/modificata
+  // nella scheda "Orari & Compensi" → "Presenze" appare qui subito, senza attesa.
   function renderCoachOggiAuto(){
     var listEl = document.getElementById("coachOggiAutoList");
     if (!listEl) return;
-    var rec = state.coachOggiAuto[coachOggiId()];
-    // rec.date deve combaciare con oggi: un documento di un giorno precedente (es. task
-    // programmato che non è riuscito a girare) non va mostrato come se fosse di oggi.
-    var items = (rec && rec.date === todayISO()) ? (rec.items || []) : null;
-    if (items === null){
-      listEl.innerHTML = '<div class="sub">Sincronizzazione automatica non ancora disponibile per oggi.</div>';
-      return;
-    }
+    var today = todayISO();
+    var nameById = {};
+    orCollabiForClub(state.club).forEach(function(c){ nameById[c.id] = c.nome; });
+    var items = orPresenzeForClubMonth(state.club, today.slice(0,7))
+      .filter(function(p){ return p.data === today; })
+      .map(function(p){ return { nome: nameById[p.collabId] || "(rimosso)", inizio: p.inizio, fine: p.fine }; })
+      .sort(function(a,b){ return (a.inizio||"").localeCompare(b.inizio||""); });
     if (!items.length){
-      listEl.innerHTML = '<div class="sub">Nessuna presenza registrata per oggi in Gestione Orari &amp; Compensi.</div>';
+      listEl.innerHTML = '<div class="sub">Nessuna presenza registrata per oggi in Orari &amp; Compensi.</div>';
       return;
     }
     var ul = document.createElement("ul");
@@ -1354,7 +1455,7 @@
       li.className = "check-row";
       li.innerHTML = '<span>👤</span><label></label>';
       var orario = (it.inizio || "?") + "–" + (it.fine || "?");
-      li.querySelector("label").textContent = (it.nome || "Coach") + " — " + orario;
+      li.querySelector("label").textContent = it.nome + " — " + orario;
       ul.appendChild(li);
     });
     listEl.innerHTML = "";
@@ -2233,7 +2334,7 @@
   }
   function orIsFestivo(dateStr, extra){ return orIsSunday(dateStr) || orIsHoliday(dateStr, extra); }
   function orOpeningRange(dateStr){
-    if (orIsFestivo(dateStr)) return [9,13];
+    if (orIsFestivoClub(dateStr)) return [9,13];
     var wd = new Date(dateStr+'T00:00:00').getDay();
     if (wd === 6) return [9,18];
     return [9,21];
@@ -2307,7 +2408,7 @@
           var id = btn.dataset.orPresDel;
           var full = orPresId(state.club, id);
           delete state.orariPresenze[full];
-          renderOrariPresenze();
+          renderOrari();
           if (state.db) state.db.doc("orariPresenze/" + full).delete().catch(notifyWriteFailed);
         } else {
           btn.classList.add("confirming");
@@ -2318,6 +2419,29 @@
     });
   }
 
+  function orAllDatesForWeekday(monthKey, weekday){
+    var nDays = orDaysInMonth(monthKey);
+    var dates = [];
+    for (var d=1; d<=nDays; d++){
+      var dateStr = monthKey + "-" + String(d).padStart(2,"0");
+      if (new Date(dateStr + "T12:00:00").getDay() === weekday) dates.push(dateStr);
+    }
+    return dates;
+  }
+  function orPresenzaExists(club, collabId, data, inizio, fine){
+    return Object.keys(state.orariPresenze).some(function(key){
+      var p = state.orariPresenze[key];
+      return p && p.club === club && p.collabId === collabId && p.data === data && p.inizio === inizio && p.fine === fine;
+    });
+  }
+  function orWritePresenzaRecord(id, collabId, data, inizio, fine){
+    var full = orPresId(state.club, id);
+    var rec = { id: id, club: state.club, collabId: collabId, data: data, inizio: inizio, fine: fine };
+    state.orariPresenze[full] = rec;
+    if (state.db) state.db.doc("orariPresenze/" + full).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  var OR_GIORNI_IT = ["domenica","lunedì","martedì","mercoledì","giovedì","venerdì","sabato"];
   function initOrPresAddForm(){
     var form = document.getElementById("orPresAddForm");
     if (!form) return;
@@ -2327,103 +2451,879 @@
       var data = document.getElementById("orPresData").value;
       var inizio = document.getElementById("orPresInizio").value;
       var fine = document.getElementById("orPresFine").value;
+      var ripetiBox = document.getElementById("orPresRipeti");
+      var ripeti = ripetiBox && ripetiBox.checked;
       if (!collabId || !data || !inizio || !fine) return;
-      var id = "p-" + Date.now();
-      var full = orPresId(state.club, id);
-      var rec = { id: id, club: state.club, collabId: collabId, data: data, inizio: inizio, fine: fine };
-      state.orariPresenze[full] = rec;
-      if (state.db) state.db.doc("orariPresenze/" + full).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
-      else showDbSyncWarning();
+      var monthKey = data.slice(0,7);
       var monthInput = document.getElementById("orPresMonth");
-      if (monthInput) monthInput.value = data.slice(0,7);
-      renderOrariPresenze();
+      if (monthInput) monthInput.value = monthKey;
+      var targetDates = ripeti ? orAllDatesForWeekday(monthKey, new Date(data + "T12:00:00").getDay()) : [data];
+      var added = 0;
+      targetDates.forEach(function(dt){
+        if (orPresenzaExists(state.club, collabId, dt, inizio, fine)) return;
+        orWritePresenzaRecord("p-" + Date.now() + "-" + added + "-" + Math.random().toString(36).slice(2,6), collabId, dt, inizio, fine);
+        added++;
+      });
+      renderOrari();
       document.getElementById("orPresData").value = "";
       document.getElementById("orPresInizio").value = "";
       document.getElementById("orPresFine").value = "";
+      if (ripetiBox) ripetiBox.checked = false;
+    });
+    var dataInput = document.getElementById("orPresData");
+    if (dataInput) dataInput.addEventListener("change", function(){
+      var lbl = document.getElementById("orPresRipetiGiorno");
+      if (lbl && this.value) lbl.textContent = OR_GIORNI_IT[new Date(this.value + "T12:00:00").getDay()];
     });
     var monthInput = document.getElementById("orPresMonth");
-    if (monthInput) monthInput.addEventListener("change", renderOrariPresenze);
+    if (monthInput) monthInput.addEventListener("change", renderOrari);
+    var copiaBtn = document.getElementById("orCopiaMesePrecedenteBtn");
+    if (copiaBtn) copiaBtn.addEventListener("click", function(){
+      var esito = document.getElementById("orCopiaMesePrecedenteEsito");
+      var collabId = document.getElementById("orPresCollab").value;
+      if (!collabId){ if (esito) esito.textContent = "Seleziona prima un collaboratore."; return; }
+      var currentMonth = orSharedMonthKey();
+      var prevMonth = orMonthKeyAdd(currentMonth, -1);
+      var turniPrec = orPresenzeForClubMonth(state.club, prevMonth).filter(function(t){
+        return t.collabId === collabId && !orIsFestivoClub(t.data);
+      });
+      var seen = {}, patterns = [];
+      turniPrec.forEach(function(t){
+        var wd = new Date(t.data + "T12:00:00").getDay();
+        var key = wd + "|" + t.inizio + "|" + t.fine;
+        if (!seen[key]){ seen[key] = true; patterns.push({ weekday: wd, inizio: t.inizio, fine: t.fine }); }
+      });
+      if (!patterns.length){
+        if (esito) esito.textContent = "Nessun turno (non festivo) trovato a " + orFmtMonthLabel(prevMonth) + " per questo collaboratore.";
+        return;
+      }
+      var aggiunti = 0;
+      patterns.forEach(function(p){
+        orAllDatesForWeekday(currentMonth, p.weekday).forEach(function(dt){
+          if (orIsFestivoClub(dt)) return;
+          if (orPresenzaExists(state.club, collabId, dt, p.inizio, p.fine)) return;
+          orWritePresenzaRecord("p-" + Date.now() + "-" + aggiunti + "-" + Math.random().toString(36).slice(2,6), collabId, dt, p.inizio, p.fine);
+          aggiunti++;
+        });
+      });
+      if (esito) esito.textContent = aggiunti
+        ? ("Aggiunti " + aggiunti + " turni copiati da " + orFmtMonthLabel(prevMonth) + " (festivi esclusi).")
+        : ("I turni di " + orFmtMonthLabel(prevMonth) + " erano già presenti in questo mese.");
+      renderOrari();
+    });
   }
 
-  // Copertura: griglia a quarti d'ora dell'orario di apertura del giorno scelto, colorata
-  // per collaboratore in base alle presenze registrate. Palette nuova (non ho i valori
-  // esatti dei 12 colori dell'originale a disposizione qui): stessa famiglia cromatica
-  // dell'app, non una copia byte-per-byte di quella palette.
+  // Copertura: vista MESE intero (righe=ore 9-20, colonne=giorni del mese), come
+  // nell'originale "Gestione Orari & Compensi" — non più un singolo giorno, perché la
+  // copertura di oggi è già mostrata in automatico nella home. Un colore distinto per
+  // collaboratore (palette nuova: non ho a disposizione in questa sessione i valori
+  // esatti dei 12 colori dell'originale, stessa famiglia cromatica dell'app).
   var OR_COLLAB_PALETTE = ["#386A7B","#AEA371","#B3442F","#2F7A4F","#5C6A6C","#7C5CBF","#C97B2C","#2E86AB","#A3761F","#6B8E23","#B5495B","#3F8F8C"];
   function orPaletteColor(idx){ return OR_COLLAB_PALETTE[idx % OR_COLLAB_PALETTE.length]; }
-  function orToMin(t){ var parts = (t||"0:0").split(":"); return (+parts[0])*60 + (+parts[1]||0); }
-  function orMinutesToHHMM(mins){ var h = Math.floor(mins/60), m = mins % 60; return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0"); }
-  function orSlotsForDay(dateStr){
-    var range = orOpeningRange(dateStr);
-    var slots = [];
-    for (var m = range[0]*60; m < range[1]*60; m += 15) slots.push(m);
-    return slots;
-  }
-  function orPresenzeForClubDay(club, dateStr){
-    var out = [];
-    Object.keys(state.orariPresenze).forEach(function(key){
-      var p = state.orariPresenze[key];
-      if (p && p.club === club && p.data === dateStr) out.push(p);
+  var OR_COV_GAP_COLOR = "rgba(179,68,47,.18)";
+  function orStripesBackground(segments){
+    if (segments.length === 1) return segments[0].color;
+    var stops = [];
+    segments.forEach(function(seg){
+      stops.push(seg.color + " " + (seg.start*100).toFixed(2) + "%", seg.color + " " + (seg.end*100).toFixed(2) + "%");
     });
-    return out;
+    return "linear-gradient(to right, " + stops.join(", ") + ")";
   }
-  function orCoverageCounts(club, dateStr){
-    var slots = orSlotsForDay(dateStr);
-    var pres = orPresenzeForClubDay(club, dateStr);
-    var coperte = 0, buchi = 0;
-    slots.forEach(function(slotStart){
-      var covered = pres.some(function(p){ return orToMin(p.inizio) <= slotStart && slotStart < orToMin(p.fine); });
-      if (covered) coperte++; else buchi++;
-    });
-    return { coperte: coperte, buchi: buchi };
-  }
-
   function renderOrariCopertura(){
-    var grid = document.getElementById("orCovGrid");
-    if (!grid) return;
-    var dateInput = document.getElementById("orCovDate");
-    if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0,10);
-    var dateStr = dateInput ? dateInput.value : new Date().toISOString().slice(0,10);
-    var collabs = orCollabiForClub(state.club);
-    var colorOf = {};
-    collabs.forEach(function(c, i){ colorOf[c.id] = orPaletteColor(i); });
-    var presenze = orPresenzeForClubDay(state.club, dateStr);
-    var slots = orSlotsForDay(dateStr);
-    var coperte = 0, buchi = 0;
-    grid.innerHTML = slots.map(function(slotStart){
-      var covering = presenze.filter(function(p){ return orToMin(p.inizio) <= slotStart && slotStart < orToMin(p.fine); });
-      if (covering.length) coperte++; else buchi++;
-      var bg = covering.length ? colorOf[covering[0].collabId] : null;
-      var nomi = covering.map(function(p){
-        var c = collabs.filter(function(x){ return x.id === p.collabId; })[0];
-        return c ? c.nome : "";
-      }).join(", ");
-      var title = orMinutesToHHMM(slotStart) + " — " + (nomi || "scoperto");
-      return '<div class="or-cov-cell' + (covering.length ? "" : " empty") + '" style="' + (bg ? ("background:"+bg+";") : "") + '" title="' + title.replace(/"/g,"&quot;") + '"></div>';
+    var table = document.getElementById("orCovTable");
+    if (!table) return;
+    var monthKey = orSharedMonthKey();
+    var lbl = document.getElementById("orCovMonthLabel");
+    if (lbl) lbl.textContent = "Copertura sala — " + orFmtMonthLabel(monthKey);
+    var nDays = orDaysInMonth(monthKey);
+    var hours = []; for (var h=9; h<21; h++) hours.push(h);
+    var salaList = orCollabiForClub(state.club).filter(function(c){ return orHasRole(c,"sala"); });
+    var turniAll = orPresenzeForClubMonth(state.club, monthKey).filter(function(t){
+      return salaList.some(function(c){ return c.id === t.collabId; });
+    });
+    var turniByDay = {};
+    turniAll.forEach(function(t){
+      var day = Number(t.data.split("-")[2]);
+      var p1 = t.inizio.split(":"), p2 = t.fine.split(":");
+      var start = (+p1[0]) + (+p1[1]||0)/60;
+      var end = (+p2[0]) + (+p2[1]||0)/60;
+      (turniByDay[day] = turniByDay[day] || []).push({ collabId: t.collabId, start: start, end: end });
+    });
+
+    var head = "<tr><th>Ora</th>";
+    for (var d=1; d<=nDays; d++){
+      var dateStr = monthKey + "-" + String(d).padStart(2,"0");
+      head += '<th style="' + (orIsFestivoClub(dateStr) ? "color:var(--warn);" : "") + '">' + d + "</th>";
+    }
+    head += "</tr>";
+
+    var buchiQ = 0, copQ = 0;
+    var body = hours.map(function(h){
+      var row = "<tr><td>" + h + "–" + (h+1) + "</td>";
+      for (var d2=1; d2<=nDays; d2++){
+        var dateStr2 = monthKey + "-" + String(d2).padStart(2,"0");
+        var range = orOpeningRange(dateStr2);
+        if (h < range[0] || h+1 > range[1]){
+          row += '<td class="or-covm-cell or-covm-closed" title="Chiuso"></td>';
+          continue;
+        }
+        var dayTurni = turniByDay[d2] || [];
+        var segments = [];
+        var namesSet = {};
+        for (var qi=0; qi<4; qi++){
+          var segStart = h + qi*0.25, segEnd = segStart + 0.25;
+          var covering = dayTurni.filter(function(t){ return t.start <= segStart && t.end >= segEnd; });
+          var bandStart = qi/4, bandEnd = (qi+1)/4;
+          if (covering.length){
+            covering.forEach(function(t){
+              var c = salaList.filter(function(x){ return x.id === t.collabId; })[0];
+              if (c) namesSet[c.nome] = true;
+            });
+            var k = covering.length;
+            covering.forEach(function(t, idx){
+              segments.push({
+                color: orPaletteColor(salaList.findIndex(function(x){ return x.id === t.collabId; })),
+                start: bandStart + (idx/k)*(bandEnd-bandStart),
+                end: bandStart + ((idx+1)/k)*(bandEnd-bandStart)
+              });
+            });
+            copQ++;
+          } else {
+            segments.push({ color: OR_COV_GAP_COLOR, start: bandStart, end: bandEnd });
+            buchiQ++;
+          }
+        }
+        var names = Object.keys(namesSet);
+        var title = (names.length ? names.join(", ") : "Nessuno").replace(/"/g,"&quot;");
+        row += '<td class="or-covm-cell" style="background:' + orStripesBackground(segments) + ';" title="' + title + '"></td>';
+      }
+      return row + "</tr>";
     }).join("");
+
+    table.innerHTML = head + body;
 
     var legend = document.getElementById("orCovLegend");
     if (legend){
-      legend.innerHTML = collabs.map(function(c, i){
-        return '<span class="or-cov-legend-item"><span class="or-cov-swatch" style="background:' + orPaletteColor(i) + ';"></span>' + c.nome + '</span>';
-      }).join("");
+      var html = '<span class="or-cov-legend-item"><span class="or-cov-swatch" style="background:' + OR_COV_GAP_COLOR + ';"></span>Nessuno (buco)</span>';
+      html += '<span class="or-cov-legend-item"><span class="or-cov-swatch" style="background:repeating-linear-gradient(45deg,var(--line),var(--line) 3px,transparent 3px,transparent 6px);"></span>Chiuso (fuori orario)</span>';
+      salaList.forEach(function(c, i){
+        html += '<span class="or-cov-legend-item"><span class="or-cov-swatch" style="background:' + orPaletteColor(i) + ';"></span>' + c.nome + '</span>';
+      });
+      legend.innerHTML = html;
     }
 
-    var monthKey = dateStr.slice(0,7);
-    var daysInMonth = new Date(+monthKey.slice(0,4), +monthKey.slice(5,7), 0).getDate();
-    var totCoperte = 0, totBuchi = 0;
-    for (var day = 1; day <= daysInMonth; day++){
-      var ds = monthKey + "-" + String(day).padStart(2,"0");
-      var c = orCoverageCounts(state.club, ds);
-      totCoperte += c.coperte; totBuchi += c.buchi;
-    }
     var stats = document.getElementById("orCovStats");
-    if (stats) stats.textContent = "Questo giorno: " + coperte + " quarti d'ora coperti, " + buchi + " scoperti. Totale mese: " + totCoperte + " coperti, " + totBuchi + " scoperti.";
+    if (stats) stats.textContent = "Ore coperte nel mese: " + (Math.round(copQ/4*100)/100) + " h. Ore scoperte nel mese: " + (Math.round(buchiQ/4*100)/100) + " h.";
   }
 
-  function initOrCovDatePicker(){
-    var dateInput = document.getElementById("orCovDate");
-    if (dateInput) dateInput.addEventListener("change", renderOrariCopertura);
+  // ---------- Helper condivisi (Corsi / Desk / Ore PT / Riepilogo / Compensi) ----------
+  function orHasRole(c, role){ return (c && c.ruoli || []).indexOf(role) !== -1; }
+  function orEuro(n){ return "€" + (Math.round((n||0)*100)/100).toLocaleString("it-IT"); }
+  function orAddDays(dateStr, n){
+    var d = new Date(dateStr + "T12:00:00");
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0,10);
+  }
+  function orDaysInMonth(monthKey){
+    var y = +monthKey.slice(0,4), m = +monthKey.slice(5,7);
+    return new Date(y, m, 0).getDate();
+  }
+  function orSharedMonthKey(){ return orCurrentMonthKey(); }
+
+  // ---------- IMPOSTAZIONI GENERALI (per club) ----------
+  var OR_SETTINGS_DEFAULTS = { tariffaExtra: 7, obiettivoPT: 100, numeroPT: 6, budgetMensile: 4000, festivitaExtra: [] };
+  function orSettingsFor(club){
+    var saved = state.orariSettings[club] || {};
+    var out = {};
+    Object.keys(OR_SETTINGS_DEFAULTS).forEach(function(k){ out[k] = (saved[k] !== undefined && saved[k] !== null) ? saved[k] : OR_SETTINGS_DEFAULTS[k]; });
+    return out;
+  }
+  function orIsFestivoClub(dateStr){ return orIsFestivo(dateStr, orSettingsFor(state.club).festivitaExtra); }
+  function orFillSettingsForm(){
+    var s = orSettingsFor(state.club);
+    var map = { orSetTariffaExtra:"tariffaExtra", orSetObiettivoPT:"obiettivoPT", orSetNumeroPT:"numeroPT", orSetBudgetMensile:"budgetMensile" };
+    Object.keys(map).forEach(function(id){
+      var el = document.getElementById(id);
+      if (el && document.activeElement !== el) el.value = s[map[id]];
+    });
+  }
+  function orRenderFestivitaExtra(){
+    var container = document.getElementById("orFestivitaExtraList");
+    if (!container) return;
+    var list = (orSettingsFor(state.club).festivitaExtra || []).slice().sort();
+    container.innerHTML = list.length ? list.map(function(dt){
+      return '<span class="or-festivita-chip">' + dt + ' <button type="button" data-del-festivita="' + dt + '">✕</button></span>';
+    }).join("") : '<span class="mnt-empty" style="padding:0;">Nessuna festività locale aggiunta.</span>';
+  }
+  function orSaveSettings(partial){
+    var current = orSettingsFor(state.club);
+    var next = Object.assign({}, current, partial, { id: state.club, club: state.club });
+    state.orariSettings[state.club] = next;
+    if (state.db) state.db.doc("orariSettings/" + state.club).set(next).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  function initOrSettingsForm(){
+    var form = document.getElementById("orSettingsForm");
+    if (form) form.addEventListener("submit", function(e){
+      e.preventDefault();
+      orSaveSettings({
+        tariffaExtra: parseFloat(document.getElementById("orSetTariffaExtra").value) || 0,
+        obiettivoPT: parseFloat(document.getElementById("orSetObiettivoPT").value) || 0,
+        numeroPT: parseFloat(document.getElementById("orSetNumeroPT").value) || 0,
+        budgetMensile: parseFloat(document.getElementById("orSetBudgetMensile").value) || 0
+      });
+      renderOrari();
+    });
+    var addBtn = document.getElementById("orAddFestivitaBtn");
+    if (addBtn) addBtn.addEventListener("click", function(){
+      var input = document.getElementById("orFestivitaExtraInput");
+      var dt = input.value;
+      if (!dt) return;
+      var list = orSettingsFor(state.club).festivitaExtra || [];
+      if (list.indexOf(dt) === -1) list = list.concat([dt]);
+      orSaveSettings({ festivitaExtra: list });
+      input.value = "";
+      renderOrari();
+    });
+    var list = document.getElementById("orFestivitaExtraList");
+    if (list) list.addEventListener("click", function(e){
+      var btn = e.target.closest("[data-del-festivita]");
+      if (!btn) return;
+      var dt = btn.dataset.delFestivita;
+      var next = (orSettingsFor(state.club).festivitaExtra || []).filter(function(d){ return d !== dt; });
+      orSaveSettings({ festivitaExtra: next });
+      renderOrari();
+    });
+  }
+
+  // ---------- BACKUP & RIPRISTINO (Orari & Compensi, per club) ----------
+  var OR_BACKUP_COLLECTIONS = ["orariCollaboratori","orariPresenze","orariCorsi","orariDesk","orariPT","orariPtPilates","orariQuotaManuale","orariBonus"];
+  function orExportBackup(){
+    var out = {};
+    OR_BACKUP_COLLECTIONS.forEach(function(coll){
+      Object.keys(state[coll]).forEach(function(key){
+        var rec = state[coll][key];
+        if (rec && rec.club === state.club) out[coll + "/" + key] = rec;
+      });
+    });
+    out["orariSettings/" + state.club] = orSettingsFor(state.club);
+    var blob = new Blob([JSON.stringify(out, null, 2)], { type: "application/json" });
+    var url = URL.createObjectURL(blob);
+    var a = document.createElement("a");
+    var oggi = new Date().toISOString().slice(0,10);
+    a.href = url;
+    a.download = "backup-orari-" + state.club + "-" + oggi + ".json";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+  function orImportBackup(file){
+    var esito = document.getElementById("orBackupEsito");
+    var reader = new FileReader();
+    reader.onload = function(){
+      var obj;
+      try { obj = JSON.parse(reader.result); }
+      catch(e){ if (esito) esito.textContent = "File non valido: " + e.message; return; }
+      var ok = 0, fail = 0;
+      Object.keys(obj).forEach(function(path){
+        var parts = path.split("/");
+        var coll = parts[0], key = parts.slice(1).join("/");
+        if (OR_BACKUP_COLLECTIONS.indexOf(coll) === -1 && coll !== "orariSettings") { fail++; return; }
+        var rec = obj[path];
+        state[coll][key] = rec;
+        if (state.db) {
+          state.db.doc(coll + "/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+          ok++;
+        } else { fail++; }
+      });
+      if (esito) esito.textContent = "Import completato: " + ok + " chiavi importate" + (fail ? (", " + fail + " fallite") : "") + ".";
+      renderOrari();
+    };
+    reader.readAsText(file);
+  }
+  function initOrBackup(){
+    var exportBtn = document.getElementById("orExportBackupBtn");
+    if (exportBtn) exportBtn.addEventListener("click", orExportBackup);
+    var importBtn = document.getElementById("orImportBackupBtn");
+    var fileInput = document.getElementById("orImportBackupFile");
+    if (importBtn && fileInput){
+      importBtn.addEventListener("click", function(){ fileInput.click(); });
+      fileInput.addEventListener("change", function(e){
+        var file = e.target.files[0];
+        if (!file) return;
+        var esito = document.getElementById("orBackupEsito");
+        if (esito) esito.textContent = "Importazione in corso…";
+        orImportBackup(file);
+        e.target.value = "";
+      });
+    }
+  }
+
+  // ---------- CORSI ----------
+  // Chiave granulare <club>__<mese>__<collabId>: un documento per istruttore per mese,
+  // mai un unico blob condiviso (stesso principio di orariCollaboratori/orariPresenze).
+  function orCorsiKey(club, month, collabId){ return club + "__" + month + "__" + collabId; }
+  function renderOrariCorsi(){
+    var body = document.getElementById("orCorsiTable");
+    var empty = document.getElementById("orCorsiEmpty");
+    if (!body) return;
+    var month = orSharedMonthKey();
+    var istruttori = orCollabiForClub(state.club).filter(function(c){ return orHasRole(c,"corsi"); });
+    if (empty) empty.hidden = istruttori.length > 0;
+    var head = "<tr><th>Istruttore</th><th>N. lezioni funzionali</th><th>Tariffa €</th><th>N. coreografate</th><th>Tariffa €</th><th>N. reformer</th><th>Tariffa €</th><th>Compenso €</th></tr>";
+    var totale = 0;
+    var rows = istruttori.map(function(c){
+      var key = orCorsiKey(state.club, month, c.id);
+      var dati = state.orariCorsi[key] || {};
+      var nLezioni = dati.nLezioni || 0;
+      var nLezioniCoreo = dati.nLezioniCoreografate || 0;
+      var nLezioniReformer = dati.nLezioniReformer || 0;
+      var tariffa = c.tariffaLezione != null ? c.tariffaLezione : 15;
+      var tariffaCoreo = c.tariffaLezioneCoreografata != null ? c.tariffaLezioneCoreografata : 20;
+      var tariffaReformer = c.tariffaLezioneReformer != null ? c.tariffaLezioneReformer : 25;
+      var compenso = (nLezioni*tariffa) + (nLezioniCoreo*tariffaCoreo) + (nLezioniReformer*tariffaReformer);
+      totale += compenso;
+      return "<tr>" +
+        "<td>" + c.nome + "</td>" +
+        '<td><input type="number" step="0.5" min="0" style="width:80px" value="' + nLezioni + '" data-corsi-collab="' + c.id + '" data-corsi-campo="nLezioni"></td>' +
+        '<td class="num">' + orEuro(tariffa) + "</td>" +
+        '<td><input type="number" step="0.5" min="0" style="width:80px" value="' + nLezioniCoreo + '" data-corsi-collab="' + c.id + '" data-corsi-campo="nLezioniCoreografate"></td>' +
+        '<td class="num">' + orEuro(tariffaCoreo) + "</td>" +
+        '<td><input type="number" step="0.5" min="0" style="width:80px" value="' + nLezioniReformer + '" data-corsi-collab="' + c.id + '" data-corsi-campo="nLezioniReformer"></td>' +
+        '<td class="num">' + orEuro(tariffaReformer) + "</td>" +
+        '<td class="num">' + orEuro(compenso) + "</td>" +
+      "</tr>";
+    }).join("");
+    var foot = '<tr class="or-total-row"><td colspan="7">Totale corsi</td><td class="num">' + orEuro(totale) + "</td></tr>";
+    body.innerHTML = head + (rows || "") + foot;
+    return totale;
+  }
+  function initOrCorsiTable(){
+    var body = document.getElementById("orCorsiTable");
+    if (!body) return;
+    body.addEventListener("change", function(e){
+      var input = e.target.closest("[data-corsi-collab]");
+      if (!input) return;
+      var collabId = input.dataset.corsiCollab;
+      var campo = input.dataset.corsiCampo;
+      var month = orSharedMonthKey();
+      var key = orCorsiKey(state.club, month, collabId);
+      var rec = state.orariCorsi[key] || { id: key, club: state.club, month: month, collabId: collabId, nLezioni:0, nLezioniCoreografate:0, nLezioniReformer:0 };
+      rec[campo] = parseFloat(input.value) || 0;
+      state.orariCorsi[key] = rec;
+      if (state.db) state.db.doc("orariCorsi/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      else showDbSyncWarning();
+      renderOrari();
+    });
+  }
+
+  // ---------- DESK ----------
+  function orDeskKey(club, month, collabId){ return club + "__" + month + "__" + collabId; }
+  function renderOrariDesk(){
+    var body = document.getElementById("orDeskTable");
+    var empty = document.getElementById("orDeskEmpty");
+    if (!body) return;
+    var month = orSharedMonthKey();
+    var persone = orCollabiForClub(state.club).filter(function(c){ return orHasRole(c,"desk"); });
+    if (empty) empty.hidden = persone.length > 0;
+    var head = "<tr><th>Nome</th><th>Ore desk</th><th>Tariffa/h €</th><th>Compenso €</th></tr>";
+    var totale = 0;
+    var rows = persone.map(function(c){
+      var key = orDeskKey(state.club, month, c.id);
+      var ore = (state.orariDesk[key] && state.orariDesk[key].oreDesk) || 0;
+      var tariffa = c.tariffaDeskOra != null ? c.tariffaDeskOra : 7;
+      var compenso = ore * tariffa;
+      totale += compenso;
+      return "<tr>" +
+        "<td>" + c.nome + "</td>" +
+        '<td><input type="number" step="0.5" min="0" style="width:80px" value="' + ore + '" data-desk-collab="' + c.id + '"></td>' +
+        '<td class="num">' + orEuro(tariffa) + "</td>" +
+        '<td class="num">' + orEuro(compenso) + "</td>" +
+      "</tr>";
+    }).join("");
+    var foot = '<tr class="or-total-row"><td colspan="3">Totale desk</td><td class="num">' + orEuro(totale) + "</td></tr>";
+    body.innerHTML = head + (rows || "") + foot;
+    return totale;
+  }
+  function initOrDeskTable(){
+    var body = document.getElementById("orDeskTable");
+    if (!body) return;
+    body.addEventListener("change", function(e){
+      var input = e.target.closest("[data-desk-collab]");
+      if (!input) return;
+      var collabId = input.dataset.deskCollab;
+      var month = orSharedMonthKey();
+      var key = orDeskKey(state.club, month, collabId);
+      var rec = { id: key, club: state.club, month: month, collabId: collabId, oreDesk: parseFloat(input.value) || 0 };
+      state.orariDesk[key] = rec;
+      if (state.db) state.db.doc("orariDesk/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      else showDbSyncWarning();
+      renderOrari();
+    });
+  }
+
+  // ---------- ORE PT (e PT Pilates) ----------
+  // Stesso algoritmo dell'originale: settimana di competenza giovedì→mercoledì, assegnata
+  // al mese che possiede più giorni feriali (poi più giorni totali) di quella settimana.
+  function orPtWeekStart(dateStr){
+    var d = new Date(dateStr + "T12:00:00");
+    var day = d.getDay();
+    var diff = (day - 4 + 7) % 7;
+    d.setDate(d.getDate() - diff);
+    return d.toISOString().slice(0,10);
+  }
+  function orPtMeseProprietario(weekStart){
+    var feriali = {}, tutti = {};
+    for (var i = 0; i < 7; i++){
+      var dateStr = orAddDays(weekStart, i);
+      var mk = dateStr.slice(0,7);
+      tutti[mk] = (tutti[mk]||0) + 1;
+      if (!orIsSunday(dateStr)) feriali[mk] = (feriali[mk]||0) + 1;
+    }
+    var mesi = Object.keys(tutti);
+    if (mesi.length === 1) return mesi[0];
+    var best = null, bestFeriali = -1, bestTotali = -1;
+    mesi.forEach(function(mk){
+      var f = feriali[mk]||0, t = tutti[mk]||0;
+      if (f > bestFeriali || (f === bestFeriali && t > bestTotali)){ best = mk; bestFeriali = f; bestTotali = t; }
+    });
+    return best;
+  }
+  function orPtWeeksOwnedByMonth(monthKey){
+    var nDays = orDaysInMonth(monthKey);
+    var first = monthKey + "-01";
+    var last = monthKey + "-" + String(nDays).padStart(2,"0");
+    var owned = [];
+    var cursor = orPtWeekStart(first);
+    while (cursor <= last){
+      if (orPtMeseProprietario(cursor) === monthKey) owned.push(cursor);
+      cursor = orAddDays(cursor, 7);
+    }
+    return owned;
+  }
+  function orFmtWeekRangeShort(weekStart){
+    var end = orAddDays(weekStart, 6);
+    var d1 = new Date(weekStart + "T12:00:00"), d2 = new Date(end + "T12:00:00");
+    return (d1.getDate()) + "/" + (d1.getMonth()+1) + " → " + (d2.getDate()) + "/" + (d2.getMonth()+1);
+  }
+  function orPtKey(club, month, collabId){ return club + "__" + month + "__" + collabId; }
+  function orRenderPtTable(role, collection, tableId, emptyId, statsId, dataAttr){
+    var table = document.getElementById(tableId);
+    var empty = document.getElementById(emptyId);
+    if (!table) return 0;
+    var month = orSharedMonthKey();
+    var list = orCollabiForClub(state.club).filter(function(c){ return orHasRole(c, role); });
+    if (empty) empty.hidden = list.length > 0;
+    var weeks = orPtWeeksOwnedByMonth(month);
+    var sums = weeks.map(function(){ return 0; });
+    var totaleMese = 0;
+    var head = "<tr><th>" + (role === "pt" ? "PT" : "PT Pilates") + "</th>" + weeks.map(function(w){ return "<th>" + orFmtWeekRangeShort(w) + "</th>"; }).join("") + '<th class="num">Totale mese</th></tr>';
+    var rows = list.map(function(c){
+      var key = orPtKey(state.club, month, c.id);
+      var rec = (state[collection][key] && state[collection][key].ore) || {};
+      var tot = 0;
+      var cells = weeks.map(function(w, i){
+        var v = rec[w] || 0;
+        sums[i] += v;
+        tot += v;
+        return '<td><input type="number" step="0.5" min="0" style="width:60px" value="' + v + '" data-' + dataAttr + '-collab="' + c.id + '" data-' + dataAttr + '-week="' + w + '"></td>';
+      }).join("");
+      totaleMese += tot;
+      return "<tr><td>" + c.nome + "</td>" + cells + '<td class="num">' + tot + "</td></tr>";
+    }).join("");
+    var foot = '<tr class="or-total-row"><td>Totale</td>' + sums.map(function(s){ return '<td class="num">' + s + "</td>"; }).join("") + '<td class="num">' + totaleMese + "</td></tr>";
+    table.innerHTML = head + (rows || "") + foot;
+    var stats = document.getElementById(statsId);
+    if (stats){
+      if (role === "pt"){
+        var s = orSettingsFor(state.club);
+        var target = s.numeroPT ? Math.round((s.obiettivoPT/s.numeroPT)*10)/10 : 0;
+        stats.innerHTML =
+          '<div class="or-stat">Obiettivo mensile<b>' + (s.obiettivoPT || 0) + " h</b></div>" +
+          '<div class="or-stat">Ore fatte<b>' + totaleMese + " h</b></div>" +
+          '<div class="or-stat">Target per PT<b>' + target + " h</b></div>";
+      } else {
+        stats.innerHTML = '<div class="or-stat">Ore fatte (Pilates)<b>' + totaleMese + " h</b></div>";
+      }
+    }
+    return totaleMese;
+  }
+  function renderOrariPT(){
+    orRenderPtTable("pt", "orariPT", "orPtTable", "orPtEmpty", "orPtStats", "pt");
+    orRenderPtTable("pt_pilates", "orariPtPilates", "orPtPilatesTable", "orPtPilatesEmpty", "orPtPilatesStats", "ptpil");
+  }
+  function orWirePtInputs(tableId, collection, dataAttr){
+    var table = document.getElementById(tableId);
+    if (!table) return;
+    table.addEventListener("change", function(e){
+      var input = e.target.closest("[data-" + dataAttr + "-collab]");
+      if (!input) return;
+      var collabId = input.dataset[dataAttr + "Collab"];
+      var week = input.dataset[dataAttr + "Week"];
+      var month = orSharedMonthKey();
+      var key = orPtKey(state.club, month, collabId);
+      var rec = state[collection][key] || { id: key, club: state.club, month: month, collabId: collabId, ore: {} };
+      rec.ore = rec.ore || {};
+      rec.ore[week] = parseFloat(input.value) || 0;
+      state[collection][key] = rec;
+      if (state.db) state.db.doc(collection + "/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      else showDbSyncWarning();
+      renderOrari();
+    });
+  }
+  function initOrPtTables(){
+    orWirePtInputs("orPtTable", "orariPT", "pt");
+    orWirePtInputs("orPtPilatesTable", "orariPtPilates", "ptpil");
+  }
+
+  // ---------- RIEPILOGO (ore sala/saldo) + COMPENSI FINALI ----------
+  var OR_MESI = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+  function orFmtMonthLabel(monthKey){
+    var y = +monthKey.slice(0,4), m = +monthKey.slice(5,7);
+    return OR_MESI[m-1] + " " + y;
+  }
+  function orIsoWeekMonday(dateStr){
+    var d = new Date(dateStr + "T12:00:00");
+    var day = d.getDay();
+    var diff = (day === 0 ? -6 : 1 - day);
+    d.setDate(d.getDate() + diff);
+    return d.toISOString().slice(0,10);
+  }
+  function orMonthKeyAdd(monthKey, n){
+    var y = +monthKey.slice(0,4), m = +monthKey.slice(5,7);
+    var d = new Date(y, m - 1 + n, 1);
+    return d.getFullYear() + "-" + String(d.getMonth()+1).padStart(2,"0");
+  }
+  function orWeeksTouchingMonth(monthKey){
+    var nDays = orDaysInMonth(monthKey);
+    var first = monthKey + "-01";
+    var last = monthKey + "-" + String(nDays).padStart(2,"0");
+    var weeks = [];
+    var cursor = orIsoWeekMonday(first);
+    while (cursor <= last){
+      weeks.push(cursor);
+      cursor = orAddDays(cursor, 7);
+    }
+    return weeks;
+  }
+  function orTurniSettimanaCollab(club, collabId, weekMonday){
+    var weekSunday = orAddDays(weekMonday, 6);
+    var months = {}; months[weekMonday.slice(0,7)] = true; months[weekSunday.slice(0,7)] = true;
+    var all = [];
+    Object.keys(months).forEach(function(mk){
+      orPresenzeForClubMonth(club, mk).forEach(function(t){
+        if (t.collabId === collabId && t.data >= weekMonday && t.data <= weekSunday) all.push(t);
+      });
+    });
+    return all;
+  }
+  function orProfiloSettimanaleCollab(club, collabId, monthKeys){
+    var perWeekday = {};
+    monthKeys.forEach(function(monthKey){
+      orPresenzeForClubMonth(club, monthKey).forEach(function(t){
+        if (t.collabId !== collabId) return;
+        if (orIsFestivoClub(t.data)) return;
+        var weekday = new Date(t.data + "T12:00:00").getDay();
+        var h = orHoursBetween(t.inizio, t.fine);
+        perWeekday[weekday] = perWeekday[weekday] || {};
+        perWeekday[weekday][h] = (perWeekday[weekday][h]||0) + 1;
+      });
+    });
+    var profilo = {};
+    Object.keys(perWeekday).forEach(function(wd){
+      var counts = perWeekday[wd];
+      var best = null, bestCount = -1;
+      Object.keys(counts).forEach(function(h){ if (counts[h] > bestCount){ bestCount = counts[h]; best = parseFloat(h); } });
+      profilo[wd] = best;
+    });
+    return profilo;
+  }
+  // Porta 1:1 l'algoritmo dell'originale: soglia settimanale "ore comprese", festivi sempre
+  // assorbiti dalla soglia (per chi ha oreComprese>0), riduzione pro-quota nei festivi
+  // infrasettimanali su un giorno abituale di lavoro, e ripartizione proporzionale della
+  // quota nelle settimane a cavallo tra due mesi.
+  function orComputeWeekForCollab(c, weekMonday, viewMonth){
+    var club = state.club;
+    var extra = orSettingsFor(club).festivitaExtra;
+    var weekSunday = orAddDays(weekMonday, 6);
+    var isBoundary = weekMonday.slice(0,7) !== weekSunday.slice(0,7);
+    var baseQuota = c.oreComprese || 0;
+    var oreLavorate = 0, quota, hasFestivo = false, dedottoFestivo = 0;
+
+    if (!isBoundary){
+      var turni = orTurniSettimanaCollab(club, c.id, weekMonday);
+      var profilo = orProfiloSettimanaleCollab(club, c.id, [weekMonday.slice(0,7)]);
+      quota = baseQuota;
+      turni.forEach(function(t){
+        if (orIsFestivoClub(t.data)) hasFestivo = true;
+        if (baseQuota > 0 && orIsFestivoClub(t.data)) return;
+        oreLavorate += orHoursBetween(t.inizio, t.fine);
+      });
+      for (var i=0;i<7;i++){
+        var dateStr = orAddDays(weekMonday, i);
+        var weekday = new Date(dateStr + "T12:00:00").getDay();
+        if (orIsHoliday(dateStr, extra) && weekday !== 0 && profilo[weekday] !== undefined){
+          var riduzione = Math.min(quota, profilo[weekday]);
+          quota -= riduzione;
+          dedottoFestivo += riduzione;
+        }
+      }
+    } else {
+      var turni2 = orTurniSettimanaCollab(club, c.id, weekMonday);
+      var oreGiorno = {};
+      var oreSettimanaTotali = 0;
+      for (var i2=0;i2<7;i2++){
+        var dateStr2 = orAddDays(weekMonday, i2);
+        if (baseQuota > 0 && orIsFestivoClub(dateStr2)) continue;
+        var oreDelGiorno = turni2.filter(function(t){ return t.data === dateStr2; }).reduce(function(tot,t){ return tot + orHoursBetween(t.inizio, t.fine); }, 0);
+        if (oreDelGiorno > 0){ oreGiorno[i2] = oreDelGiorno; oreSettimanaTotali += oreDelGiorno; }
+      }
+      quota = 0;
+      for (var i3=0;i3<7;i3++){
+        var dateStr3 = orAddDays(weekMonday, i3);
+        if (dateStr3.slice(0,7) !== viewMonth) continue;
+        turni2.filter(function(t){ return t.data === dateStr3; }).forEach(function(t){
+          if (orIsFestivoClub(t.data)) hasFestivo = true;
+          if (baseQuota > 0 && orIsFestivoClub(t.data)) return;
+          oreLavorate += orHoursBetween(t.inizio, t.fine);
+        });
+        if (oreGiorno[i3] !== undefined && oreSettimanaTotali > 0){
+          quota += baseQuota * (oreGiorno[i3] / oreSettimanaTotali);
+        }
+      }
+      if (oreSettimanaTotali === 0) quota = baseQuota;
+    }
+
+    oreLavorate = Math.round(oreLavorate*4)/4;
+    quota = Math.round(quota*4)/4;
+    var quotaManuale = false;
+    var qmKey = orPtKey(club, viewMonth, c.id);
+    var overrideRec = state.orariQuotaManuale[qmKey];
+    if (overrideRec && overrideRec.quote && overrideRec.quote[weekMonday] !== undefined){
+      quota = overrideRec.quote[weekMonday];
+      quotaManuale = true;
+    }
+    return { weekMonday: weekMonday, weekSunday: weekSunday, oreLavorate: oreLavorate, quota: quota, isBoundary: isBoundary, hasFestivo: hasFestivo, dedottoFestivo: Math.round(dedottoFestivo*4)/4, delta: Math.round((oreLavorate-quota)*4)/4, quotaManuale: quotaManuale };
+  }
+  // Anteprima (non salva nulla): saldo del mese corrente a partire dal saldo storico
+  // REGISTRATO del mese immediatamente precedente — stesso algoritmo dell'originale.
+  function orPreviewMeseCollab(c){
+    var currentMonth = orSharedMonthKey();
+    var weeks = orWeeksTouchingMonth(currentMonth);
+    var storico = c.saldoStorico || {};
+    var mesePrecedente = orMonthKeyAdd(currentMonth, -1);
+    var precedentiRegistrati = Object.keys(storico).filter(function(m){ return m < currentMonth; }).sort();
+    var saldoIniziale;
+    if (precedentiRegistrati.length > 0){
+      saldoIniziale = storico[precedentiRegistrati[precedentiRegistrati.length-1]];
+    } else {
+      saldoIniziale = (c.saldoApertura !== null && c.saldoApertura !== undefined) ? c.saldoApertura : (c.saldoRecupero || 0);
+    }
+    var saldo = saldoIniziale;
+    var dettaglio = [];
+    var deltaMeseTotale = 0;
+    weeks.forEach(function(wm){
+      var w = orComputeWeekForCollab(c, wm, currentMonth);
+      deltaMeseTotale += w.delta;
+      dettaglio.push(w);
+    });
+    var extraPagate;
+    if (deltaMeseTotale >= 0){
+      var usatoPerSaldo = Math.min(saldo, deltaMeseTotale);
+      saldo -= usatoPerSaldo;
+      extraPagate = deltaMeseTotale - usatoPerSaldo;
+    } else {
+      saldo += Math.abs(deltaMeseTotale);
+      extraPagate = 0;
+    }
+    var giaApplicatoQuestoMese = storico[currentMonth] !== undefined;
+    var warning = (precedentiRegistrati.length > 0 && storico[mesePrecedente] === undefined)
+      ? ('Manca il saldo applicato per "' + orFmtMonthLabel(mesePrecedente) + '": applica prima i mesi precedenti in ordine per un saldo affidabile.')
+      : null;
+    var compenso;
+    if (c.compensoFisso !== null && c.compensoFisso !== undefined && c.compensoFisso !== ""){
+      compenso = parseFloat(c.compensoFisso);
+      extraPagate = null;
+    } else {
+      var tariffaExtra = orSettingsFor(state.club).tariffaExtra;
+      compenso = Math.round(extraPagate*tariffaExtra*100)/100;
+    }
+    return { dettaglio: dettaglio, saldoIniziale: saldoIniziale, saldoFinale: Math.round(saldo*4)/4, extraPagate: extraPagate, compenso: compenso, warning: warning, giaApplicatoQuestoMese: giaApplicatoQuestoMese };
+  }
+  function orApplicaMeseCollab(collabId){
+    var full = orCollabId(state.club, collabId);
+    var c = state.orariCollaboratori[full];
+    if (!c) return;
+    if (c.saldoApertura === null || c.saldoApertura === undefined) c.saldoApertura = c.saldoRecupero || 0;
+    var currentMonth = orSharedMonthKey();
+    var prev = orPreviewMeseCollab(c);
+    c.saldoStorico = c.saldoStorico || {};
+    c.saldoStorico[currentMonth] = prev.saldoFinale;
+    var mesiRegistrati = Object.keys(c.saldoStorico).sort();
+    var ultimoMese = mesiRegistrati[mesiRegistrati.length-1];
+    c.saldoRecupero = c.saldoStorico[ultimoMese];
+    c.saldoAggiornatoAl = ultimoMese;
+    state.orariCollaboratori[full] = c;
+    if (state.db) state.db.doc("orariCollaboratori/" + full).set(c).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+    renderOrari();
+  }
+  function renderOrariRiepilogo(corsiTotale, deskTotale){
+    var currentMonth = orSharedMonthKey();
+    var titleEl = document.getElementById("orRiepTitle");
+    if (titleEl) titleEl.textContent = "Riepilogo — " + orFmtMonthLabel(currentMonth);
+    var salaList = orCollabiForClub(state.club).filter(function(c){
+      return orHasRole(c,"sala") || (c.compensoFisso !== null && c.compensoFisso !== undefined && c.compensoFisso !== "");
+    });
+    var salaTotale = 0;
+    var cardsHtml = salaList.map(function(c){
+      var p = orPreviewMeseCollab(c);
+      if (p.compenso !== null) salaTotale += p.compenso;
+      var fisso = c.compensoFisso !== null && c.compensoFisso !== undefined && c.compensoFisso !== "";
+      var rows = p.dettaglio.map(function(w){
+        return "<tr>" +
+          "<td>" + w.weekMonday + " → " + w.weekSunday + (w.hasFestivo ? ' <span class="or-fisso-badge">festivo</span>' : "") + "</td>" +
+          '<td class="num">' + w.oreLavorate + "</td>" +
+          '<td class="num">' + (fisso ? "—" :
+            ('<input type="number" step="0.5" value="' + w.quota + '" data-riep-quota-collab="' + c.id + '" data-riep-quota-week="' + w.weekMonday + '" style="width:56px; text-align:right;' + (w.quotaManuale ? " border-color:var(--teal-deep);" : "") + '">' +
+             (w.quotaManuale ? (' <button type="button" data-riep-reset-collab="' + c.id + '" data-riep-reset-week="' + w.weekMonday + '" style="font-size:10px; padding:1px 6px;">↺</button>') : "") +
+             (w.dedottoFestivo > 0 ? (' <span style="font-size:10px;color:var(--amber);">(-' + w.dedottoFestivo + ' fest.)</span>') : ""))
+          ) + "</td>" +
+          '<td class="num"' + (fisso ? "" : (' style="color:' + (w.delta<0 ? "var(--warn)" : "var(--good)") + ';"')) + ">" + (fisso ? "—" : ((w.delta>0?"+":"") + w.delta)) + "</td>" +
+        "</tr>";
+      }).join("");
+      return '<div class="or-riep-card">' +
+        '<div class="or-riep-card-head"><h4>' + c.nome + '</h4><button type="button" class="or-tab" data-riep-applica="' + c.id + '">' + (p.giaApplicatoQuestoMese ? "Ricalcola e sostituisci" : "Applica questo mese al saldo") + "</button></div>" +
+        (p.giaApplicatoQuestoMese ? '<div class="or-riep-warn">Questo mese è già stato applicato al saldo. Un nuovo click ricalcola da capo e sostituisce il risultato precedente.</div>' : "") +
+        (fisso ? '<div class="or-riep-warn">Compenso fisso: le ore mostrate sono solo traccia, non influenzano il compenso.</div>' : "") +
+        (p.warning ? ('<div class="or-riep-warn">' + p.warning + "</div>") : "") +
+        '<table class="or-riep-week-table"><thead><tr><th>Settimana</th><th>Ore</th><th>Ore comprese</th><th>Delta</th></tr></thead><tbody>' +
+          (rows || '<tr><td colspan="4">Nessuna settimana in questo mese.</td></tr>') +
+        "</tbody></table>" +
+        '<div class="or-riep-summary">' +
+          '<div><span class="lbl">Saldo iniziale</span><span class="val">' + p.saldoIniziale + " h</span></div>" +
+          '<div><span class="lbl">Saldo finale (anteprima)</span><span class="val">' + p.saldoFinale + " h</span></div>" +
+          '<div><span class="lbl">Ore extra pagate</span><span class="val">' + (p.extraPagate===null ? "—" : (p.extraPagate+" h")) + "</span></div>" +
+          '<div><span class="lbl">Compenso' + (fisso?" (fisso)":"") + '</span><span class="val">' + orEuro(p.compenso) + "</span></div>" +
+        "</div>" +
+      "</div>";
+    }).join("");
+    var container = document.getElementById("orRiepSalaCards");
+    if (container) container.innerHTML = cardsHtml || '<div class="or-empty-note">Nessun collaboratore in sala configurato.</div>';
+    var totaleEl = document.getElementById("orRiepSalaTotale");
+    if (totaleEl) totaleEl.innerHTML = "<span>Totale compenso sala (mese corrente)</span><span>" + orEuro(salaTotale) + "</span>";
+    var totaleGenerale = salaTotale + corsiTotale + deskTotale;
+    var settings = orSettingsFor(state.club);
+    var statsEl = document.getElementById("orRiepStats");
+    if (statsEl) statsEl.innerHTML =
+      '<div class="or-stat">Compenso sala<b>' + orEuro(salaTotale) + "</b></div>" +
+      '<div class="or-stat">Compenso corsi<b>' + orEuro(corsiTotale) + "</b></div>" +
+      '<div class="or-stat">Compenso desk<b>' + orEuro(deskTotale) + "</b></div>" +
+      '<div class="or-stat">Totale generale<b>' + orEuro(totaleGenerale) + "</b></div>";
+    var budgetEl = document.getElementById("orRiepBudget");
+    if (budgetEl) budgetEl.innerHTML =
+      '<div class="or-stat">Disponibile<b>' + orEuro(settings.budgetMensile) + "</b></div>" +
+      '<div class="or-stat">Utilizzato<b>' + orEuro(totaleGenerale) + "</b></div>" +
+      '<div class="or-stat">Bilancio<b>' + orEuro(settings.budgetMensile - totaleGenerale) + "</b></div>";
+  }
+  function initOrRiepilogo(){
+    var container = document.getElementById("orRiepSalaCards");
+    if (!container) return;
+    container.addEventListener("click", function(e){
+      var applicaBtn = e.target.closest("[data-riep-applica]");
+      if (applicaBtn){ orApplicaMeseCollab(applicaBtn.dataset.riepApplica); return; }
+      var resetBtn = e.target.closest("[data-riep-reset-collab]");
+      if (resetBtn){
+        var collabId = resetBtn.dataset.riepResetCollab;
+        var week = resetBtn.dataset.riepResetWeek;
+        var month = orSharedMonthKey();
+        var key = orPtKey(state.club, month, collabId);
+        var rec = state.orariQuotaManuale[key];
+        if (rec && rec.quote){
+          delete rec.quote[week];
+          state.orariQuotaManuale[key] = rec;
+          if (state.db) state.db.doc("orariQuotaManuale/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+          else showDbSyncWarning();
+          renderOrari();
+        }
+      }
+    });
+    container.addEventListener("change", function(e){
+      var input = e.target.closest("[data-riep-quota-collab]");
+      if (!input) return;
+      var collabId = input.dataset.riepQuotaCollab;
+      var week = input.dataset.riepQuotaWeek;
+      var month = orSharedMonthKey();
+      var key = orPtKey(state.club, month, collabId);
+      var rec = state.orariQuotaManuale[key] || { id: key, club: state.club, month: month, collabId: collabId, quote: {} };
+      rec.quote = rec.quote || {};
+      rec.quote[week] = parseFloat(input.value) || 0;
+      state.orariQuotaManuale[key] = rec;
+      if (state.db) state.db.doc("orariQuotaManuale/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      else showDbSyncWarning();
+      renderOrari();
+    });
+  }
+
+  // ---------- COMPENSI FINALI ----------
+  function renderOrariCompensiFinali(){
+    var currentMonth = orSharedMonthKey();
+    var titleEl = document.getElementById("orCompFinaliTitle");
+    if (titleEl) titleEl.textContent = "Compensi finali — " + orFmtMonthLabel(currentMonth);
+    var elenco = orCollabiForClub(state.club).filter(function(c){
+      return orHasRole(c,"sala") || orHasRole(c,"corsi") || orHasRole(c,"desk") ||
+        (c.compensoFisso !== null && c.compensoFisso !== undefined && c.compensoFisso !== "");
+    });
+    var body = document.getElementById("orCompFinaliTable");
+    var empty = document.getElementById("orCompFinaliEmpty");
+    if (empty) empty.hidden = elenco.length > 0;
+    var head = "<tr><th>Nome</th><th>Sala €</th><th>Corsi €</th><th>Desk €</th><th>Totale automatico €</th><th>Bonus €</th><th>Totale finale €</th></tr>";
+    var totaleGenerale = 0;
+    var rows = elenco.map(function(c){
+      var p = orPreviewMeseCollab(c);
+      var salaComp = p.compenso || 0;
+      var corsiKey = orCorsiKey(state.club, currentMonth, c.id);
+      var dc = state.orariCorsi[corsiKey] || {};
+      var corsiComp = ((dc.nLezioni||0) * (c.tariffaLezione != null ? c.tariffaLezione : 15))
+        + ((dc.nLezioniCoreografate||0) * (c.tariffaLezioneCoreografata != null ? c.tariffaLezioneCoreografata : 20))
+        + ((dc.nLezioniReformer||0) * (c.tariffaLezioneReformer != null ? c.tariffaLezioneReformer : 25));
+      var deskKey = orDeskKey(state.club, currentMonth, c.id);
+      var dd = state.orariDesk[deskKey] || {};
+      var deskComp = (dd.oreDesk||0) * (c.tariffaDeskOra != null ? c.tariffaDeskOra : 7);
+      var totaleAuto = salaComp + corsiComp + deskComp;
+      var bonusKey = orPtKey(state.club, currentMonth, c.id);
+      var bonus = (state.orariBonus[bonusKey] && state.orariBonus[bonusKey].bonus) || 0;
+      var totaleFinale = totaleAuto + bonus;
+      totaleGenerale += totaleFinale;
+      return "<tr>" +
+        "<td>" + c.nome + "</td>" +
+        '<td class="num">' + orEuro(salaComp) + "</td>" +
+        '<td class="num">' + orEuro(corsiComp) + "</td>" +
+        '<td class="num">' + orEuro(deskComp) + "</td>" +
+        '<td class="num">' + orEuro(totaleAuto) + "</td>" +
+        '<td><input type="number" step="1" style="width:90px" value="' + bonus + '" data-comp-bonus-collab="' + c.id + '"></td>' +
+        '<td class="num" style="font-weight:700;">' + orEuro(totaleFinale) + "</td>" +
+      "</tr>";
+    }).join("");
+    var foot = '<tr class="or-total-row"><td colspan="6">Totale generale (finale)</td><td class="num">' + orEuro(totaleGenerale) + "</td></tr>";
+    if (body) body.innerHTML = head + (rows || "") + foot;
+  }
+  function initOrCompFinaliTable(){
+    var body = document.getElementById("orCompFinaliTable");
+    if (!body) return;
+    body.addEventListener("change", function(e){
+      var input = e.target.closest("[data-comp-bonus-collab]");
+      if (!input) return;
+      var collabId = input.dataset.compBonusCollab;
+      var month = orSharedMonthKey();
+      var key = orPtKey(state.club, month, collabId);
+      var rec = { id: key, club: state.club, month: month, collabId: collabId, bonus: parseFloat(input.value) || 0 };
+      state.orariBonus[key] = rec;
+      if (state.db) state.db.doc("orariBonus/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      else showDbSyncWarning();
+      renderOrari();
+    });
   }
 
   function initOrTabs(){
@@ -2459,7 +3359,7 @@
   }
 
   function orRoleLabel(r){
-    return { sala:"Sala", corsi:"Corsi", desk:"Desk", pt:"PT" }[r] || r;
+    return { sala:"Sala", corsi:"Corsi", desk:"Desk", pt:"PT", pt_pilates:"PT Pilates", clubmanager:"Club Manager" }[r] || r;
   }
 
   function renderOrariCollaboratori(){
@@ -2507,10 +3407,18 @@
   function renderOrari(){
     var lbl = document.getElementById("orariClubLabel");
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
+    renderCoachOggiAuto();
     renderOrariTabs();
     renderOrariCollaboratori();
     renderOrariPresenze();
     renderOrariCopertura();
+    var corsiTotale = renderOrariCorsi();
+    var deskTotale = renderOrariDesk();
+    renderOrariPT();
+    orFillSettingsForm();
+    orRenderFestivitaExtra();
+    renderOrariRiepilogo(corsiTotale, deskTotale);
+    renderOrariCompensiFinali();
   }
 
   function initOrCollabAddForm(){
@@ -3396,6 +4304,28 @@
           Object.keys(state.orariPresenze).forEach(function(id){ if (!seen[id]) delete state.orariPresenze[id]; });
           renderOrari();
         });
+        db.collection("orariSettings").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.orariSettings[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.orariSettings).forEach(function(id){ if (!seen[id]) delete state.orariSettings[id]; });
+          renderOrari();
+        });
+        ["orariCorsi","orariDesk","orariPT","orariPtPilates","orariQuotaManuale","orariBonus"].forEach(function(coll){
+          db.collection(coll).onSnapshot(function(snap){
+            var seen = {};
+            (snap.docs || snap || []).forEach(function(d){
+              var data = d.data ? d.data() : d;
+              var id = d.id || (data && data.id);
+              if (id && data) { state[coll][id] = data; seen[id] = true; }
+            });
+            Object.keys(state[coll]).forEach(function(id){ if (!seen[id]) delete state[coll][id]; });
+            renderOrari();
+          });
+        });
       } catch(e) { /* no live updates available — local taps still work */ }
     })();
 
@@ -3455,7 +4385,13 @@
     initOrTabs();
     initOrCollabAddForm();
     initOrPresAddForm();
-    initOrCovDatePicker();
+    initOrCorsiTable();
+    initOrDeskTable();
+    initOrPtTables();
+    initOrSettingsForm();
+    initOrBackup();
+    initOrRiepilogo();
+    initOrCompFinaliTable();
     initNav();
     initRoleGate();
     ruolo = loadRuolo();
