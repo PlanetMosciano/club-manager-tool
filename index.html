@@ -455,6 +455,7 @@
       <a href="#" data-page="kpi"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg><span class="lbl">KPI</span></a>
       <a href="#" data-page="contatti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.4 4 2.4 4.5 5.8"/></svg><span class="lbl">Contatti</span></a>
       <a href="#" data-page="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 5h4a4 4 0 0 1 0 8h-2"/><path d="M11 19H7a4 4 0 0 1 0-8h2"/></svg><span class="lbl">App</span></a>
+      <a href="#" data-page="orari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="lbl">Orari &amp; Compensi</span></a>
     </nav>
     <div class="tools-block">
       <div class="label">Strumenti</div>
@@ -2735,27 +2736,44 @@
       cbs.forEach(function(cb){ cb({ docs: docs }); });
     }
 
+    // Riprova con backoff breve: Apps Script, sotto scritture/letture concorrenti
+    // (più dispositivi/schede nello stesso istante), può occasionalmente non
+    // rispondere con gli header CORS corretti (fallimento lato Google, non del
+    // codice qui sotto — verificato il 13/11/2026: stesso identico fetch isolato
+    // va sempre a buon fine). Se dopo tutti i tentativi fallisce ancora, l'errore
+    // risale invariato a chi chiama: il fallimento resta segnalato all'utente
+    // (notifyWriteFailed / showDbSyncWarning), non viene mai nascosto.
+    function withRetry_(fn, attempts, delayMs){
+      return fn().catch(function(err){
+        if (attempts <= 1) throw err;
+        return new Promise(function(resolve){ setTimeout(resolve, delayMs); })
+          .then(function(){ return withRetry_(fn, attempts - 1, delayMs * 2); });
+      });
+    }
+
     function refreshAll(){
-      return fetch(baseUrl + "?action=all", { cache: "no-store" })
-        .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-        .then(function(all){
-          var fresh = {};
-          Object.keys(all).forEach(function(key){ fresh[key] = all[key].value; });
-          cache = fresh;
-          Object.keys(listeners).forEach(notify);
-        });
+      return withRetry_(function(){
+        return fetch(baseUrl + "?action=all", { cache: "no-store" })
+          .then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+      }, 3, 400).then(function(all){
+        var fresh = {};
+        Object.keys(all).forEach(function(key){ fresh[key] = all[key].value; });
+        cache = fresh;
+        Object.keys(listeners).forEach(notify);
+      });
     }
 
     function postWrite_(payload){
-      return fetch(baseUrl, {
-        method: "POST",
-        headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita il preflight CORS
-        body: JSON.stringify(payload)
-      }).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-        .then(function(res){
-          if (!res || res.ok === false) throw new Error((res && res.error) || "scrittura rifiutata dal server");
-          return res;
-        });
+      return withRetry_(function(){
+        return fetch(baseUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" }, // evita il preflight CORS
+          body: JSON.stringify(payload)
+        }).then(function(r){ if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); });
+      }, 3, 400).then(function(res){
+        if (!res || res.ok === false) throw new Error((res && res.error) || "scrittura rifiutata dal server");
+        return res;
+      });
     }
 
     function doc(path){
