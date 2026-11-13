@@ -372,6 +372,13 @@
   .or-role-chip{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(41,78,97,.1); color:var(--teal-deep); white-space:nowrap; }
   .or-fisso-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(174,163,113,.18); color:var(--ink); }
   .or-holiday-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(179,68,47,.12); color:var(--warn); }
+  .or-cov-grid{ display:flex; gap:1px; margin:10px 0; overflow-x:auto; padding-bottom:4px; }
+  .or-cov-cell{ width:9px; height:30px; border-radius:2px; flex:0 0 auto; background:var(--line); }
+  .or-cov-cell.empty{ background:repeating-linear-gradient(45deg, rgba(179,68,47,.2), rgba(179,68,47,.2) 3px, transparent 3px, transparent 6px); }
+  .or-cov-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:12px; color:var(--ink-dim); }
+  .or-cov-legend-item{ display:flex; align-items:center; gap:5px; }
+  .or-cov-swatch{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+  .or-cov-stats{ font-size:13px; color:var(--ink-dim); margin-top:10px; }
 
   [hidden]{ display:none !important; }
 
@@ -949,7 +956,14 @@
                 <table class="or-table" id="orPresTable"></table>
               </div>
             </div>
-            <div class="or-panel" data-or-panel="copertura" hidden><div class="or-placeholder">Scheda "Copertura" — in costruzione.</div></div>
+            <div class="or-panel" data-or-panel="copertura" hidden>
+              <div class="mnt-add-row">
+                <input type="date" id="orCovDate">
+              </div>
+              <div class="or-cov-legend" id="orCovLegend"></div>
+              <div class="or-cov-grid" id="orCovGrid"></div>
+              <div class="or-cov-stats" id="orCovStats"></div>
+            </div>
             <div class="or-panel" data-or-panel="corsi" hidden><div class="or-placeholder">Scheda "Corsi" — in costruzione.</div></div>
             <div class="or-panel" data-or-panel="desk" hidden><div class="or-placeholder">Scheda "Desk" — in costruzione.</div></div>
             <div class="or-panel" data-or-panel="pt" hidden><div class="or-placeholder">Scheda "Ore PT" — in costruzione.</div></div>
@@ -2331,6 +2345,87 @@
     if (monthInput) monthInput.addEventListener("change", renderOrariPresenze);
   }
 
+  // Copertura: griglia a quarti d'ora dell'orario di apertura del giorno scelto, colorata
+  // per collaboratore in base alle presenze registrate. Palette nuova (non ho i valori
+  // esatti dei 12 colori dell'originale a disposizione qui): stessa famiglia cromatica
+  // dell'app, non una copia byte-per-byte di quella palette.
+  var OR_COLLAB_PALETTE = ["#386A7B","#AEA371","#B3442F","#2F7A4F","#5C6A6C","#7C5CBF","#C97B2C","#2E86AB","#A3761F","#6B8E23","#B5495B","#3F8F8C"];
+  function orPaletteColor(idx){ return OR_COLLAB_PALETTE[idx % OR_COLLAB_PALETTE.length]; }
+  function orToMin(t){ var parts = (t||"0:0").split(":"); return (+parts[0])*60 + (+parts[1]||0); }
+  function orMinutesToHHMM(mins){ var h = Math.floor(mins/60), m = mins % 60; return String(h).padStart(2,"0") + ":" + String(m).padStart(2,"0"); }
+  function orSlotsForDay(dateStr){
+    var range = orOpeningRange(dateStr);
+    var slots = [];
+    for (var m = range[0]*60; m < range[1]*60; m += 15) slots.push(m);
+    return slots;
+  }
+  function orPresenzeForClubDay(club, dateStr){
+    var out = [];
+    Object.keys(state.orariPresenze).forEach(function(key){
+      var p = state.orariPresenze[key];
+      if (p && p.club === club && p.data === dateStr) out.push(p);
+    });
+    return out;
+  }
+  function orCoverageCounts(club, dateStr){
+    var slots = orSlotsForDay(dateStr);
+    var pres = orPresenzeForClubDay(club, dateStr);
+    var coperte = 0, buchi = 0;
+    slots.forEach(function(slotStart){
+      var covered = pres.some(function(p){ return orToMin(p.inizio) <= slotStart && slotStart < orToMin(p.fine); });
+      if (covered) coperte++; else buchi++;
+    });
+    return { coperte: coperte, buchi: buchi };
+  }
+
+  function renderOrariCopertura(){
+    var grid = document.getElementById("orCovGrid");
+    if (!grid) return;
+    var dateInput = document.getElementById("orCovDate");
+    if (dateInput && !dateInput.value) dateInput.value = new Date().toISOString().slice(0,10);
+    var dateStr = dateInput ? dateInput.value : new Date().toISOString().slice(0,10);
+    var collabs = orCollabiForClub(state.club);
+    var colorOf = {};
+    collabs.forEach(function(c, i){ colorOf[c.id] = orPaletteColor(i); });
+    var presenze = orPresenzeForClubDay(state.club, dateStr);
+    var slots = orSlotsForDay(dateStr);
+    var coperte = 0, buchi = 0;
+    grid.innerHTML = slots.map(function(slotStart){
+      var covering = presenze.filter(function(p){ return orToMin(p.inizio) <= slotStart && slotStart < orToMin(p.fine); });
+      if (covering.length) coperte++; else buchi++;
+      var bg = covering.length ? colorOf[covering[0].collabId] : null;
+      var nomi = covering.map(function(p){
+        var c = collabs.filter(function(x){ return x.id === p.collabId; })[0];
+        return c ? c.nome : "";
+      }).join(", ");
+      var title = orMinutesToHHMM(slotStart) + " — " + (nomi || "scoperto");
+      return '<div class="or-cov-cell' + (covering.length ? "" : " empty") + '" style="' + (bg ? ("background:"+bg+";") : "") + '" title="' + title.replace(/"/g,"&quot;") + '"></div>';
+    }).join("");
+
+    var legend = document.getElementById("orCovLegend");
+    if (legend){
+      legend.innerHTML = collabs.map(function(c, i){
+        return '<span class="or-cov-legend-item"><span class="or-cov-swatch" style="background:' + orPaletteColor(i) + ';"></span>' + c.nome + '</span>';
+      }).join("");
+    }
+
+    var monthKey = dateStr.slice(0,7);
+    var daysInMonth = new Date(+monthKey.slice(0,4), +monthKey.slice(5,7), 0).getDate();
+    var totCoperte = 0, totBuchi = 0;
+    for (var day = 1; day <= daysInMonth; day++){
+      var ds = monthKey + "-" + String(day).padStart(2,"0");
+      var c = orCoverageCounts(state.club, ds);
+      totCoperte += c.coperte; totBuchi += c.buchi;
+    }
+    var stats = document.getElementById("orCovStats");
+    if (stats) stats.textContent = "Questo giorno: " + coperte + " quarti d'ora coperti, " + buchi + " scoperti. Totale mese: " + totCoperte + " coperti, " + totBuchi + " scoperti.";
+  }
+
+  function initOrCovDatePicker(){
+    var dateInput = document.getElementById("orCovDate");
+    if (dateInput) dateInput.addEventListener("change", renderOrariCopertura);
+  }
+
   function initOrTabs(){
     var bar = document.getElementById("orariTabs");
     if (!bar) return;
@@ -2415,6 +2510,7 @@
     renderOrariTabs();
     renderOrariCollaboratori();
     renderOrariPresenze();
+    renderOrariCopertura();
   }
 
   function initOrCollabAddForm(){
@@ -3359,6 +3455,7 @@
     initOrTabs();
     initOrCollabAddForm();
     initOrPresAddForm();
+    initOrCovDatePicker();
     initNav();
     initRoleGate();
     ruolo = loadRuolo();
