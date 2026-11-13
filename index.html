@@ -320,10 +320,18 @@
     font: inherit; font-size:13px; padding:6px 9px; border:1px solid var(--line); border-radius:7px;
     background: var(--surface); color: var(--ink); width:100%; resize:vertical; box-sizing:border-box;
   }
+  .ptreq-del-btn{ font-size:13px; line-height:1; padding:5px 8px; border-radius:7px; border:1px solid var(--line); background:transparent; color:var(--ink-dim); cursor:pointer; }
+  .ptreq-del-btn:hover{ border-color:var(--warn); color:var(--warn); background:rgba(179,68,47,.08); }
   .ptreq-wa-btn{ font:inherit; font-size:12px; font-weight:700; padding:6px 11px; border-radius:7px; border:1px solid var(--good); background:transparent; color:var(--good); cursor:pointer; white-space:nowrap; align-self:flex-start; }
   .ptreq-wa-btn:hover{ background:rgba(47,122,79,.1); }
   .ptreq-wa-btn.done{ border-color:var(--line); color:var(--ink-dim); }
   .ptreq-toolbar{ display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .ptlist-row{ display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; background:var(--surface); flex-wrap:wrap; }
+  .ptlist-row .ptlist-nome{ flex:1 1 160px; font-weight:600; font-size:13.5px; }
+  .ptlist-row .ptlist-tel{ flex:0 1 190px; min-width:150px; }
+  .ptlist-row .ptlist-tel input{ width:100%; font:inherit; font-size:13px; padding:6px 9px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); }
+  .ptlist-row button[data-del-pt]{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:15px; padding:2px 6px; flex:0 0 auto; }
+  .ptlist-row button[data-del-pt]:hover{ color:var(--warn); }
   .mnt-track-btn{ font:inherit; font-size:11px; font-weight:700; padding:5px 9px; border-radius:7px; border:1px solid var(--teal-deep); background:transparent; color:var(--teal-deep); cursor:pointer; white-space:nowrap; }
   .mnt-track-btn:hover{ background: rgba(41,78,97,.08); }
   .mnt-track-btn:disabled{ opacity:.5; cursor:default; }
@@ -679,7 +687,6 @@
                 <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.4 4 2.4 4.5 5.8"/></svg></span>
                 <h2>Coach in sala — oggi</h2>
               </div>
-              <div class="sub">Presenze registrate oggi per la copertura sala, lette automaticamente da Gestione Orari &amp; Compensi (si aggiorna ogni 3 ore). Eventuali sostituzioni dell'ultimo minuto vanno aggiunte direttamente lì.</div>
               <div class="card-body">
                 <div id="coachOggiAutoList"></div>
               </div>
@@ -1188,12 +1195,13 @@
             </div>
 
             <div class="or-panel" data-ptreq-panel="elencopt" hidden>
-              <div class="sub" style="margin-top:0;">Nomi usati nel menu "PT assegnato" qui sopra, per questo club.</div>
+              <div class="sub" style="margin-top:0;">Nomi usati nel menu "PT assegnato" qui sopra, per questo club. Il numero di telefono è quello che apre WhatsApp per contattare il PT.</div>
               <div class="mnt-add-row" style="margin-top:12px;">
                 <input type="text" id="ptListNameInput" placeholder="Nome personal trainer" maxlength="80">
+                <input type="tel" id="ptListTelInput" placeholder="Numero di telefono (opzionale)" maxlength="30">
                 <button type="button" id="ptListAddBtn">+ Aggiungi PT</button>
               </div>
-              <div id="ptListChips" style="margin-top:14px; display:flex; gap:8px; flex-wrap:wrap;"></div>
+              <div id="ptListChips" style="margin-top:14px;"></div>
             </div>
 
           </section>
@@ -1506,7 +1514,13 @@
   // condiviso al primo avvio (vedi connectDB/ptReqSeedIfEmpty), con la stessa guardia
   // anti-reseed di mntSeedIfEmpty (orFirstDbLoadDone) per lo stesso identico motivo.
   var PTREQ_SEED = {"giulianova":[{"inseritoDa":"club_manager","obiettivo":"cardio e rinforzo","cliente":"Silvio Capponi","ptAssegnato":"Andrea Negrogna","telefono":"3286484362","stato":"nuova","noteInterne":"","disponibilita":"tutti i giorni","creatoIl":"2026-10-30T16:42:46.817Z","id":"rmvv7amchvgclv2","feedback":"","whatsappScaricato":true,"eta":"","data":"2026-10-30","noteCliente":"diabetico"},{"obiettivo":"tonificazione e rinforzo quadricipite","id":"rmvsa0onthlxjt3","stato":"nuova","eta":"59 anni","ptAssegnato":"Andrea Negrogna","data":"2026-10-28","creatoIl":"2026-10-28T15:35:43.577Z","inseritoDa":"club_manager","cliente":"Antonia Albero","telefono":"3408685696","feedback":"","disponibilita":"lunedì venerdì","noteInterne":"","whatsappScaricato":false,"noteCliente":""},{"creatoIl":"2026-10-28T15:27:43.820Z","whatsappScaricato":true,"disponibilita":"mattina","eta":"63 anni","cliente":"Nicodemo Iaconi","telefono":"3486504653","data":"2026-10-26","id":"rmvs9qeh704ddtn","noteInterne":"","noteCliente":"","inseritoDa":"club_manager","obiettivo":"rinforzo post operazione ginocchio","stato":"nuova","ptAssegnato":"Andrea Negrogna","feedback":""},{"noteInterne":"","inseritoDa":"club_manager","obiettivo":"aumento massa muscolare","disponibilita":"venerdi","cliente":"Lorenzo Reginaldi","feedback":"","telefono":"3284749716 mamma","eta":"15","ptAssegnato":"Andrea Negrogna","stato":"nuova","id":"rmvs9xt8kan42ms","whatsappScaricato":false,"creatoIl":"2026-10-28T15:33:29.540Z","data":"2026-10-28","noteCliente":"leggera scoliosi"}],"roseto":[{"creatoIl":"2026-11-12T13:59:14.392Z","stato":"nuova","noteCliente":"","inseritoDa":"club_manager","whatsappScaricato":true,"eta":"31","id":"rmwdm6dp34o9jua","obiettivo":"ALLENARSI IN GRAVIDANZA","data":"2026-11-12","feedback":"","telefono":"3407484945","disponibilita":"MAR MER VEN ","noteInterne":"","cliente":"GIORGIA ESPOSITO","ptAssegnato":"VALENTINA D'EUSTACCHIO"},{"disponibilita":"PRIMA DELLE 17","noteCliente":"VIENE DA UN DIMAGRIMENTO DI 30KG","inseritoDa":"club_manager","ptAssegnato":"ANNA SAPOVALOVA","feedback":"","eta":"31","id":"rmwccwvy71pmb1e","obiettivo":"TONIFICAZIONE","data":"2026-11-11","noteInterne":"","whatsappScaricato":true,"cliente":"ACE DEMIR","creatoIl":"2026-11-11T16:52:08.767Z","stato":"nuova","telefono":"3770840692"},{"stato":"convertito","noteInterne":"","disponibilita":"LUN MAR GIOV PRIMO POME","data":"2026-11-06","feedback":"","ptAssegnato":"ROBERTO DI BONAVENTURA","eta":"24","whatsappScaricato":true,"obiettivo":"BENESSERE ","creatoIl":"2026-11-06T14:21:44.963Z","cliente":"ALESSANDRO MARIA ORAZIO","noteCliente":"AUTISTICO","id":"rmw52c7szpkchld","telefono":"3387915864 GIUSEPPE (IL PADRE)","inseritoDa":"club_manager"},{"id":"rmvpdlva3m3vp0n","data":"2026-10-26","cliente":"LORENZA SFREDDA","telefono":"3391208900 MADRE PAOLA","disponibilita":"TUTTI I GIORNI","obiettivo":"RINFORZARE MUSCOLATURA GAMBE PER PROBLEMATICHE GINOCCHIO  ","eta":"16","noteCliente":"PT E PROGRAMMAZIONE","ptAssegnato":"SAMUELE DI REMIGIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-26T14:52:52.251Z"},{"id":"rmvksmgqhqji4j6","data":"2026-10-23","cliente":"LOREDANA DURANTE","telefono":"3280260531","disponibilita":"","obiettivo":"FORZA E TONO","eta":"61","noteCliente":"FARE UN NUOVO PROGRAMMA E PT","ptAssegnato":"ANNA SAPOVALOVA","stato":"nuova","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-23T09:54:23.417Z"},{"id":"rmvkpyw1xblfzq9","data":"2026-10-23","cliente":"ELìA DE COLLI","telefono":"3289276741","disponibilita":"TARDA MATTINA - PRIMO POME","obiettivo":"RINFORZO MUSCOLARE","eta":"51","noteCliente":"SPONDILITE ANCHILOSANTE, RADICOLOPATIA SEVERA","ptAssegnato":"Alessandro Valente","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-23T08:40:04.293Z"},{"id":"rmv7z1uvvrpfsf9","data":"2026-10-14","cliente":"GIOVANNA DI GIROLAMO","telefono":"3917978352","disponibilita":"POST 15.30","obiettivo":"MUSCOLATURA GAMBE","eta":"17","noteCliente":"SCOLIOSI + INFIAMMAZIONE ROTULEA (DUE GINOCCHIA).\nCHIAMARE POST 14.30","ptAssegnato":"SAMUELE DI REMIGIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"club_manager","creatoIl":"2026-10-14T10:33:19.003Z"},{"id":"rmv6nk5qtiekk53","data":"2026-10-11","cliente":"FABRIZIO CELLUCCI","telefono":"3277077439","disponibilita":"LUN MAR MERC","obiettivo":"MASSA","eta":"31","noteCliente":"GIà CLIENTE","ptAssegnato":"WALTER BONIFAZI","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"club_manager","creatoIl":"2026-10-13T12:23:51.317Z"},{"id":"rmugsrbyei60qnf","data":"2026-09-25","cliente":"FRANCO BALDUCCI","telefono":"3331983427","disponibilita":"","obiettivo":"CALCIO","eta":"14","noteCliente":"2 PT FISSI","ptAssegnato":"SAMUELE DI REMIGIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-25T10:07:23.462Z"},{"id":"rmugsodne63g9fj","data":"2026-09-25","cliente":"ROMINA IANNETTI","telefono":"3331983427","disponibilita":"LUN MERC GIO 6.30","obiettivo":"TONIFICAZIONE","eta":"51","noteCliente":"2-3 VOLTE A SETTIMANA FISSE","ptAssegnato":"VALENTINA D'EUSTACCHIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-25T10:05:05.690Z"},{"id":"rmuead7b6dvr4xn","data":"2026-09-23","cliente":"DANIELA FERRETTI ","telefono":"3408588292","disponibilita":"MEGLIO LA MATTINA 8.30","obiettivo":"PANCIA GAMBE DA RASSODARE","eta":"45","noteCliente":"3 ERNIE 2 COLLO 1 SCHIENA","ptAssegnato":"VALENTINA D'EUSTACCHIO","stato":"perso","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-23T15:56:58.819Z"},{"id":"rmucniztlnnnday","data":"2026-09-22","cliente":"LUCA DURANTE","telefono":"3896992963","disponibilita":"SABATO E INTRASETTIMANALI POST 18","obiettivo":"POSTURALE","eta":"45","noteCliente":"","ptAssegnato":"Alessandro Valente","stato":"perso","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-22T12:29:51.705Z"},{"id":"rmub838vi44ha59","data":"2026-09-19","cliente":"PIERLUIGI ROMMELLI","telefono":"3939483382","disponibilita":"SABATO MATT LUN-MART POST 18","obiettivo":"INIZIARE A FARE PALESTRA","eta":"54","noteCliente":"","ptAssegnato":"ROBERTO DI BONAVENTURA","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-21T12:29:56.526Z"},{"id":"rmu5pcwk45kviwq","data":"2026-09-17","cliente":"STEFANIA DI FEBBO ","telefono":"3923780935","disponibilita":"LUNEDI E MERCOLEDI","obiettivo":"","eta":"44","noteCliente":"RUNNER","ptAssegnato":"VALENTINA D'EUSTACCHIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-17T15:46:43.540Z"},{"id":"rmu5mpd96hlbpa1","data":"2026-09-17","cliente":"MARIA ANTONIETTA CANDELORI","telefono":"3395800194 ","disponibilita":"","obiettivo":"","eta":"53","noteCliente":"Osteoporosi e problemi alla retina.\nChiamare la mattina\n","ptAssegnato":"Francesca Ciaffoni","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"club_manager","creatoIl":"2026-09-17T14:32:26.202Z"},{"id":"rmtswvm8ymui0w4","data":"2026-09-08","cliente":"ALESSIA FIDANZA","telefono":"3317129951","disponibilita":"DAL LUN AL VEN ","obiettivo":"GLUTEI, ADDOME, FIANCHI","eta":"23","noteCliente":"ORA PRANZO","ptAssegnato":"VALENTINA D'EUSTACCHIO","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"club_manager","creatoIl":"2026-09-08T16:56:13.666Z"},{"id":"rmtrgp23zze4srs","data":"2026-09-07","cliente":"VALERIA D'ESPOSITO","telefono":"3396048500","disponibilita":"DAL LUN AL VEN POST 17.30","obiettivo":"RINFORZARE MUSCOLATURA SCHIENA","eta":"36","noteCliente":"CHIMARE DOPO 17.30","ptAssegnato":"","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-07T16:35:27.600Z"},{"id":"rmtr1zfscqt8com","data":"2026-09-04","cliente":"ROMINA CESARINI","telefono":"3394765314","disponibilita":"mattina presto","obiettivo":"forza","eta":"56","noteCliente":"","ptAssegnato":"VALENTINA D'EUSTACCHIO","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-09-07T09:43:37.644Z"}],"mosciano":[{"noteInterne":"NON ERA ABBONATO","noteCliente":"A BREVE OPERAZIONE AL CROCIATO QUINDI DEVE RINFORZARE I MUSCOLI DELLE GAMBE PER AVERE UNA RIABILITAZIONE AGEVOLATA.","inseritoDa":"club_manager","eta":"14","ptAssegnato":"Francesca","whatsappScaricato":true,"disponibilita":"TUTTI I GIORNI DALLE 16 IN POI","cliente":"Alessandro Bruni","creatoIl":"2026-11-10T09:06:56.428Z","id":"rmwagurzgvyohp4","obiettivo":"RINFORZO GAMBE (PRE OPERAZIONE CROCIATO)","data":"2026-11-10","stato":"convertito","feedback":"4 sedute pre operazione e percorso a seguire\n","telefono":"3923928892"},{"whatsappScaricato":true,"cliente":"Eleonora Moscianese","noteInterne":"NON ANCORA ABBONATA ","id":"rmw4xm4jx6d3g6f","creatoIl":"2026-11-06T12:09:29.229Z","disponibilita":"lunedì, mercoledì, venerdì  il pomeriggio dopo le 17:00","data":"2026-11-06","ptAssegnato":"Francesca","inseritoDa":"club_manager","stato":"convertito","eta":"33 anni","noteCliente":"Da chiamare subito per iniziare settimana prossima\nsoffre di anoressia nervosa, va in psicoterapia ed è seguita da un nutrizionista, vorrebbe un PT per costruire muscolo, possibilmente una donna sensibile e ha problemi alla schiena, si è operata all’ernia discale L5 S1. \nHa anche il disco disidratato \n","obiettivo":"riprendere peso e costruire muscolo","telefono":"3298199030","feedback":""},{"cliente":"Luana Di Pasquale","disponibilita":"Mer Ven Sab mattina/pomeriggio","creatoIl":"2026-10-31T16:31:17.201Z","feedback":"","inseritoDa":"club_manager","ptAssegnato":"Silvio","eta":"27","data":"2026-10-31","noteCliente":"soffre leggermente di asma","obiettivo":"Prove fisiche del concorso dei carabinieri","telefono":"3240532439","stato":"convertito","whatsappScaricato":true,"noteInterne":"","id":"rmvwmbowgtbxm08"},{"inseritoDa":"club_manager","telefono":"3485472363","obiettivo":"Sviluppare forza, allenamento bici - corsa","disponibilita":"Tutti i giorni dalle 19 in poi","noteCliente":"","whatsappScaricato":true,"noteInterne":"CASO DIFFICILE DA CHIUDERE - NO CLIENTE PLANET\nMA GIACOMO LO HA FATTO ABBONARE\n","id":"rmvuwupccnl4umd","data":"2026-10-30","cliente":"Christian Quatraccioni ","ptAssegnato":"Giacomo","feedback":"soggetto particolare\nNON ABBONATO","creatoIl":"2026-10-30T11:50:28.044Z","stato":"convertito","eta":"47"},{"obiettivo":"Dimagrimento","feedback":"SCHEDA PERSONALIZZATA E ALLENAMENTO","creatoIl":"2026-10-28T11:27:02.018Z","id":"rmvs14v42rv61z4","telefono":"3519694478","whatsappScaricato":true,"eta":"27","data":"2026-10-27","noteInterne":"","noteCliente":"Scoliosi\nVuole solo la scheda","ptAssegnato":"Giacomo","stato":"convertito","cliente":"Davide Picone","disponibilita":"tutti i giorni tranne giovedì. Dalle 17:30 in poi","inseritoDa":"club_manager"},{"feedback":"PACCHETTO","id":"rmvqhh7euur1xxl","eta":"64","obiettivo":"Preparazione al tennis","data":"2026-10-27","ptAssegnato":"Giacomo","noteInterne":"","stato":"convertito","telefono":"3483867546","whatsappScaricato":true,"disponibilita":"Dal Lunedì al Venerdì pausa pranzo o mattino alle 8:00 NO POMERIGGIO","cliente":"Gabriele Sbei","noteCliente":"Il signore gioca a tennis e cerca un PT che lo aiuti nella preparazione atletica specifica per il tennis","inseritoDa":"club_manager","creatoIl":"2026-10-27T09:28:59.334Z"},{"id":"rmvph5e9egkkqxd","data":"2026-10-26","cliente":"Daniela De Angelis","telefono":"3483317433","disponibilita":"indifferente, dalla mattina a prima delle 17 ","obiettivo":"rinforzo muscolare","eta":"62 anni","noteCliente":"Lesione menisco e legamenti del ginocchio ","ptAssegnato":"Alessia","stato":"perso","feedback":"SI ERA GIA ISCRITTA AL TROVE QUANDO CHIAMATA","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-26T16:32:02.162Z"},{"id":"rmvph09c07yyrxz","data":"2026-10-26","cliente":"Gianluca Giorgini","telefono":"3460179635","disponibilita":"Indifferente ( preferisce però venerdi, sabato) fascia oraria pranzo (13-14) o 18-20","obiettivo":"Rinforzo muscolare per ginocchio e schiena","eta":"46 anni","noteCliente":"infiammazione articolare e lesione parziale del menisco","ptAssegnato":"Giacomo","stato":"convertito","feedback":"PACCHETTO","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-26T16:28:02.496Z"},{"id":"rmvhu0u3hrx2ta3","data":"2026-10-21","cliente":"Patrizio Zampino","telefono":"3483349948","disponibilita":"Martedi o Mercoledi dalle 17 alle 20","obiettivo":"Spiegazione degli esercizi dati dal fisiatra","eta":"67","noteCliente":"Lesione alla spalla, ha bisogno di una lezione per capire esercizi dati dal fisiatra","ptAssegnato":"Alessia","stato":"convertito","feedback":"FATTA LA SEDUTA RICHIESTA DAL CLIENTE","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-21T08:10:15.006Z"},{"id":"rmvgn9rfeugzt8m","data":"2026-10-20","cliente":"Massimo Bellodi","telefono":"3294055585","disponibilita":"Da definire","obiettivo":"Ripresa attività fisica dopo tanto tempo fermo","eta":"46","noteCliente":"Protusioni Lombari","ptAssegnato":"Emanuele V.","stato":"sospeso","feedback":"deve iniziare un nuovo lavoro e poi lo chiama","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-20T12:13:27.963Z"},{"id":"rmv7wkf65iytwq4","data":"2026-10-14","cliente":"Aurelio Gentile","telefono":"3293250234","disponibilita":"Da Mar a Ven dalle 6 alle 8 di mattina","obiettivo":"Rinforzo muscolare","eta":"39","noteCliente":"Problema alla scapola","ptAssegnato":"Emanuele V.","stato":"sospeso","feedback":"rimandato a dopo novembre per una visita da fare","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-14T09:23:46.254Z"},{"id":"rmv7wca0kqkr6c7","data":"2026-10-13","cliente":"Patrizia Pigliacampo","telefono":"3292961651","disponibilita":"tutti i giorni dalla 14:00 in poi","obiettivo":"Rinforzo muscolare, fare attivita posturale","eta":"55","noteCliente":"OPERATA AL MIDOLLO SPINALE (chiedi info in merito) e problemi gamba sx \nVuole allenarsi insieme a Maria Ruggeri, 77 anni, stessa disponibilità, Dolore Gamba dx (sembrerebbe muscolare)","ptAssegnato":"Emanuele V.","stato":"perso","feedback":"ha optato per soluzione diversa","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-14T09:17:26.324Z"},{"id":"rlaboiywbzwum","data":"2026-05-12","cliente":"Giada Roscioli","telefono":"3293253468","disponibilita":"non specificata","obiettivo":"Total body - Gambe","eta":"","noteCliente":"","ptAssegnato":"Alessia","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:00:00Z"},{"id":"r1qjoqstbctaa","data":"2026-05-12","cliente":"Vanessa Rigamonti","telefono":"3201753718","disponibilita":"incerta","obiettivo":"non specificato","eta":"","noteCliente":"POST PARTO","ptAssegnato":"Alessia","stato":"perso","feedback":"Deciso di farsi seguire dal PT che collabora con il suo nutrizionista","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:01:00Z"},{"id":"rtokc00hhp6g0","data":"2026-05-12","cliente":"Alessandro Angelozzi e Roberto angelozzi","telefono":"3289106840","disponibilita":"non specificata","obiettivo":"Alimentazione e Scheda","eta":"","noteCliente":"Hanno conosciuto Andrea all'innaugurazione","ptAssegnato":"Andrea","stato":"perso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:02:00Z"},{"id":"rxkc0w1fiz9f8","data":"2026-05-12","cliente":"Giuseppe Di Sante","telefono":"3290534000","disponibilita":"Dal lun al Ven 2vlt a sett. Mattina (7:30 - 8:30)","obiettivo":"Corpo libero, posturale, pochi pesi","eta":"","noteCliente":"72 anni, sta bene fisicamente (a detta di non so chi)","ptAssegnato":"Giacomo","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:03:00Z"},{"id":"rf3lth0zu2ray","data":"2026-05-12","cliente":"Daniela D'ascenzo","telefono":"3298045573","disponibilita":"Lunedi, mercoledi e venerdi","obiettivo":"Ricomposizione Corporea","eta":"","noteCliente":"dolore al ginocchio dx","ptAssegnato":"Silvio","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:04:00Z"},{"id":"rtlx63w5idh7x","data":"2026-05-12","cliente":"Benedetta Barnabei","telefono":"3475027853","disponibilita":"Dal lun al Ven mattina tra le 7 e le 8:30","obiettivo":"Migliorare Addome","eta":"","noteCliente":"diastasi post parto, asma, vertebra fratturata, sciatica","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:05:00Z"},{"id":"riyckbm7h98q8","data":"2026-05-13","cliente":"Eva Alcantara","telefono":"3490581455","disponibilita":"tutti i giorni dopo le 17:30/18","obiettivo":"Ricomposizione Corporea","eta":"","noteCliente":"1 e mezzo dopo la gravidanza. Vuole anche piano alimentare","ptAssegnato":"Andrea","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:06:00Z"},{"id":"rvlsl9890x305","data":"2026-05-13","cliente":"Alessandra Angelozzi","telefono":"3421124073","disponibilita":"da Lun a Ven 13:30","obiettivo":"Tonificazione","eta":"","noteCliente":"soffre di cervicale","ptAssegnato":"Mirco","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:07:00Z"},{"id":"rf1xu9hmvrkoe","data":"2026-05-13","cliente":"Diana Caprioni","telefono":"3493050659","disponibilita":"Lavora su turni","obiettivo":"Mobility","eta":"","noteCliente":"","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:08:00Z"},{"id":"rbnzfkufqubid","data":"2026-05-15","cliente":"Matteo Santone","telefono":"3924697097","disponibilita":"Dal lun al ven dopo le 18:30/19","obiettivo":"non specificato se è una riabilitazione, chiedere info","eta":"","noteCliente":"operato a crociato e menisco, chiedere ulteriori info - 21 anni","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:09:00Z"},{"id":"r5uepcyixrthq","data":"2026-05-15","cliente":"Gabriella rapone e Teresa De Fulviis","telefono":"3281410523","disponibilita":"tutti i giorni, tra le 17 e le 20","obiettivo":"full body","eta":"","noteCliente":"vogliono allenarsi insieme, tonificazione e rinforzo, chiedere info dettagliate - IL NUMERO È DI GABRIELLA - Età Gabriella 70 e Teresa 78","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:10:00Z"},{"id":"r85vdgzmh2ujv","data":"2026-05-16","cliente":"Marika Di Prisco","telefono":"3209745995","disponibilita":"Mercoledi dalle 12:30 alle 14:0  e Sabato la mattina","obiettivo":"Tonificazione","eta":"","noteCliente":"22 Anni, Rotula del ginocchio Inistro più bassa","ptAssegnato":"Alessandro","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:11:00Z"},{"id":"rqmakszl0retb","data":"2026-05-16","cliente":"Alessandra Muscelli","telefono":"3286260827","disponibilita":"Sabato Mattina","obiettivo":"Tonificazione","eta":"","noteCliente":"37 anni, protusione cervicale e fa fisioterapia alla spalla","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:12:00Z"},{"id":"ryidtr3jf8eiw","data":"2026-05-18","cliente":"Giada Di Liberatore","telefono":"3299841466","disponibilita":"venerdi dalle 9 all 12 e giovedi 9-11","obiettivo":"Tonificare","eta":"","noteCliente":"37 anni, leggera infiammazione a livello lombare","ptAssegnato":"Silvio","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:13:00Z"},{"id":"rx1hqql9ves4x","data":"2026-05-19","cliente":"Aurora Di Maio","telefono":"3662266443","disponibilita":"Dalle 7:00 fino alle 9:00","obiettivo":"Tonificazione","eta":"","noteCliente":"Non vuole allenamenti troppo pesanti, problema circolazione gambe","ptAssegnato":"Alessia","stato":"convertito","feedback":"Scheda più 2 sedute","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:14:00Z"},{"id":"ryrja8xhcx6ps","data":"2026-05-19","cliente":"Jorisa Dore","telefono":"3288079872","disponibilita":"Indifferente","obiettivo":"Ricomposizione Corporea","eta":"","noteCliente":"","ptAssegnato":"Silvio","stato":"sospeso","feedback":"Problematiche economiche","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:15:00Z"},{"id":"rzfw0c1rp8g3k","data":"2026-06-03","cliente":"Rosanna Piccioni","telefono":"3402371339","disponibilita":"lunedì mercoledì e venerdì nel pomeriggio","obiettivo":"osteoporosi - si deve allenare per questo","eta":"","noteCliente":"operata a 18 anni per scoliosi, ha una piastra ma non mostra limitazioni!","ptAssegnato":"Simone","stato":"convertito","feedback":"PT STARTT","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:16:00Z"},{"id":"r2eq45wk5ttfl","data":"2026-06-06","cliente":"Francesco e Giovanni Paolo Cardinale","telefono":"3488634712 (papà)","disponibilita":"indifferente","obiettivo":"postura e rinforzo muscolare","eta":"","noteCliente":"","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:17:00Z"},{"id":"ryqkvoswkko46","data":"2026-06-08","cliente":"Gianluca Formicone","telefono":"3288518500","disponibilita":"Lun - Merc la mattina","obiettivo":"Allenamento per le bocce / potenziamento muscolare parte bassa +  elasticità","eta":"","noteCliente":"Infortunio alla spalla","ptAssegnato":"Simone","stato":"convertito","feedback":"PT START","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:18:00Z"},{"id":"rbc49e4pbj9bj","data":"2026-06-11","cliente":"Elisa Amerio","telefono":"3346667294","disponibilita":"sempre","obiettivo":"Rassodare","eta":"","noteCliente":"47 anni, lieve diastasi addome","ptAssegnato":"Alessia","stato":"sospeso","feedback":"Non ha mai risposto","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:19:00Z"},{"id":"rtvmkq2os6vq6","data":"2026-06-11","cliente":"Patrizia Di Michele","telefono":"3296953958","disponibilita":"Giovedi e Lunedi ore 18:00","obiettivo":"Tonificare","eta":"","noteCliente":"","ptAssegnato":"Andrea","stato":"perso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:20:00Z"},{"id":"r5m7ss81cyh48","data":"2026-06-15","cliente":"Filippo Sciarra","telefono":"3887434348","disponibilita":"Indifferente","obiettivo":"Lavorare sulla parte superiore, rinforzo muscolare","eta":"","noteCliente":"Vigile del fuo 48 anni","ptAssegnato":"Mirco","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:21:00Z"},{"id":"rt29vk7e7na42","data":"2026-06-17","cliente":"Panagiota Pasiopoulou","telefono":"3461080636 (vaios - fratello)","disponibilita":"Dalle 18:00","obiettivo":"rinforzo muscolare","eta":"","noteCliente":"scoliosi","ptAssegnato":"Silvio","stato":"perso","feedback":"Rifiutato","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:22:00Z"},{"id":"rglo8h6iv9wo2","data":"2026-06-20","cliente":"Alessandra Fortuna","telefono":"3473405616","disponibilita":"indifferente ma lavora su turni","obiettivo":"rinforzo muscolare","eta":"","noteCliente":"operata alla schiena, ha delle protesi. scoliosi. chiedere maggiori informazioni. 52 anni","ptAssegnato":"Giacomo","stato":"sospeso","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:23:00Z"},{"id":"r7ypee0rjrxrt","data":"2026-06-22","cliente":"Isabella Di Ventura","telefono":"3314774091","disponibilita":"Indifferente","obiettivo":"Rinforzo muscolare, Tonificazione","eta":"","noteCliente":"Lesione menisco mediale 22 anni","ptAssegnato":"Silvio","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:24:00Z"},{"id":"rshba0zxn3mxi","data":"2026-06-23","cliente":"Teresa Kibble White","telefono":"3487892313","disponibilita":"dal lun al venerdì orari variabili","obiettivo":"prepararsi per il trekking","eta":"","noteCliente":"53 anni, fa trekking, ipotizziamo voglia poche sedute, va capito con lei il reale obiettivo. CONTATTARE VIA WHATSAPP","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:25:00Z"},{"id":"resimi0k6kb63","data":"2026-07-01","cliente":"Maria Aquilani","telefono":"3922494156","disponibilita":"Dal Lunedì al Venerdì","obiettivo":"Dimagrimento/tonificazione pancia e braccia","eta":"","noteCliente":"50 anni","ptAssegnato":"Alessandro","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:26:00Z"},{"id":"rp73h9wkjlwco","data":"2026-07-07","cliente":"Maksim Macrino","telefono":"3280467184","disponibilita":"Giorni e orari indifferente","obiettivo":"rinforzo muscolare parte alta, postura da correggere","eta":"","noteCliente":"22 anni - ha piedi piatti e ha delle micro piastrine ai piedi","ptAssegnato":"Alessandro","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:27:00Z"},{"id":"rlnd76y7hcczs","data":"2026-07-13","cliente":"Riccardo Rondolone","telefono":"3493790998","disponibilita":"Allenamento a pausa pranzo dalle 12 alle 14","obiettivo":"Imparare a muoversi sulle macchine isotoniche che potrà utilizzare, 4 sedute + programma e ciclicamente il rinnovo a un mese, mese e mezzo","eta":"","noteCliente":"Ernia L4 e L5 è stato fermo 4 mesi, ha i referti disponibili","ptAssegnato":"Mirco","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:28:00Z"},{"id":"rpst2pkw3xooa","data":"2026-07-16","cliente":"Francesco Sabatino","telefono":"3791197552","disponibilita":"tutti i giorni , pomeriggio dalle 16 in poi","obiettivo":"essere costante e tenersi in forma, costruire muscolo","eta":"","noteCliente":"27 anni distrofia muscolare di tipo Becker. debolezza sulle, gluteo femorale. Non ancora abbonato quindi va chiuso PT e poi abbonamento.","ptAssegnato":"Alessia","stato":"perso","feedback":"Spaventato dal prezzo. Ragazzo che al telefono sembrava un po semplice","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:29:00Z"},{"id":"r6nb273om46se","data":"2026-07-16","cliente":"Patrizia Mazzotti","telefono":"3487009392","disponibilita":"lun-mer-ven mattina alle 8 o pausa pranzo","obiettivo":"stare in forma - essere motivata","eta":"","noteCliente":"empre allenata con PT, il resto te l'ho detto a voce","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:30:00Z"},{"id":"rtbaq501krs7n","data":"2026-07-17","cliente":"Sabrina Battaglieri","telefono":"3398250692","disponibilita":"Dal lun al ven in pausa pranzo 12:40 - 14:30","obiettivo":"Tonificazione/definizione muscolare","eta":"","noteCliente":"47 anni, scoliosi","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:31:00Z"},{"id":"rkjavs8xucmym","data":"2026-07-26","cliente":"Alessio Di Marco","telefono":"3462781876","disponibilita":"giorni indifferente dalle 17:00 in poi","obiettivo":"riabilitazione ginocchio post intervento leg. crociato (non specificato)","eta":"","noteCliente":"23 anni","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:32:00Z"},{"id":"r9w5dcmcmcns5","data":"2026-08-04","cliente":"Iolanda e Francesca Maiorani","telefono":"3463333060","disponibilita":"tutti i giorni (no domenica) orari dipende dai turni, dopo le 20 sempre. a volte la mattina","obiettivo":"tonificare e rafforzare (principalmente gambe)","eta":"","noteCliente":"Iolanda ha un problema al ginocchio (chiedere info). richiesta specifica Simone","ptAssegnato":"Simone","stato":"convertito","feedback":"ABBONATE CHE SI ALLENANO SENZA ULTERIORI SERVIZI","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-05-12T10:33:00Z"},{"id":"rmupmo3di4q1ftz","data":"2026-08-07","cliente":"Cleta Brignocollo","telefono":"3280525937","disponibilita":"Giorni indifferente orario la mattina","obiettivo":"TONIFICAZIONE, RINFORZO MUSCOLARE","eta":"","noteCliente":"","ptAssegnato":"Silvio","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-08-07T10:00:00Z"},{"id":"rmupmo3disktois","data":"2026-08-13","cliente":"Fabio Galasso","telefono":"3482482313","disponibilita":"Giorni variabili, perl la prossima settimana sicuramente mattina presto","obiettivo":"Tonificare e Rinforzare","eta":"61","noteCliente":"Iniziare da subito perche è in ferie, vuole fare almeno 3 sedute più programmazione e proseguire nel lungo periodo","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-08-13T10:01:00Z"},{"id":"rmupmo3dijtw2x8","data":"2026-08-24","cliente":"Riccardo Pediconi","telefono":"3409356140","disponibilita":"Lunedi mercoledi e venerdi . orari la mattina","obiettivo":"recupero, mobilità e tono","eta":"35","noteCliente":"operazione spalla destra","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-08-24T10:02:00Z"},{"id":"rmupmo3di1kez9o","data":"2026-08-24","cliente":"Antonio Campeti","telefono":"3386365279","disponibilita":"Giorni indifferente, orario dalle 15 alle 17","obiettivo":"rinforzo muscolare","eta":"64","noteCliente":"subito intervento alla colonna, ha applicate delle placche con viti ( chiedere maggiori info e referti)","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-08-24T10:03:00Z"},{"id":"rmupmo3dijsfa2i","data":"2026-08-31","cliente":"Giuseppe (Pino) Cascioli","telefono":"3487009394","disponibilita":"Non specificata","obiettivo":"Rieducazione posturale post problema alla schiena","eta":"68","noteCliente":"il cliente si allenava con PT a giulianova, a seguito di un importante problema alla schiena e successivo intervento, deve riprendere a muoversi ma vuole essere seguito da un professionista in tal senso","ptAssegnato":"Simone","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-08-31T10:04:00Z"},{"id":"rmupmo3diifqdzo","data":"2026-09-02","cliente":"Kevin Zanni","telefono":"3488595638","disponibilita":"tutti i giorni, qualsiasi orario a partire dal 04/09","obiettivo":"Tornare ad allenarsi e imparare nuovamente gli esercizi","eta":"29","noteCliente":"","ptAssegnato":"Silvio","stato":"sospeso","feedback":"frequenta ma capirà quando iniziare, o con silvio o con alessia","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-02T10:05:00Z"},{"id":"rmupmo3difwvvhw","data":"2026-09-03","cliente":"Alessia Di Pancrazio","telefono":"3288957350","disponibilita":"giorni e orari indifferente","obiettivo":"tonificare focus addome","eta":"41","noteCliente":"ginocchio sinistro operato","ptAssegnato":"Alessia","stato":"perso","feedback":"non aveva capito che il servizio è a pagamento","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-03T10:06:00Z"},{"id":"rmupmo3di0sxqd2","data":"2026-09-18","cliente":"Mattia Di Emanuele","telefono":"3206623550","disponibilita":"giorni indifferente, ma dopo le 17:30","obiettivo":"Dimagrimento e Tonificazione","eta":"","noteCliente":"Non è iscritto quindi cerchiamo di chiuderlo","ptAssegnato":"Mirco","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-18T10:07:00Z"},{"id":"rmupmo3di1tgqsb","data":"2026-09-21","cliente":"Pasqualina D'ambrosio","telefono":"3335493779","disponibilita":"dopo le 18:00 feriali, sabato e domenica uguale","obiettivo":"rieducazione motoria","eta":"47","noteCliente":"ha bisogno di una guida","ptAssegnato":"Alessia","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-21T10:08:00Z"},{"id":"rmupmo3dicpfmg2","data":"2026-09-23","cliente":"Amina Boudra","telefono":"3495233052","disponibilita":"Da definire insieme","obiettivo":"Rimodellamento corpo femminile","eta":"33","noteCliente":"No Alessia","ptAssegnato":"Mirco","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-23T10:09:00Z"},{"id":"rmupmo3di6orbz1","data":"2026-09-24","cliente":"Ventura De Laurentis","telefono":"3713273344","disponibilita":"Giorni indifferente/ orari o alle 7:00 o dopo le 19:00","obiettivo":"Rinforzo muscolare + cardio","eta":"64","noteCliente":"","ptAssegnato":"Silvio","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"import","creatoIl":"2026-09-24T10:10:00Z"},{"id":"rmupmo3digq509m","data":"2026-09-25","cliente":"Santa Alonso","telefono":"3280063908","disponibilita":"Martedì e Venerdì dalle 16 in poi","obiettivo":"Tonificazione","eta":"58","noteCliente":"","ptAssegnato":"Alessia","stato":"convertito","feedback":"","noteInterne":"","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-25T10:11:00Z"},{"id":"rmupmo3dhekmrjw","data":"2026-09-26","cliente":"Iole Falà","telefono":"3497136047","disponibilita":"tutti i giorni fino al Sabato","obiettivo":"Rinforzo","eta":"47","noteCliente":"Ha la Sclerosi multipla, bisogno di rinforzare","ptAssegnato":"Giacomo","stato":"convertito","feedback":"","noteInterne":"MATTA","whatsappScaricato":false,"inseritoDa":"import","creatoIl":"2026-09-26T10:12:00Z"},{"id":"rmupn25gjicx434","data":"2026-09-30","cliente":"Lorenza Maria Dezzi","telefono":"3791348302","disponibilita":"Mercoledì e Venerdì dopo le 15:00","obiettivo":"Rinforzo addome e braccia","eta":"14","noteCliente":"","ptAssegnato":"Alessandro","stato":"perso","feedback":"","noteInterne":"","whatsappScaricato":true,"inseritoDa":"club_manager","creatoIl":"2026-10-01T14:37:46.147Z"},{"data":"2026-11-12","cliente":"Emanuele Serafini","id":"rmwdo4imgf8rmh2","whatsappScaricato":false,"feedback":"","noteInterne":"","creatoIl":"2026-11-12T14:53:46.696Z","telefono":"333 333 333 3","obiettivo":"Massa muscolare","stato":"nuova","disponibilita":"lndno","inseritoDa":"desk","ptAssegnato":"","noteCliente":"","eta":"34"},{"inseritoDa":"desk","data":"2026-11-12","telefono":"333 45544564","cliente":"simone settepanella","noteCliente":"","creatoIl":"2026-11-12T15:17:59.521Z","eta":"30","obiettivo":"torneo di briscola","id":"rmwdoznmpttc1j0","whatsappScaricato":false,"disponibilita":"","noteInterne":"","ptAssegnato":"","feedback":"","stato":"nuova"}]};
-  var PTLIST_SEED = {"giulianova":["Andrea Negrogna","Veronica Di Marco","Daniele Savastano","Christian Guglielmi","Edoardo La Barba","Matteo Gallucci","Jessica di Emidio","KAtiuscia Filipponi"],"roseto":["WALTER BONIFAZI","DANILO LANARI","VALENTINA D'EUSTACCHIO","SAMUELE DI REMIGIO","ROBERTO DI BONAVENTURA","GIANLUCA MOSCA","ANNA SAPOVALOVA","Alessandro Valente","Francesca Ciaffoni"],"mosciano":["Alessandro","Alessia","Giacomo","Mirco","Silvio","Simone","Emanuele C.","Emanuele V.","Francesca"]};
+  var PTLIST_SEED_NAMES = {"giulianova":["Andrea Negrogna","Veronica Di Marco","Daniele Savastano","Christian Guglielmi","Edoardo La Barba","Matteo Gallucci","Jessica di Emidio","KAtiuscia Filipponi"],"roseto":["WALTER BONIFAZI","DANILO LANARI","VALENTINA D'EUSTACCHIO","SAMUELE DI REMIGIO","ROBERTO DI BONAVENTURA","GIANLUCA MOSCA","ANNA SAPOVALOVA","Alessandro Valente","Francesca Ciaffoni"],"mosciano":["Alessandro","Alessia","Giacomo","Mirco","Silvio","Simone","Emanuele C.","Emanuele V.","Francesca"]};
+  // Numeri di telefono non noti per lo storico importato: nessuno è stato inventato,
+  // si parte vuoti e si compilano dall'Elenco PT (vedi ptReqSaveList).
+  var PTLIST_SEED = {};
+  Object.keys(PTLIST_SEED_NAMES).forEach(function(club){
+    PTLIST_SEED[club] = PTLIST_SEED_NAMES[club].map(function(n){ return { nome: n, telefono: "" }; });
+  });
   var PTREQ_STATI = [
     { key: "nuova", label: "Nuova" },
     { key: "convertito", label: "Convertita" },
@@ -5223,7 +5237,22 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   var ptReqFilter = { q: "", stato: "" };
 
   function ptReqItemsForClub(club){ return (state.ptRequests[club] && state.ptRequests[club].items) || []; }
-  function ptReqListForClub(club){ return (state.ptList[club] && state.ptList[club].names) || []; }
+  // Elenco PT: ogni voce è { nome, telefono }. Dati scritti dal vecchio formato
+  // ({names:[...]} di sole stringhe, già presente in produzione) vengono letti
+  // ancora correttamente qui (telefono vuoto finché non lo si inserisce), e
+  // risalvati nel nuovo formato ({pts:[...]}) alla prima modifica.
+  function ptReqListForClub(club){
+    var raw = state.ptList[club];
+    if (!raw) return [];
+    if (raw.pts) return raw.pts;
+    if (raw.names) return raw.names.map(function(n){ return { nome: n, telefono: "" }; });
+    return [];
+  }
+  function ptReqPtPhone(club, nome){
+    if (!nome) return "";
+    var m = ptReqListForClub(club).filter(function(p){ return p.nome === nome; })[0];
+    return m ? (m.telefono || "") : "";
+  }
 
   function ptReqSave(club){
     var items = ptReqItemsForClub(club);
@@ -5231,9 +5260,9 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (state.db) state.db.doc("ptRequests/" + club).set({ items: items }).then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
-  function ptReqSaveList(club, names){
-    state.ptList[club] = { names: names };
-    if (state.db) state.db.doc("ptList/" + club).set({ names: names }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+  function ptReqSaveList(club, list){
+    state.ptList[club] = { pts: list };
+    if (state.db) state.db.doc("ptList/" + club).set({ pts: list }).then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
   function ptReqGenId(){ return "ptr" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -5266,11 +5295,45 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
   }
 
-  function ptReqWaLink(telefono){
+  function ptReqWaLink(telefono, message){
     var digits = (telefono || "").replace(/[^0-9]/g, "");
     if (!digits) return null;
     if (digits.length <= 10) digits = "39" + digits; // prefisso IT se il numero non lo include già
-    return "https://wa.me/" + digits;
+    var url = "https://wa.me/" + digits;
+    if (message) url += "?text=" + encodeURIComponent(message);
+    return url;
+  }
+
+  // dd/mm/yyyy a partire dal valore "yyyy-mm-dd" di <input type=date>, come nel vecchio
+  // tool "RichiestePT-DB" esterno.
+  function ptReqFormatDataIt(iso){
+    var m = /^(\d{4})-(\d{2})-(\d{2})/.exec(iso || "");
+    return m ? (m[3] + "/" + m[2] + "/" + m[1]) : (iso || "");
+  }
+  function ptReqEtaLabel(eta){
+    var s = (eta == null ? "" : String(eta)).trim();
+    if (!s) return "";
+    return /ann/i.test(s) ? s : (s + " anni");
+  }
+
+  // Messaggio precompilato per WhatsApp, stesso formato del vecchio tool esterno
+  // "RichiestePT-DB" (confermato dall'utente il 13/11/2026 su un caso reale).
+  function ptReqWaMessage(it, club){
+    var clubLabel = (CLUBS[club] && CLUBS[club].label) || club;
+    var lines = [];
+    lines.push("📋 RICHIESTA PT — " + clubLabel);
+    lines.push("👤 Cliente: " + (it.cliente || ""));
+    lines.push("📞 Telefono: " + (it.telefono || ""));
+    var etaLbl = ptReqEtaLabel(it.eta);
+    if (etaLbl) lines.push("🎂 Età: " + etaLbl);
+    lines.push("🗓️ Data richiesta: " + ptReqFormatDataIt(it.data));
+    lines.push("⏰ Disponibilità: " + (it.disponibilita || ""));
+    lines.push("🎯 Obiettivo: " + (it.obiettivo || ""));
+    var noteParts = [];
+    if (it.noteInterne) noteParts.push(it.noteInterne);
+    if (it.noteCliente) noteParts.push(it.noteCliente);
+    if (noteParts.length) lines.push("📝 Note: " + noteParts.join("\n"));
+    return lines.join("\n");
   }
 
   function buildPtReqCard(it, club){
@@ -5309,6 +5372,20 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     badge.className = "mnt-badge " + ptReqBadgeClass(it.stato);
     badge.textContent = ptReqStatoLabel(it.stato);
     hdRight.appendChild(badge);
+    var delBtn = document.createElement("button");
+    delBtn.type = "button";
+    delBtn.className = "ptreq-del-btn";
+    delBtn.title = "Elimina questa richiesta";
+    delBtn.textContent = "🗑";
+    delBtn.addEventListener("click", function(){
+      var etichetta = it.cliente ? ("di " + it.cliente) : "senza nome cliente";
+      if (!window.confirm("Eliminare definitivamente la richiesta " + etichetta + "? L'operazione non si può annullare.")) return;
+      var items = ptReqItemsForClub(club).filter(function(x){ return x.id !== it.id; });
+      state.ptRequests[club] = { items: items };
+      ptReqSave(club);
+      renderPtReq();
+    });
+    hdRight.appendChild(delBtn);
     hd.appendChild(hdRight);
     card.appendChild(hd);
 
@@ -5335,7 +5412,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     field(r1, "Data", "narrow", dataInput);
 
     var ptSel = document.createElement("select");
-    var ptNames = ptReqListForClub(club).slice();
+    var ptNames = ptReqListForClub(club).map(function(p){ return p.nome; });
     if (it.ptAssegnato && ptNames.indexOf(it.ptAssegnato) === -1) ptNames.push(it.ptAssegnato);
     var optVuoto = document.createElement("option"); optVuoto.value = ""; optVuoto.textContent = "— nessuno —";
     if (!it.ptAssegnato) optVuoto.selected = true;
@@ -5373,8 +5450,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     field(r5, "Feedback / esito", "full", feedbackTa);
 
     var r6 = row();
-    var waLink = ptReqWaLink(it.telefono);
-    if (waLink){
+    // Il link WhatsApp apre la chat col PT assegnato (non col cliente): è lui che deve
+    // ricevere i dati della richiesta e contattare il cliente.
+    var ptPhone = ptReqPtPhone(club, it.ptAssegnato);
+    var waLink = ptReqWaLink(ptPhone, ptReqWaMessage(it, club));
+    if (!it.ptAssegnato){
+      var waHint = document.createElement("span");
+      waHint.className = "ptreq-label";
+      waHint.textContent = "Assegna un PT per contattarlo su WhatsApp";
+      r6.appendChild(waHint);
+    } else if (!ptPhone){
+      var waHint2 = document.createElement("span");
+      waHint2.className = "ptreq-label";
+      waHint2.textContent = "Nessun numero di telefono per " + it.ptAssegnato + " — aggiungilo nella scheda \"Elenco PT\"";
+      r6.appendChild(waHint2);
+    } else if (waLink){
       var waBtn = document.createElement("a");
       waBtn.href = waLink; waBtn.target = "_blank"; waBtn.rel = "noopener";
       waBtn.className = "ptreq-wa-btn" + (it.whatsappScaricato ? " done" : "");
@@ -5423,7 +5513,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var sel = document.getElementById("ptReqAssegnato");
     if (!sel) return;
     var club = state.club;
-    var names = ptReqListForClub(club);
+    var names = ptReqListForClub(club).map(function(p){ return p.nome; });
     var current = sel.value;
     sel.innerHTML = '<option value="">— nessuno —</option>';
     names.forEach(function(n){
@@ -5437,10 +5527,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var container = document.getElementById("ptListChips");
     if (!container) return;
     var club = state.club;
-    var names = ptReqListForClub(club);
-    container.innerHTML = names.length ? names.map(function(n){
-      return '<span class="or-festivita-chip">' + n.replace(/</g, "&lt;") + ' <button type="button" data-del-pt="' + n.replace(/"/g, "&quot;") + '">✕</button></span>';
-    }).join("") : '<span class="mnt-empty" style="padding:0;">Nessun PT in elenco per questo club.</span>';
+    var list = ptReqListForClub(club);
+    if (!list.length){
+      container.innerHTML = '<span class="mnt-empty" style="padding:0;">Nessun PT in elenco per questo club.</span>';
+      return;
+    }
+    container.innerHTML = list.map(function(p){
+      var nomeEsc = (p.nome || "").replace(/</g, "&lt;");
+      var nomeAttr = (p.nome || "").replace(/"/g, "&quot;");
+      var telVal = (p.telefono || "").replace(/"/g, "&quot;");
+      return '<div class="ptlist-row">' +
+        '<span class="ptlist-nome">' + nomeEsc + '</span>' +
+        '<span class="ptlist-tel"><input type="tel" data-tel-pt="' + nomeAttr + '" value="' + telVal + '" placeholder="Numero di telefono"></span>' +
+        '<button type="button" data-del-pt="' + nomeAttr + '" title="Rimuovi">✕</button>' +
+        '</div>';
+    }).join("");
   }
 
   function renderPtReq(){
@@ -5493,13 +5594,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var addBtn = document.getElementById("ptListAddBtn");
     if (addBtn) addBtn.addEventListener("click", function(){
       var input = document.getElementById("ptListNameInput");
+      var telInput = document.getElementById("ptListTelInput");
       var name = (input.value || "").trim();
       if (!name) return;
+      var telefono = telInput ? (telInput.value || "").trim() : "";
       var club = state.club;
-      var names = ptReqListForClub(club);
-      if (names.indexOf(name) === -1) names = names.concat([name]);
-      ptReqSaveList(club, names);
+      var list = ptReqListForClub(club);
+      if (list.some(function(p){ return p.nome === name; })){
+        // Nome già presente: non duplicare, aggiorna solo il telefono se fornito.
+        list = list.map(function(p){ return p.nome === name && telefono ? { nome: p.nome, telefono: telefono } : p; });
+      } else {
+        list = list.concat([{ nome: name, telefono: telefono }]);
+      }
+      ptReqSaveList(club, list);
       input.value = "";
+      if (telInput) telInput.value = "";
       renderPtReq();
     });
     var chips = document.getElementById("ptListChips");
@@ -5507,8 +5616,23 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var btn = e.target.closest("[data-del-pt]");
       if (!btn) return;
       var club = state.club;
-      var names = ptReqListForClub(club).filter(function(n){ return n !== btn.dataset.delPt; });
-      ptReqSaveList(club, names);
+      var list = ptReqListForClub(club).filter(function(p){ return p.nome !== btn.dataset.delPt; });
+      ptReqSaveList(club, list);
+      renderPtReq();
+    });
+    // Modifica/aggiunta del telefono a un PT già in elenco (anche quelli importati
+    // dallo storico, che partono senza numero): salva al cambio del campo, senza
+    // dover ricreare la riga.
+    if (chips) chips.addEventListener("change", function(e){
+      var input = e.target.closest("[data-tel-pt]");
+      if (!input) return;
+      var club = state.club;
+      var nome = input.dataset.telPt;
+      var telefono = (input.value || "").trim();
+      var list = ptReqListForClub(club).map(function(p){
+        return p.nome === nome ? { nome: p.nome, telefono: telefono } : p;
+      });
+      ptReqSaveList(club, list);
       renderPtReq();
     });
   }
@@ -5528,11 +5652,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var writes = [];
     CLUB_ORDER.forEach(function(club){
       var items = PTREQ_SEED[club] || [];
-      var names = PTLIST_SEED[club] || [];
+      var pts = PTLIST_SEED[club] || [];
       state.ptRequests[club] = { items: items };
-      state.ptList[club] = { names: names };
+      state.ptList[club] = { pts: pts };
       writes.push({ action: "set", key: "ptRequests/" + club, value: { items: items } });
-      writes.push({ action: "set", key: "ptList/" + club, value: { names: names } });
+      writes.push({ action: "set", key: "ptList/" + club, value: { pts: pts } });
     });
     if (state.db && state.db.primeCache){
       writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
