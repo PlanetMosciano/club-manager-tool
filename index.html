@@ -338,7 +338,15 @@
   .ptreq-wa-btn{ font:inherit; font-size:12px; font-weight:700; padding:6px 11px; border-radius:7px; border:1px solid var(--good); background:transparent; color:var(--good); cursor:pointer; white-space:nowrap; align-self:flex-start; }
   .ptreq-wa-btn:hover{ background:rgba(47,122,79,.1); }
   .ptreq-wa-btn.done{ border-color:var(--line); color:var(--ink-dim); }
+  .ptreq-dl-btn{ font:inherit; font-size:12px; font-weight:700; padding:6px 11px; border-radius:7px; border:1px solid var(--line); background:transparent; color:var(--ink-dim); cursor:pointer; white-space:nowrap; }
+  .ptreq-dl-btn:hover{ border-color:var(--gold); color:var(--gold); background:rgba(174,163,113,.1); }
   .ptreq-toolbar{ display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin-bottom:14px; }
+  .ptreq-stats{ display:flex; gap:10px; flex-wrap:wrap; margin:14px 0 8px; }
+  .ptreq-stat{ flex:1 1 110px; border:1px solid var(--line); border-radius:10px; padding:10px 14px; background:var(--surface); }
+  .ptreq-stat-label{ display:block; font-size:10.5px; color:var(--ink-dim); text-transform:uppercase; letter-spacing:.04em; margin-bottom:4px; }
+  .ptreq-stat-value{ display:block; font-size:22px; font-weight:800; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .ptreq-stats-rate{ font-size:13px; color:var(--ink-dim); margin-bottom:16px; }
+  .ptreq-stats-rate b{ color:var(--good); }
   .ptlist-row{ display:flex; align-items:center; gap:10px; padding:9px 12px; border:1px solid var(--line); border-radius:9px; margin-bottom:8px; background:var(--surface); flex-wrap:wrap; }
   .ptlist-row .ptlist-nome{ flex:1 1 160px; font-weight:600; font-size:13.5px; }
   .ptlist-row .ptlist-tel{ flex:0 1 190px; min-width:150px; }
@@ -1159,6 +1167,15 @@
             </div>
             <div class="sub" id="ptReqClubLabel"></div>
             <div class="note">Portato qui dal vecchio strumento esterno "RichiestePT-DB": lo storico reale già raccolto dai Club Manager è stato importato. Le note cliente possono contenere informazioni sanitarie riferite dal cliente stesso — restano visibili solo qui dentro, mai nel banner di "Oggi".</div>
+
+            <div class="ptreq-stats" id="ptReqStats">
+              <div class="ptreq-stat"><span class="ptreq-stat-label">Totale</span><span class="ptreq-stat-value" id="ptReqStatTotale">0</span></div>
+              <div class="ptreq-stat"><span class="ptreq-stat-label">Nuove</span><span class="ptreq-stat-value" id="ptReqStatNuove">0</span></div>
+              <div class="ptreq-stat"><span class="ptreq-stat-label">Convertiti</span><span class="ptreq-stat-value" id="ptReqStatConvertiti">0</span></div>
+              <div class="ptreq-stat"><span class="ptreq-stat-label">Persi</span><span class="ptreq-stat-value" id="ptReqStatPersi">0</span></div>
+              <div class="ptreq-stat"><span class="ptreq-stat-label">Sospesi</span><span class="ptreq-stat-value" id="ptReqStatSospesi">0</span></div>
+            </div>
+            <div class="ptreq-stats-rate" id="ptReqStatsRate"></div>
 
             <div class="or-tabs" id="ptReqTabs">
               <button type="button" class="or-tab" data-ptreq-tab="elenco">Richieste</button>
@@ -5308,13 +5325,31 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
   }
 
+  // api.whatsapp.com invece di wa.me: con wa.me le emoji "astrali" (fuori dal piano
+  // Unicode base, es. 📋 👤 📞) nel parametro ?text= arrivano corrotte ("�") su molti
+  // telefoni — confermato da un test reale il 13/11/2026. api.whatsapp.com/send è
+  // l'endpoint più usato per i link "click to chat" con testo precompilato ed è quello
+  // che risulta funzionare correttamente con le emoji.
   function ptReqWaLink(telefono, message){
     var digits = (telefono || "").replace(/[^0-9]/g, "");
     if (!digits) return null;
     if (digits.length <= 10) digits = "39" + digits; // prefisso IT se il numero non lo include già
-    var url = "https://wa.me/" + digits;
-    if (message) url += "?text=" + encodeURIComponent(message);
+    var url = "https://api.whatsapp.com/send?phone=" + digits;
+    if (message) url += "&text=" + encodeURIComponent(message);
     return url;
+  }
+
+  function ptReqDownloadText(text, filename){
+    try {
+      var blob = new Blob([text], { type: "text/plain;charset=utf-8" });
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement("a");
+      a.href = url; a.download = filename || "messaggio.txt";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      setTimeout(function(){ URL.revokeObjectURL(url); }, 1000);
+    } catch (e) { /* download non riuscito: il messaggio resta comunque leggibile nella richiesta */ }
   }
 
   // dd/mm/yyyy a partire dal valore "yyyy-mm-dd" di <input type=date>, come nel vecchio
@@ -5566,7 +5601,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     // Il link WhatsApp apre la chat col PT assegnato (non col cliente): è lui che deve
     // ricevere i dati della richiesta e contattare il cliente.
     var ptPhone = ptReqPtPhone(club, it.ptAssegnato);
-    var waLink = ptReqWaLink(ptPhone); // senza ?text=: l'emoji nel parametro URL arriva corrotta su molti client WhatsApp
+    var msgFull = ptReqWaMessage(it, club);
+    var waLink = ptReqWaLink(ptPhone, msgFull); // con testo precompilato (api.whatsapp.com)
     if (!it.ptAssegnato){
       var waHint = document.createElement("span");
       waHint.className = "ptreq-label";
@@ -5580,20 +5616,38 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     } else if (waLink){
       var waWrap = document.createElement("div");
       waWrap.style.display = "flex"; waWrap.style.flexDirection = "column"; waWrap.style.gap = "4px"; waWrap.style.alignItems = "flex-start";
-      var waBtn = document.createElement("button");
-      waBtn.type = "button";
+      var waRow = document.createElement("div");
+      waRow.style.display = "flex"; waRow.style.gap = "8px"; waRow.style.flexWrap = "wrap"; waRow.style.alignItems = "center";
+
+      var waBtn = document.createElement("a");
+      waBtn.href = waLink; waBtn.target = "_blank"; waBtn.rel = "noopener";
       waBtn.className = "ptreq-wa-btn" + (it.whatsappScaricato ? " done" : "");
-      waBtn.textContent = it.whatsappScaricato ? "✓ Contattato su WhatsApp" : "Copia messaggio e apri WhatsApp";
+      waBtn.textContent = it.whatsappScaricato ? "✓ Contattato su WhatsApp" : "Apri WhatsApp";
       waBtn.addEventListener("click", function(){
-        ptReqCopyToClipboard(ptReqWaMessage(it, club));
-        window.open(waLink, "_blank", "noopener");
+        // Copia anche negli appunti: se il precompilato dovesse comunque arrivare
+        // corrotto su qualche telefono, il CM/PT può cancellarlo e incollare il testo
+        // corretto con un tocco lungo nella casella di testo.
+        ptReqCopyToClipboard(msgFull);
         if (!it.whatsappScaricato){ it.whatsappScaricato = true; save(); renderPtReq(); }
       });
-      waWrap.appendChild(waBtn);
+      waRow.appendChild(waBtn);
+
+      var dlBtn = document.createElement("button");
+      dlBtn.type = "button";
+      dlBtn.className = "ptreq-dl-btn";
+      dlBtn.title = "Scarica il messaggio come file di testo (se le emoji non arrivano giuste su WhatsApp)";
+      dlBtn.textContent = "⬇ Scarica come testo";
+      dlBtn.addEventListener("click", function(){
+        var slug = (it.cliente || "cliente").toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+        ptReqDownloadText(msgFull, "richiesta-pt-" + slug + ".txt");
+      });
+      waRow.appendChild(dlBtn);
+
+      waWrap.appendChild(waRow);
       var waHintCopy = document.createElement("span");
       waHintCopy.className = "ptreq-label";
       waHintCopy.style.textTransform = "none"; waHintCopy.style.letterSpacing = "normal";
-      waHintCopy.textContent = "Il messaggio è copiato: incollalo (tocco lungo → Incolla) nella casella di testo di WhatsApp.";
+      waHintCopy.textContent = "Il messaggio è anche copiato negli appunti: se su WhatsApp le emoji non arrivano giuste, cancella e incolla (tocco lungo → Incolla), oppure scaricalo come testo.";
       waWrap.appendChild(waHintCopy);
       r6.appendChild(waWrap);
     }
@@ -5667,9 +5721,45 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     }).join("");
   }
 
+  // Tasso di conversione calcolato solo sulle richieste "decise" (convertite o perse):
+  // le nuove (ancora da lavorare) e le sospese (ancora in corso) non contano né a favore
+  // né contro, altrimenti il tasso scenderebbe solo perché ci sono richieste recenti.
+  function ptReqStats(club){
+    var items = ptReqItemsForClub(club);
+    var nuove = 0, convertiti = 0, persi = 0, sospesi = 0;
+    items.forEach(function(it){
+      if (it.stato === "nuova") nuove++;
+      else if (it.stato === "convertito") convertiti++;
+      else if (it.stato === "perso") persi++;
+      else if (it.stato === "sospeso") sospesi++;
+    });
+    var decise = convertiti + persi;
+    return {
+      totale: items.length, nuove: nuove, convertiti: convertiti, persi: persi, sospesi: sospesi,
+      tasso: decise > 0 ? Math.round((convertiti / decise) * 100) : null
+    };
+  }
+
+  function renderPtReqStats(){
+    var s = ptReqStats(state.club);
+    var set = function(id, v){ var el = document.getElementById(id); if (el) el.textContent = v; };
+    set("ptReqStatTotale", s.totale);
+    set("ptReqStatNuove", s.nuove);
+    set("ptReqStatConvertiti", s.convertiti);
+    set("ptReqStatPersi", s.persi);
+    set("ptReqStatSospesi", s.sospesi);
+    var rateEl = document.getElementById("ptReqStatsRate");
+    if (rateEl){
+      rateEl.innerHTML = s.tasso === null
+        ? "Tasso di conversione: ancora nessuna richiesta convertita o persa per questo club."
+        : "Tasso di conversione (su richieste decise): <b>" + s.tasso + "%</b>";
+    }
+  }
+
   function renderPtReq(){
     var lbl = document.getElementById("ptReqClubLabel");
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
+    renderPtReqStats();
     renderPtReqTabs();
     renderPtReqCards();
     renderPtReqAssegnatoOptions();
