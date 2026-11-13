@@ -206,6 +206,11 @@
   .custom-remove{ background:none; border:none; color:var(--ink-dim); font-size:16px; line-height:1; cursor:pointer; padding:2px 2px; margin-left:2px; }
   .custom-remove:hover{ color:var(--warn); }
 
+  .kpi-valore-input{
+    font: inherit; font-size:13.5px; padding:6px 9px; border:1px solid var(--line); border-radius:8px;
+    background: var(--surface); color: var(--ink); width:110px;
+  }
+
   .custom-task-form{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
   .custom-task-form input{
     font: inherit; font-size:13.5px; padding:7px 10px; border:1px solid var(--line); border-radius:8px;
@@ -583,6 +588,7 @@
       <div class="tool">Postazione Club Manager</div>
     </div>
     <nav id="sideNav">
+      <a href="#" data-page="miadash" id="miaDashNavLink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><rect x="14" y="14" width="7" height="7" rx="1.5"/></svg><span class="lbl">La mia Dashboard</span></a>
       <a href="#" data-page="operation" id="operationNavLink"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/></svg><span class="lbl">Operation</span></a>
       <a href="#" data-page="oggi" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.2 4.2l1.4 1.4M18.4 18.4l1.4 1.4M2 12h2M20 12h2M4.2 19.8l1.4-1.4M18.4 5.6l1.4-1.4"/></svg><span class="lbl">Oggi</span></a>
       <a href="#" data-page="mansioni"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V3z"/><path d="M9 12l2 2 4-4"/></svg><span class="lbl">Mansioni</span></a>
@@ -755,6 +761,80 @@
 
       </div>
 
+      <div class="page" data-page="miadash" hidden>
+        <div class="grid">
+          <div class="col">
+
+            <section class="card" id="card-opdash-kpi">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>
+                <h2>Le mie KPI</h2>
+              </div>
+              <div class="sub">Lista libera, compilata a mano: etichetta, obiettivo e valore attuale. Nessun dato precompilato.</div>
+              <div class="card-body" id="opdashKpiBody"><div class="sub">Caricamento…</div></div>
+              <form class="custom-task-form" id="opdashKpiForm">
+                <input type="text" id="opdashKpiLabel" placeholder="Nome KPI (es. tasso di conversione PT)" maxlength="120" required>
+                <input type="text" id="opdashKpiObiettivo" placeholder="Obiettivo (facoltativo)" maxlength="60">
+                <button type="submit">Aggiungi</button>
+              </form>
+            </section>
+
+            <section class="card" id="card-opdash-due">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                <h2>Le mie scadenze</h2>
+              </div>
+              <div class="sub">Scadenze singole, una tantum — come "Nuova scadenza del club" ma per te.</div>
+              <div class="card-body" id="opdashDueBody"><div class="sub">Caricamento…</div></div>
+              <form class="custom-task-form" id="opdashDueForm">
+                <input type="text" id="opdashDueTitle" placeholder="Titolo scadenza" maxlength="120" required>
+                <input type="date" id="opdashDueDate" required>
+                <button type="submit">Aggiungi</button>
+              </form>
+            </section>
+
+          </div>
+          <div class="col">
+
+            <section class="card" id="card-opdash-recurring">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3h6v2a1 1 0 0 1-1 1h-4a1 1 0 0 1-1-1V3z"/><path d="M9 12l2 2 4-4"/></svg></span>
+                <h2>Le mie mansioni periodiche</h2>
+              </div>
+              <div class="sub">Spunta quando fatta: ricompare da sola alla cadenza prevista, come le mansioni dei club ma per il tuo ruolo.</div>
+              <div class="card-body" id="opdashRecurringBody"><div class="sub">Caricamento…</div></div>
+              <form class="custom-task-form" id="opdashRecurringForm">
+                <input type="text" id="opdashRecurringTitle" placeholder="Titolo mansione" maxlength="120" required>
+                <select id="opdashRecurringCadence" required>
+                  <option value="settimanale">Settimanale</option>
+                  <option value="mensile">Mensile</option>
+                  <option value="trimestrale">Trimestrale</option>
+                  <option value="annuale">Annuale</option>
+                </select>
+                <span id="opdashRecurringWeeklyField">
+                  <select id="opdashRecurringWeekday">
+                    <option value="1">Lunedì</option><option value="2">Martedì</option><option value="3">Mercoledì</option>
+                    <option value="4">Giovedì</option><option value="5">Venerdì</option><option value="6">Sabato</option><option value="0">Domenica</option>
+                  </select>
+                </span>
+                <span id="opdashRecurringYearlyField" hidden>
+                  <select id="opdashRecurringMonth">
+                    <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option>
+                    <option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option>
+                    <option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option>
+                  </select>
+                </span>
+                <span id="opdashRecurringMonthlyField" hidden>
+                  <input type="number" id="opdashRecurringDay" placeholder="Giorno" min="1" max="31">
+                </span>
+                <button type="submit">Aggiungi</button>
+              </form>
+            </section>
+
+          </div>
+        </div>
+      </div>
+
       <div class="page" data-page="operation" hidden>
         <div class="col">
 
@@ -839,6 +919,40 @@
                   <li class="check-row"><span>📋</span><label>Audit, ispezioni e regolamenti, quando previsti — Mansionario §7</label></li>
                 </ul>
               </div>
+            </section>
+
+            <section class="card" id="card-mnt-recurring-task">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg></span>
+                <h2>Nuova mansione periodica del club</h2>
+              </div>
+              <div class="sub">A differenza della scadenza (Oggi → "Nuova scadenza del club"), questa ricompare da sola a ogni cadenza — come le mansioni del mansionario, ma aggiunta da te.</div>
+              <form class="custom-task-form" id="mntRecurringForm">
+                <input type="text" id="mntRecurringTitle" placeholder="Titolo mansione" maxlength="120" required>
+                <select id="mntRecurringCadence" required>
+                  <option value="settimanale">Settimanale</option>
+                  <option value="mensile">Mensile</option>
+                  <option value="trimestrale">Trimestrale</option>
+                  <option value="annuale">Annuale</option>
+                </select>
+                <span id="mntRecurringWeeklyField">
+                  <select id="mntRecurringWeekday">
+                    <option value="1">Lunedì</option><option value="2">Martedì</option><option value="3">Mercoledì</option>
+                    <option value="4">Giovedì</option><option value="5">Venerdì</option><option value="6">Sabato</option><option value="0">Domenica</option>
+                  </select>
+                </span>
+                <span id="mntRecurringYearlyField" hidden>
+                  <select id="mntRecurringMonth">
+                    <option value="1">Gennaio</option><option value="2">Febbraio</option><option value="3">Marzo</option><option value="4">Aprile</option>
+                    <option value="5">Maggio</option><option value="6">Giugno</option><option value="7">Luglio</option><option value="8">Agosto</option>
+                    <option value="9">Settembre</option><option value="10">Ottobre</option><option value="11">Novembre</option><option value="12">Dicembre</option>
+                  </select>
+                </span>
+                <span id="mntRecurringMonthlyField" hidden>
+                  <input type="number" id="mntRecurringDay" placeholder="Giorno" min="1" max="31">
+                </span>
+                <button type="submit">Aggiungi</button>
+              </form>
             </section>
 
           </div>
@@ -1479,11 +1593,20 @@
   function applyRuolo(){
     var isOperation = !ruolo || ruolo.tipo === "operation";
     var opLink = document.getElementById("operationNavLink");
+    var miaDashLink = document.getElementById("miaDashNavLink");
     if (opLink) opLink.style.display = isOperation ? "" : "none";
+    if (miaDashLink) miaDashLink.style.display = isOperation ? "" : "none";
     if (!isOperation){
       if (state.club !== ruolo.club) selectClub(ruolo.club, false);
       var currentPage = document.querySelector(".page:not([hidden])");
-      if (currentPage && currentPage.getAttribute("data-page") === "operation") showPage("oggi");
+      var curPageName = currentPage && currentPage.getAttribute("data-page");
+      if (curPageName === "operation" || curPageName === "miadash") showPage("oggi");
+    } else {
+      // Operation: "La mia Dashboard" è la prima cosa che vede — solo se non ha già
+      // navigato altrove. Al login/avvio la pagina visibile è ancora "oggi" (impostata
+      // da initNav prima che il ruolo sia noto), quindi questo scatta solo lì.
+      var curPage2 = document.querySelector(".page:not([hidden])");
+      if (curPage2 && curPage2.getAttribute("data-page") === "oggi") showPage("miadash");
     }
     renderClubSwitcher();
   }
@@ -1559,7 +1682,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2429,7 +2552,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       btn.type = "button";
       btn.textContent = CLUBS[key].label;
       btn.setAttribute("aria-pressed", String(key === state.club));
-      btn.addEventListener("click", function(){ selectClub(key, true); });
+      btn.addEventListener("click", function(){
+        // Se Operation sceglie un club mentre è sulla propria dashboard personale,
+        // passa alla vista "Oggi" di quel club: "la mia dashboard" non ha senso coi
+        // dati di un club selezionato.
+        var cur = document.querySelector(".page:not([hidden])");
+        var wasOnMiaDash = cur && cur.getAttribute("data-page") === "miadash";
+        selectClub(key, true);
+        if (wasOnMiaDash) showPage("oggi");
+      });
       el.appendChild(btn);
     });
   }
@@ -2752,7 +2883,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // far "comparire" le mansioni trimestrali/annuali (vedi renderTasks/SURFACE_*), sia
   // per l'elenco cronologico delle scadenze future (vedi renderUpcoming).
   function taskStatus(task, club){
-    club = club || state.club;
+    club = club || task._club || state.club;
     var id = club + "__" + task.key;
     var rec = state.tasks[id];
     var last = rec && rec.lastCompletedAt;
@@ -4941,7 +5072,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     row.innerHTML =
       '<input type="checkbox" '+(st.done ? "checked" : "")+'>' +
       '<div style="min-width:0;"><div class="t-title"></div><div class="t-meta"></div></div>' +
-      '<div class="task-right"><span class="badge '+badgeClass+'"></span><span class="t-meta"></span></div>';
+      '<div class="task-right"><span class="badge '+badgeClass+'"></span><span class="t-meta"></span></div>' +
+      (task._customId ? '<button type="button" class="custom-remove" title="Rimuovi questa mansione periodica">×</button>' : "");
     row.querySelector(".t-title").textContent = task.title;
     row.querySelector(".t-meta").textContent = task.anchor ? anchorNote(task.anchor) : "";
     row.querySelector(".badge").textContent = badgeText;
@@ -4950,6 +5082,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     box.addEventListener("change", function(){
       if (box.checked) markDone(task); else markUndone(task);
     });
+    if (task._customId){
+      row.querySelector(".custom-remove").addEventListener("click", function(){
+        removeCustomRecurringTask(task._customId);
+      });
+    }
     return row;
   }
 
@@ -4989,9 +5126,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (bodyToday) bodyToday.innerHTML = "";
     if (bodyScadute) bodyScadute.innerHTML = "";
 
-    var fixedWeekly = TASK_CATALOG.filter(function(t){ return !t.surface && t.cadence === "settimanale" && clubMatches(t); });
-    var fixedMonthly = TASK_CATALOG.filter(function(t){ return !t.surface && t.cadence === "mensile" && clubMatches(t); });
-    var surfacing = TASK_CATALOG.filter(function(t){ return t.surface && clubMatches(t); });
+    var allTasks = TASK_CATALOG.concat(customRecurringTasksForClub(state.club));
+    var fixedWeekly = allTasks.filter(function(t){ return !t.surface && t.cadence === "settimanale" && clubMatches(t); });
+    var fixedMonthly = allTasks.filter(function(t){ return !t.surface && t.cadence === "mensile" && clubMatches(t); });
+    var surfacing = allTasks.filter(function(t){ return t.surface && clubMatches(t); });
 
     // Tra le mansioni settimanali fisse: quella con scadenza fissata a oggi (non ancora
     // fatta in questo ciclo) "slitta" nel riquadro "Scade oggi"; quella il cui giorno di
@@ -5070,11 +5208,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (statMonth) statMonth.textContent = String(fixedMonthDue + monthCount);
   }
 
+  // task._club: usato dalle mansioni periodiche personalizzate per fissare il club a cui
+  // appartengono (es. "operation" per la dashboard personale) indipendentemente dal club
+  // attualmente selezionato nello switcher — le mansioni del catalogo non lo impostano e
+  // continuano a usare state.club, come prima.
   function markDone(task){
-    var id = state.club + "__" + task.key;
+    var id = (task._club || state.club) + "__" + task.key;
     state.tasks[id] = { lastCompletedAt: todayISO() };
     renderTasks();
     renderUpcoming();
+    renderOperationDash();
     if (state.flags[id]) dismissFlag(id); // risolta: sparisce anche dall'avviso Operation
     else renderOperation();
     if (state.db) {
@@ -5085,10 +5228,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   }
 
   function markUndone(task){
-    var id = state.club + "__" + task.key;
+    var id = (task._club || state.club) + "__" + task.key;
     delete state.tasks[id];
     renderTasks();
     renderUpcoming();
+    renderOperationDash();
     renderOperation();
     if (state.db) {
       state.db.doc("tasks/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
@@ -5110,13 +5254,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     return out;
   }
 
-  function addCustomTask(title, dueDate){
+  function addCustomTask(title, dueDate, club){
+    club = club || state.club;
     var id = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
-    var data = { club: state.club, title: title, dueDate: dueDate, createdAt: todayISO() };
+    var data = { club: club, title: title, dueDate: dueDate, createdAt: todayISO() };
     state.customTasks[id] = data;
     renderTasks();
     renderUpcoming();
     renderOperation();
+    renderOperationDash();
     if (state.db) {
       state.db.doc("customTasks/" + id).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
     } else {
@@ -5125,10 +5271,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   }
 
   function removeCustomTask(id){
+    var ct = state.customTasks[id];
+    var club = (ct && ct.club) || state.club;
     delete state.customTasks[id];
     renderTasks();
     renderUpcoming();
-    var flagId = state.club + "__custom:" + id;
+    renderOperationDash();
+    var flagId = club + "__custom:" + id;
     if (state.flags[flagId]) dismissFlag(flagId);
     else renderOperation();
     if (state.db) {
@@ -5138,21 +5287,275 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     }
   }
 
-  function initCustomTaskForm(){
-    var form = document.getElementById("customTaskForm");
+  function initCustomTaskForm(formId, titleId, dateId, club){
+    var form = document.getElementById(formId || "customTaskForm");
     if (!form) return;
     form.addEventListener("submit", function(e){
       e.preventDefault();
-      var titleEl = document.getElementById("customTaskTitle");
-      var dateEl = document.getElementById("customTaskDate");
+      var titleEl = document.getElementById(titleId || "customTaskTitle");
+      var dateEl = document.getElementById(dateId || "customTaskDate");
       var title = titleEl.value.trim();
       var date = dateEl.value;
       if (!title || !date) return;
-      addCustomTask(title, date);
+      addCustomTask(title, date, club);
       titleEl.value = "";
       dateEl.value = "";
       titleEl.focus();
     });
+  }
+
+  // ---------- Mansioni periodiche personalizzate ----------
+  // A differenza delle scadenze sopra (data singola, una volta sola), queste hanno una
+  // cadenza (settimanale/mensile/trimestrale/annuale) e ricompaiono da sole come le
+  // mansioni del TASK_CATALOG — stesso motore (taskStatus/anchorWindow), stessa chiave
+  // di completamento "club__key" in state.tasks: qui si genera solo l'oggetto "task"
+  // virtuale, non un sistema di tracciamento separato. Disponibili sia ai Club Manager
+  // (per il proprio club) sia a Operation (per il club virtuale "operation", la propria
+  // dashboard personale — vedi renderOperationDash). Salvate in db.collection("customRecurringTasks").
+  function customRecurringTasksForClub(club){
+    var out = [];
+    Object.keys(state.customRecurringTasks).forEach(function(id){
+      var ct = state.customRecurringTasks[id];
+      if (!ct || ct.club !== club || !ct.title || !ct.cadence || !ct.anchor) return;
+      out.push({
+        key: "cr_" + id,
+        title: ct.title,
+        area: "Aggiunta da te — " + (CADENCE_LABEL[ct.cadence] || ct.cadence),
+        cadence: ct.cadence,
+        anchor: ct.anchor,
+        surface: ct.cadence === "trimestrale" || ct.cadence === "annuale",
+        clubs: [club],
+        _customId: id,
+        _club: club
+      });
+    });
+    return out;
+  }
+
+  function addCustomRecurringTask(club, title, cadence, anchor){
+    var id = "cr" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    var data = { club: club, title: title, cadence: cadence, anchor: anchor, createdAt: todayISO() };
+    state.customRecurringTasks[id] = data;
+    renderTasks();
+    renderUpcoming();
+    renderOperation();
+    renderOperationDash();
+    if (state.db) {
+      state.db.doc("customRecurringTasks/" + id).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function removeCustomRecurringTask(id){
+    var ct = state.customRecurringTasks[id];
+    var club = ct && ct.club;
+    delete state.customRecurringTasks[id];
+    var taskKey = club ? (club + "__cr_" + id) : null;
+    if (taskKey) delete state.tasks[taskKey];
+    renderTasks();
+    renderUpcoming();
+    renderOperation();
+    renderOperationDash();
+    if (state.db) {
+      state.db.doc("customRecurringTasks/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+      if (taskKey) state.db.doc("tasks/" + taskKey).delete().catch(function(){});
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  // Un'unica funzione di init per il form "aggiungi mansione periodica", riusata sia
+  // nella pagina Mansioni del club (prefix "mnt" → club = state.club) sia nella
+  // dashboard personale di Operation (prefix "opdash" → club = "operation"): gli id dei
+  // campi nel DOM sono prefissati di conseguenza (vedi markup).
+  function initRecurringTaskForm(prefix, clubResolver){
+    var form = document.getElementById(prefix + "RecurringForm");
+    if (!form) return;
+    var cadenceSel = document.getElementById(prefix + "RecurringCadence");
+    var fieldsWeekly = document.getElementById(prefix + "RecurringWeeklyField");
+    var fieldsMonthly = document.getElementById(prefix + "RecurringMonthlyField");
+    var fieldsYearly = document.getElementById(prefix + "RecurringYearlyField");
+    function syncFields(){
+      var c = cadenceSel.value;
+      if (fieldsWeekly) fieldsWeekly.hidden = c !== "settimanale";
+      if (fieldsYearly) fieldsYearly.hidden = (c !== "annuale" && c !== "trimestrale");
+      // Il campo "giorno" serve per mensile, trimestrale E annuale (mese+giorno) — solo
+      // la settimanale non lo usa.
+      if (fieldsMonthly) fieldsMonthly.hidden = (c === "settimanale");
+    }
+    if (cadenceSel) cadenceSel.addEventListener("change", syncFields);
+    syncFields();
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var title = document.getElementById(prefix + "RecurringTitle").value.trim();
+      var cadence = cadenceSel.value;
+      if (!title || !cadence) return;
+      var anchor = null;
+      if (cadence === "settimanale"){
+        anchor = { type: "weekly", weekday: Number(document.getElementById(prefix + "RecurringWeekday").value) };
+      } else if (cadence === "mensile"){
+        anchor = { type: "monthly", day: Number(document.getElementById(prefix + "RecurringDay").value) };
+      } else if (cadence === "annuale"){
+        anchor = { type: "yearly", month: Number(document.getElementById(prefix + "RecurringMonth").value), day: Number(document.getElementById(prefix + "RecurringDay").value) };
+      } else if (cadence === "trimestrale"){
+        // 4 occorrenze l'anno, ogni 3 mesi a partire dal mese/giorno scelto.
+        var startMonth = Number(document.getElementById(prefix + "RecurringMonth").value);
+        var day = Number(document.getElementById(prefix + "RecurringDay").value);
+        var dates = [];
+        for (var i = 0; i < 4; i++){
+          var mm = ((startMonth - 1 + i * 3) % 12) + 1;
+          dates.push({ month: mm, day: day });
+        }
+        anchor = { type: "multiYearly", dates: dates };
+      }
+      if (!anchor) return;
+      addCustomRecurringTask(clubResolver(), title, cadence, anchor);
+      form.reset();
+      syncFields();
+    });
+  }
+
+  // ---------- KPI libere di Operation ----------
+  // Lista libera compilata a mano da Operation (nessun dato precompilato): etichetta +
+  // obiettivo + valore attuale, salvata come collection("operationKpi") — stessa forma
+  // di state.customTasks, non un singolo documento, per riusare lo stesso meccanismo di
+  // onSnapshot/set/delete già usato altrove (vedi connectDB).
+  function operationKpiList(){
+    var out = Object.keys(state.operationKpi).map(function(id){
+      var k = state.operationKpi[id];
+      return k ? { id: id, label: k.label, obiettivo: k.obiettivo || "", valore: k.valore || "" } : null;
+    }).filter(Boolean);
+    out.sort(function(a, b){ return (a.createdAt || "") < (b.createdAt || "") ? -1 : 1; });
+    return out;
+  }
+
+  function addOperationKpi(label, obiettivo, valore){
+    var id = "kpi" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    var data = { label: label, obiettivo: obiettivo || "", valore: valore || "", createdAt: todayISO() };
+    state.operationKpi[id] = data;
+    renderOperationDash();
+    if (state.db) {
+      state.db.doc("operationKpi/" + id).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function updateOperationKpiValue(id, valore){
+    var k = state.operationKpi[id];
+    if (!k) return;
+    k.valore = valore;
+    if (state.db) {
+      state.db.doc("operationKpi/" + id).set(k).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function removeOperationKpi(id){
+    delete state.operationKpi[id];
+    renderOperationDash();
+    if (state.db) {
+      state.db.doc("operationKpi/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function initOperationKpiForm(){
+    var form = document.getElementById("opdashKpiForm");
+    if (!form) return;
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var labelEl = document.getElementById("opdashKpiLabel");
+      var objEl = document.getElementById("opdashKpiObiettivo");
+      var label = labelEl.value.trim();
+      var obiettivo = objEl.value.trim();
+      if (!label) return;
+      addOperationKpi(label, obiettivo, "");
+      labelEl.value = ""; objEl.value = "";
+      labelEl.focus();
+    });
+  }
+
+  // ---------- Dashboard personale di Operation ----------
+  // Pagina di arrivo di default per Operation (vedi applyRuolo): le sue mansioni
+  // periodiche (club virtuale "operation", stesso motore del catalogo — vedi
+  // customRecurringTasksForClub/taskStatus), le sue scadenze singole (customTasksForClub
+  // "operation") e la sua lista libera di KPI. Non mostra nulla dei club: quella vista
+  // resta la pagina "Operation" separata (overdueItemsForClub/doneItemsForClub su
+  // CLUB_ORDER), invariata.
+  function renderOperationDash(){
+    var recBody = document.getElementById("opdashRecurringBody");
+    if (recBody){
+      recBody.innerHTML = "";
+      var tasks = customRecurringTasksForClub("operation");
+      if (!tasks.length){
+        var empty = document.createElement("div");
+        empty.className = "sub";
+        empty.textContent = "Nessuna mansione periodica personale aggiunta. Usa il modulo qui sotto per crearne una.";
+        recBody.appendChild(empty);
+      } else {
+        var byCadence = { settimanale: [], mensile: [], trimestrale: [], annuale: [] };
+        tasks.forEach(function(t){ if (byCadence[t.cadence]) byCadence[t.cadence].push(t); });
+        ["settimanale", "mensile", "trimestrale", "annuale"].forEach(function(cad){
+          var list = byCadence[cad];
+          if (!list.length) return;
+          var group = document.createElement("div");
+          group.className = "task-group";
+          var h = document.createElement("h3");
+          h.textContent = CADENCE_LABEL[cad];
+          group.appendChild(h);
+          list.forEach(function(t){ group.appendChild(buildCatalogRow(t, taskStatus(t))); });
+          recBody.appendChild(group);
+        });
+      }
+    }
+
+    var dueBody = document.getElementById("opdashDueBody");
+    if (dueBody){
+      dueBody.innerHTML = "";
+      var dues = customTasksForClub("operation");
+      if (!dues.length){
+        var emptyDue = document.createElement("div");
+        emptyDue.className = "sub";
+        emptyDue.textContent = "Nessuna scadenza personale aggiunta.";
+        dueBody.appendChild(emptyDue);
+      } else {
+        dues.forEach(function(ct){ dueBody.appendChild(buildCustomRow(ct, customTaskStatus(ct))); });
+      }
+    }
+
+    var kpiBody = document.getElementById("opdashKpiBody");
+    if (kpiBody){
+      kpiBody.innerHTML = "";
+      var kpis = operationKpiList();
+      if (!kpis.length){
+        var emptyKpi = document.createElement("div");
+        emptyKpi.className = "sub";
+        emptyKpi.textContent = "Nessuna KPI aggiunta. Usa il modulo qui sotto per crearne una.";
+        kpiBody.appendChild(emptyKpi);
+      } else {
+        kpis.forEach(function(k){
+          var row = document.createElement("div");
+          row.className = "task";
+          row.innerHTML =
+            '<div style="min-width:0;"><div class="t-title"></div><div class="t-meta"></div></div>' +
+            '<div class="task-right" style="flex-direction:row; align-items:center; gap:8px;">' +
+              '<input type="text" class="kpi-valore-input" placeholder="Valore attuale">' +
+              '<button type="button" class="custom-remove" title="Rimuovi questa KPI">×</button>' +
+            '</div>';
+          row.querySelector(".t-title").textContent = k.label;
+          row.querySelector(".t-meta").textContent = k.obiettivo ? ("Obiettivo: " + k.obiettivo) : "Nessun obiettivo indicato";
+          var valInput = row.querySelector(".kpi-valore-input");
+          valInput.value = k.valore || "";
+          valInput.addEventListener("change", function(){ updateOperationKpiValue(k.id, valInput.value.trim()); });
+          row.querySelector(".custom-remove").addEventListener("click", function(){ removeOperationKpi(k.id); });
+          kpiBody.appendChild(row);
+        });
+      }
+    }
   }
 
   // Elenco cronologico di tutte le scadenze future del club selezionato: mansioni "a
@@ -5164,7 +5567,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function buildUpcomingEntries(){
     var today = new Date(todayISO() + "T00:00:00");
     var entries = [];
-    TASK_CATALOG.filter(function(t){ return t.surface && clubMatches(t); }).forEach(function(task){
+    TASK_CATALOG.concat(customRecurringTasksForClub(state.club)).filter(function(t){ return t.surface && clubMatches(t); }).forEach(function(task){
       var st = taskStatus(task);
       if (st.daysToDue == null) return;
       var d = new Date(today); d.setDate(d.getDate() + st.daysToDue);
@@ -5893,7 +6296,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // perché manca il dato, non perché sia davvero dovuta proprio oggi: resta inclusa.
   function overdueItemsForClub(club){
     var items = [];
-    TASK_CATALOG.forEach(function(task){
+    TASK_CATALOG.concat(customRecurringTasksForClub(club)).forEach(function(task){
       if (!clubMatches(task, club)) return;
       var st = taskStatus(task, club);
       if (!st.due) return;
@@ -5914,7 +6317,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // volta, solo l'ultima data di completamento per ciascuna mansione).
   function doneItemsForClub(club){
     var items = [];
-    TASK_CATALOG.forEach(function(task){
+    TASK_CATALOG.concat(customRecurringTasksForClub(club)).forEach(function(task){
       if (!clubMatches(task, club)) return;
       var rec = state.tasks[club + "__" + task.key];
       if (rec && rec.lastCompletedAt) items.push({ title: task.title, date: rec.lastCompletedAt });
@@ -6276,6 +6679,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           renderTasks();
           renderUpcoming();
           renderOperation();
+          renderOperationDash();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
       try {
@@ -6290,6 +6694,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           renderTasks();
           renderUpcoming();
           renderOperation();
+          renderOperationDash();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
       try {
@@ -6415,6 +6820,33 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           });
         });
       } catch(e) { /* no live updates available — local taps still work */ }
+      try {
+        db.collection("customRecurringTasks").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.customRecurringTasks[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.customRecurringTasks).forEach(function(id){ if (!seen[id]) delete state.customRecurringTasks[id]; });
+          renderTasks();
+          renderUpcoming();
+          renderOperation();
+          renderOperationDash();
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
+      try {
+        db.collection("operationKpi").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.operationKpi[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.operationKpi).forEach(function(id){ if (!seen[id]) delete state.operationKpi[id]; });
+          renderOperationDash();
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
     })();
 
     function loadNow(){
@@ -6496,6 +6928,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     initMntToolbar();
     initMntAddForm();
     initMntFreqDatalists();
+    initRecurringTaskForm("mnt", function(){ return state.club; });
+    initRecurringTaskForm("opdash", function(){ return "operation"; });
+    initCustomTaskForm("opdashDueForm", "opdashDueTitle", "opdashDueDate", "operation");
+    initOperationKpiForm();
     initOrTabs();
     initOrCollabAddForm();
     initOrPresAddForm();
@@ -6520,6 +6956,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     selectClub(initialClub, false);
     applyRuolo();
     renderOperation();
+    renderOperationDash();
     window.addEventListener("hashchange", function(){
       var k = (location.hash || "").replace("#","").toLowerCase();
       if (ruolo && ruolo.tipo === "cm"){
