@@ -307,7 +307,20 @@
   .mnt-badge.sospeso{ background: var(--line); color: var(--ink-dim); }
 
   /* ---------- Richieste PT ---------- */
-  .ptreq-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; padding:14px 16px; margin-bottom:12px; box-shadow:var(--shadow); }
+  .ptreq-card{ background:var(--surface); border:1px solid var(--line); border-radius:12px; margin-bottom:10px; box-shadow:var(--shadow); overflow:hidden; }
+  .ptreq-summary{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; padding:11px 16px; cursor:pointer; }
+  .ptreq-summary:hover{ background:rgba(0,0,0,.02); }
+  .ptreq-summary:focus-visible{ outline:2px solid var(--gold); outline-offset:-2px; }
+  .ptreq-summary-left{ display:flex; align-items:baseline; gap:10px; min-width:0; flex-wrap:wrap; }
+  .ptreq-summary-date{ font-size:11px; color:var(--ink-dim); white-space:nowrap; }
+  .ptreq-summary-nome{ font-weight:700; font-size:14px; color:var(--ink); }
+  .ptreq-summary-tel{ font-size:12.5px; color:var(--ink-dim); white-space:nowrap; }
+  .ptreq-summary-right{ display:flex; align-items:center; gap:7px; flex-wrap:wrap; }
+  .ptreq-pt-badge{ font-size:10.5px; font-weight:700; letter-spacing:.03em; padding:2px 8px; border-radius:999px; background:rgba(47,107,122,.13); color:var(--teal-deep); white-space:nowrap; text-transform:uppercase; }
+  .ptreq-wa-badge{ display:inline-flex; align-items:center; color:var(--good); }
+  .ptreq-chevron{ font-size:11px; color:var(--ink-dim); transition:transform .15s ease; display:inline-block; }
+  .ptreq-card.open .ptreq-chevron{ transform:rotate(180deg); }
+  .ptreq-detail{ padding:0 16px 14px; border-top:1px solid var(--line); padding-top:12px; }
   .ptreq-card-hd{ display:flex; justify-content:space-between; align-items:flex-start; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
   .ptreq-card-hd h4{ margin:0; font-size:15px; }
   .ptreq-card-meta{ font-size:11.5px; color:var(--ink-dim); margin-top:2px; }
@@ -5336,11 +5349,114 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     return lines.join("\n");
   }
 
+  // Molti client WhatsApp (soprattutto su Android, aprendo il link da un browser) non
+  // decodificano correttamente le emoji "astrali" (📋 👤 📞 🎂 ⏰ 🎯, fuori dal piano
+  // Unicode base) passate nel parametro ?text= di wa.me: compaiono come "�". Per questo
+  // il messaggio viene copiato negli appunti (dove il testo resta intatto) e la chat si
+  // apre SENZA testo precompilato: il Club Manager/PT lo incolla con un tocco.
+  function ptReqCopyToClipboard(text){
+    try {
+      if (navigator.clipboard && navigator.clipboard.writeText){
+        navigator.clipboard.writeText(text).catch(function(){ ptReqCopyFallback_(text); });
+        return;
+      }
+    } catch (e) { /* vedi fallback sotto */ }
+    ptReqCopyFallback_(text);
+  }
+  function ptReqCopyFallback_(text){
+    try {
+      var ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed"; ta.style.opacity = "0"; ta.style.top = "0"; ta.style.left = "0";
+      document.body.appendChild(ta);
+      ta.focus(); ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    } catch (e) { /* copia non riuscita: il CM può comunque scrivere il messaggio a mano */ }
+  }
+
+  // Richiesta espansa in questo momento (solo stato della UI, non persistito): id -> true.
+  // Sopravvive ai re-render di renderPtReqCards (filtri, ricerca, salvataggi) così la
+  // card non si richiude da sola mentre la si sta compilando.
+  var ptReqExpanded = {};
+
+  function ptReqWaIconSvg(){
+    return '<svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor" aria-hidden="true"><path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.74.46 3.43 1.33 4.92L2 22l5.29-1.39a9.87 9.87 0 0 0 4.75 1.21h.01c5.46 0 9.91-4.45 9.91-9.91C21.96 6.45 17.5 2 12.04 2zm5.8 14.06c-.24.68-1.41 1.3-1.95 1.34-.5.04-1.01.23-3.43-.72-2.9-1.15-4.77-4.1-4.92-4.29-.14-.19-1.17-1.56-1.17-2.98s.74-2.11 1-2.4c.26-.29.57-.37.76-.37.19 0 .38 0 .55.01.17.01.41-.06.64.49.24.57.81 1.98.88 2.12.07.14.12.31.02.5-.1.19-.15.31-.29.48-.14.17-.3.37-.43.5-.14.14-.29.29-.12.57.17.29.75 1.24 1.62 2.01 1.11.99 2.05 1.3 2.34 1.44.29.14.46.12.63-.07.17-.19.72-.84.91-1.13.19-.29.38-.24.64-.14.26.1 1.66.78 1.94.92.29.14.48.21.55.33.07.12.07.69-.17 1.37z"/></svg>';
+  }
+
   function buildPtReqCard(it, club){
     var card = document.createElement("div");
     card.className = "ptreq-card";
+    var isOpen = !!ptReqExpanded[it.id];
+    card.classList.toggle("open", isOpen);
 
     function save(){ ptReqSave(club); }
+
+    // ---- Riga di riepilogo: sempre visibile, un solo rigo. Clic per aprire/chiudere. ----
+    var summary = document.createElement("div");
+    summary.className = "ptreq-summary";
+    summary.setAttribute("role", "button");
+    summary.tabIndex = 0;
+
+    var sLeft = document.createElement("div");
+    sLeft.className = "ptreq-summary-left";
+    var sDate = document.createElement("span");
+    sDate.className = "ptreq-summary-date";
+    sDate.textContent = ptReqFormatDataIt(it.data) || "senza data";
+    sLeft.appendChild(sDate);
+    var sNome = document.createElement("span");
+    sNome.className = "ptreq-summary-nome";
+    sNome.textContent = it.cliente || "(senza nome)";
+    sLeft.appendChild(sNome);
+    if (it.telefono){
+      var sTel = document.createElement("span");
+      sTel.className = "ptreq-summary-tel";
+      sTel.textContent = it.telefono;
+      sLeft.appendChild(sTel);
+    }
+    summary.appendChild(sLeft);
+
+    var sRight = document.createElement("div");
+    sRight.className = "ptreq-summary-right";
+    if (it.ptAssegnato){
+      var ptBadge = document.createElement("span");
+      ptBadge.className = "ptreq-pt-badge";
+      ptBadge.textContent = "PT: " + it.ptAssegnato;
+      sRight.appendChild(ptBadge);
+    }
+    if (it.whatsappScaricato){
+      var waBadge = document.createElement("span");
+      waBadge.className = "ptreq-wa-badge";
+      waBadge.title = "Messaggio WhatsApp già inviato";
+      waBadge.innerHTML = ptReqWaIconSvg();
+      sRight.appendChild(waBadge);
+    }
+    var statoBadge = document.createElement("span");
+    statoBadge.className = "mnt-badge " + ptReqBadgeClass(it.stato);
+    statoBadge.textContent = ptReqStatoLabel(it.stato);
+    sRight.appendChild(statoBadge);
+    var chevron = document.createElement("span");
+    chevron.className = "ptreq-chevron";
+    chevron.textContent = "▾";
+    sRight.appendChild(chevron);
+    summary.appendChild(sRight);
+
+    function toggleOpen(){
+      ptReqExpanded[it.id] = !ptReqExpanded[it.id];
+      detail.hidden = !ptReqExpanded[it.id];
+      card.classList.toggle("open", !!ptReqExpanded[it.id]);
+    }
+    summary.addEventListener("click", toggleOpen);
+    summary.addEventListener("keydown", function(e){
+      if (e.key === "Enter" || e.key === " "){ e.preventDefault(); toggleOpen(); }
+    });
+    card.appendChild(summary);
+
+    // ---- Dettaglio: nascosto finché non si apre la card. ----
+    var detail = document.createElement("div");
+    detail.className = "ptreq-detail";
+    detail.hidden = !isOpen;
+    card.appendChild(detail);
 
     var hd = document.createElement("div");
     hd.className = "ptreq-card-hd";
@@ -5349,7 +5465,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     nome.type = "text"; nome.value = it.cliente || ""; nome.placeholder = "Nome cliente";
     nome.style.fontWeight = "700"; nome.style.fontSize = "14.5px"; nome.style.border = "none";
     nome.style.background = "transparent"; nome.style.padding = "0"; nome.style.color = "var(--ink)";
-    nome.addEventListener("change", function(e){ it.cliente = e.target.value; save(); });
+    nome.addEventListener("change", function(e){ it.cliente = e.target.value; save(); sNome.textContent = it.cliente || "(senza nome)"; });
     hdLeft.appendChild(nome);
     var meta = document.createElement("div");
     meta.className = "ptreq-card-meta";
@@ -5368,10 +5484,6 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
     statoSel.addEventListener("change", function(e){ it.stato = e.target.value; save(); renderPtReq(); });
     hdRight.appendChild(statoSel);
-    var badge = document.createElement("span");
-    badge.className = "mnt-badge " + ptReqBadgeClass(it.stato);
-    badge.textContent = ptReqStatoLabel(it.stato);
-    hdRight.appendChild(badge);
     var delBtn = document.createElement("button");
     delBtn.type = "button";
     delBtn.className = "ptreq-del-btn";
@@ -5383,13 +5495,14 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var items = ptReqItemsForClub(club).filter(function(x){ return x.id !== it.id; });
       state.ptRequests[club] = { items: items };
       ptReqSave(club);
+      delete ptReqExpanded[it.id];
       renderPtReq();
     });
     hdRight.appendChild(delBtn);
     hd.appendChild(hdRight);
-    card.appendChild(hd);
+    detail.appendChild(hd);
 
-    function row(){ var r = document.createElement("div"); r.className = "ptreq-row"; card.appendChild(r); return r; }
+    function row(){ var r = document.createElement("div"); r.className = "ptreq-row"; detail.appendChild(r); return r; }
     function field(r, label, cls, el){
       var f = document.createElement("div");
       f.className = "ptreq-field" + (cls ? " " + cls : "");
@@ -5400,7 +5513,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
 
     var r1 = row();
     var telInput = document.createElement("input"); telInput.type = "tel"; telInput.value = it.telefono || "";
-    telInput.addEventListener("change", function(e){ it.telefono = e.target.value; save(); });
+    telInput.addEventListener("change", function(e){ it.telefono = e.target.value; save(); renderPtReq(); });
     field(r1, "Telefono", "narrow", telInput);
 
     var etaInput = document.createElement("input"); etaInput.type = "text"; etaInput.value = it.eta || "";
@@ -5422,7 +5535,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (it.ptAssegnato === n) opt.selected = true;
       ptSel.appendChild(opt);
     });
-    ptSel.addEventListener("change", function(e){ it.ptAssegnato = e.target.value; save(); });
+    ptSel.addEventListener("change", function(e){ it.ptAssegnato = e.target.value; save(); renderPtReq(); });
     field(r1, "PT assegnato", "narrow", ptSel);
 
     var r2 = row();
@@ -5453,7 +5566,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     // Il link WhatsApp apre la chat col PT assegnato (non col cliente): è lui che deve
     // ricevere i dati della richiesta e contattare il cliente.
     var ptPhone = ptReqPtPhone(club, it.ptAssegnato);
-    var waLink = ptReqWaLink(ptPhone, ptReqWaMessage(it, club));
+    var waLink = ptReqWaLink(ptPhone); // senza ?text=: l'emoji nel parametro URL arriva corrotta su molti client WhatsApp
     if (!it.ptAssegnato){
       var waHint = document.createElement("span");
       waHint.className = "ptreq-label";
@@ -5465,14 +5578,24 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       waHint2.textContent = "Nessun numero di telefono per " + it.ptAssegnato + " — aggiungilo nella scheda \"Elenco PT\"";
       r6.appendChild(waHint2);
     } else if (waLink){
-      var waBtn = document.createElement("a");
-      waBtn.href = waLink; waBtn.target = "_blank"; waBtn.rel = "noopener";
+      var waWrap = document.createElement("div");
+      waWrap.style.display = "flex"; waWrap.style.flexDirection = "column"; waWrap.style.gap = "4px"; waWrap.style.alignItems = "flex-start";
+      var waBtn = document.createElement("button");
+      waBtn.type = "button";
       waBtn.className = "ptreq-wa-btn" + (it.whatsappScaricato ? " done" : "");
-      waBtn.textContent = it.whatsappScaricato ? "✓ Contattato su WhatsApp" : "Apri WhatsApp";
+      waBtn.textContent = it.whatsappScaricato ? "✓ Contattato su WhatsApp" : "Copia messaggio e apri WhatsApp";
       waBtn.addEventListener("click", function(){
+        ptReqCopyToClipboard(ptReqWaMessage(it, club));
+        window.open(waLink, "_blank", "noopener");
         if (!it.whatsappScaricato){ it.whatsappScaricato = true; save(); renderPtReq(); }
       });
-      r6.appendChild(waBtn);
+      waWrap.appendChild(waBtn);
+      var waHintCopy = document.createElement("span");
+      waHintCopy.className = "ptreq-label";
+      waHintCopy.style.textTransform = "none"; waHintCopy.style.letterSpacing = "normal";
+      waHintCopy.textContent = "Il messaggio è copiato: incollalo (tocco lungo → Incolla) nella casella di testo di WhatsApp.";
+      waWrap.appendChild(waHintCopy);
+      r6.appendChild(waWrap);
     }
 
     return card;
