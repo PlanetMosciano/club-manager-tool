@@ -382,6 +382,12 @@
   .or-cov-legend{ display:flex; flex-wrap:wrap; gap:10px; margin-top:10px; font-size:12px; color:var(--ink-dim); }
   .or-cov-legend-item{ display:flex; align-items:center; gap:5px; }
   .or-cov-swatch{ width:11px; height:11px; border-radius:3px; display:inline-block; }
+  #orCovWeekTable td, #orCovWeekTable th{ text-align:left; vertical-align:top; }
+  #orCovWeekTable td:first-child{ white-space:nowrap; font-weight:600; }
+  tr.or-week-today td:first-child{ color:var(--teal-deep); }
+  tr.or-week-today{ background:rgba(56,106,123,.07); }
+  .or-week-turno{ display:inline-flex; align-items:center; gap:5px; margin:2px 10px 2px 0; }
+  .or-week-dot{ width:9px; height:9px; border-radius:50%; display:inline-block; flex:none; }
   .or-cov-stats{ font-size:13px; color:var(--ink-dim); margin-top:10px; }
   .or-month-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:16px; }
   .or-month-row label{ font-size:12px; font-weight:700; color:var(--ink-dim); }
@@ -464,6 +470,17 @@
   .sidebar .logout-link{ text-align:center; margin-top:10px; }
   .sidebar .logout-link a{ font-size:11px; color:rgba(255,255,255,.55); text-decoration:underline; cursor:pointer; }
   .sidebar .logout-link a:hover{ color:#fff; }
+  /* ---------- Mansionario (procedure operative per club + ricerca testuale) ---------- */
+  .mnsn-topbar{ display:flex; gap:9px; flex-wrap:wrap; align-items:center; margin:12px 0 4px; }
+  .mnsn-search{ flex:1 1 220px; min-width:0; font:inherit; font-size:13.5px; padding:8px 12px; border:1px solid var(--line); border-radius:9px; background:var(--surface); color:var(--ink); }
+  .mnsn-search-btn{ font:inherit; font-size:13.5px; font-weight:700; padding:8px 16px; border-radius:8px; border:1px solid var(--teal-deep); background:var(--teal-deep); color:#fff; cursor:pointer; }
+  .mnsn-edit-link{ font-size:12.5px; font-weight:700; color:var(--teal-deep); text-decoration:none; white-space:nowrap; padding:8px 4px; }
+  .mnsn-edit-link:hover{ text-decoration:underline; }
+  .mnsn-result{ border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-top:12px; background:var(--surface); }
+  .mnsn-result h4{ font-size:13.5px; color:var(--teal-deep); margin-bottom:6px; }
+  .mnsn-result pre{ font-family:inherit; font-size:13px; white-space:pre-wrap; margin:0; color:var(--ink); }
+  .mnsn-result mark{ background:rgba(174,163,113,.45); color:inherit; border-radius:3px; padding:0 2px; }
+  .mnsn-redacted-note{ font-size:12px; color:var(--ink-dim); background:rgba(174,163,113,.12); border:1px solid rgba(174,163,113,.3); border-radius:8px; padding:8px 10px; margin-top:16px; }
 </style>
 </head>
 <body>
@@ -519,6 +536,7 @@
       <a href="#" data-page="contatti"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.4 4 2.4 4.5 5.8"/></svg><span class="lbl">Contatti</span></a>
       <a href="#" data-page="app"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 15l6-6"/><path d="M13 5h4a4 4 0 0 1 0 8h-2"/><path d="M11 19H7a4 4 0 0 1 0-8h2"/></svg><span class="lbl">App</span></a>
       <a href="#" data-page="orari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="lbl">Orari &amp; Compensi</span></a>
+      <a href="#" data-page="mansionario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg><span class="lbl">Mansionario</span></a>
     </nav>
     <div class="tools-block">
       <div class="label">Strumenti</div>
@@ -1021,6 +1039,7 @@
                 <button type="button" id="orCopiaMesePrecedenteBtn">Copia orari del mese precedente per il collaboratore selezionato</button>
                 <span class="or-empty-note" id="orCopiaMesePrecedenteEsito" style="padding:0;"></span>
               </div>
+              <label class="mnt-radio" style="margin-top:10px;"><input type="checkbox" id="orPresMostraTutti" checked> Mostra tutti i turni (deseleziona per vedere solo quelli del collaboratore selezionato sopra)</label>
               <div class="tbl-wrap" style="margin-top:10px;">
                 <table class="or-table" id="orPresTable"></table>
               </div>
@@ -1032,6 +1051,10 @@
               </div>
               <div class="or-cov-legend" id="orCovLegend"></div>
               <div class="or-cov-stats" id="orCovStats"></div>
+              <div class="sub" id="orCovWeekLabel" style="margin-top:22px;"></div>
+              <div class="tbl-wrap">
+                <table class="or-table" id="orCovWeekTable"></table>
+              </div>
             </div>
             <div class="or-panel" data-or-panel="corsi" hidden>
               <div class="tbl-wrap">
@@ -1076,6 +1099,27 @@
               <div class="or-empty-note" id="orCompFinaliEmpty" hidden>Nessun collaboratore con compensi da calcolare questo mese.</div>
               <div class="mnt-empty">"Bonus" è un importo libero che si somma al totale calcolato automaticamente — non modifica i calcoli di sala/corsi/desk.</div>
             </div>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="page" data-page="mansionario" hidden>
+        <div class="col">
+
+          <section class="card" id="card-mansionario">
+            <div class="hd">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg></span>
+              <h2>Mansionario</h2>
+            </div>
+            <div class="sub" id="mansionarioClubLabel"></div>
+            <div class="mnsn-topbar">
+              <input type="text" id="mansionarioQuery" class="mnsn-search" placeholder="Cerca nel mansionario (es. 'apertura', 'wifi', 'solarium')...">
+              <button type="button" class="mnsn-search-btn" id="mansionarioSearchBtn">Cerca</button>
+              <a href="#" id="mansionarioEditLink" class="mnsn-edit-link" target="_blank" rel="noopener">✏️ Modifica mansionario</a>
+            </div>
+            <div id="mansionarioResults"></div>
+            <div class="mnsn-redacted-note">Per sicurezza, le password di accesso (WiFi, PC, posta, sistemi di pagamento, ecc.) non sono incluse in questa ricerca: sono disponibili solo nel documento completo su Drive, tramite "Modifica mansionario".</div>
           </section>
 
         </div>
@@ -1365,6 +1409,7 @@
   var mntSeedDone = false;
 
   var GESTIONE_ORARI_URL = "https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8";
+
   function orariUrl(){ return GESTIONE_ORARI_URL + "#" + state.club; }
   function updateOrariLinks(){
     var url = orariUrl();
@@ -1373,6 +1418,807 @@
       if (el) el.setAttribute("href", url);
     });
   }
+
+  var MANSIONARIO_URL = {
+    giulianova: "https://docs.google.com/document/d/1uHRtyHbRaLcYS8s8q-n8wQh8OHGpZ6ZjFel93zsWE88/edit",
+    roseto: "https://docs.google.com/document/d/18XhZMLmmlinsRhuydSqAv7a3vfLdQTQEYveGK0q_sZE/edit",
+    mosciano: "https://docs.google.com/document/d/1LHEGEuxl9tLGyb_IFMcCWjwE6ZFACeUCShvIbNxYuco/edit"
+  };
+  var MANSIONARIO_TESTO = {
+    giulianova: `## INTRODUZIONE
+
+Il mansionario nasce con lo scopo di raccogliere tutte le funzioni da svolgere durante gli orari di servizio all'interno del Club Planet Fitness Giulianova con l'obiettivo unico di rendere tutte le procedure più semplici, veloci e chiare ad ogni componente dello staff tecnico e staff commerciale.
+
+Ogni suggerimento di aggiunta o variazione di tali procedure sono bene accette.
+
+Buon Lavoro.
+
+## PROCEDURA DI APERTURA
+
+### 1.1 STAFF TECNICO / COACH
+
+Apertura Club ore 5:00. INIZIO SERVIZIO IN SALA ore 9:00.
+
+ZONA 1) SALA ISOTONICO E CARDIO
+
+1. controllo accensione zona cardio, in caso di attrezzi non funzionanti, provare a risolvere il problema e nel caso scriverlo sul gruppo Whatsapp SALA ATTREZZI E PT GIULIANOVA. Nel caso di mancanza di corrente controllare gli interruttori posti dietro al desk (INTERRUTTORI: GENERALE CARDIOFITNESS) (FOTO), la chiavetta per aprire il quadro è nella cassetta delle chiavi nel bagno Staff.
+2. Controllo pulizia, in caso di sporco risolvere il problema e segnalarlo al Club Manager.
+3. riempire gli spruzzini e disporre i telini negli appositi spazi sui mobiletti.
+4. controllare che funzionino le TV
+
+STUDIO 1 (VIRTUAL)
+
+1. Controllo presenza spruzzini e telini Studio1 (sala Virtual) controllo funzionamento teste mobili, proiettore e pc. In caso di malfunzionamento provare a risolvere il problema e segnalarlo sul gruppo Whatsapp SALA ATTREZZI E PT GIULIANOVA.
+2. Come aprire il programma virtual in caso di necessità: spegnere/accendere il PC, attendere il caricamento di Windows, aprire il programma Planet Fitness (programma virtual) nel caso non si avvii da solo, poi avviare il programma e selezionare la lezione (le credenziali di accesso sono automatiche).
+
+ZONA 2) SALA PESI LIBERI E SKILL ROW E BIKE
+
+1. Controllo accensione zona skill (skill row e skill BIKE) e led wall. In caso di mancata accensione controllare il quadro di sinistra dietro al desk (PRESE LED WALL).
+2. Controllo ordine dischi, Manubri e Bilancieri.
+3. Controllo pulizia, in caso di sporco risolvere il problema e segnalarlo al Club Manager.
+4. Riempire gli spruzzini e disporre i telini negli appositi contenitori sui mobiletti.
+5. Controllo Tablet (carica e funzionamento).
+6. Controllare che funzionino le TV.
+
+ZONA 3) AREA FUNCTIONAL
+
+1. Controllo ordine degli attrezzi
+2. Controllo pulizia, in caso di sporco risolvere il problema e segnalarlo al Club Manager.
+
+COACH UOMINI: SPOGLIATOIO UOMINI.
+
+1. Controllare il riempimento di carta igienica nei bagni e controllare la disponibilità delle scorte (BAGNO STAFF)
+2. Controllare sapone.
+3. Controllo funzionamento doccia uomini (in caso di disconnessione wifi o malfunzionamento sbloccare le docce ruotando l'apposita chiavetta posta in alto, sul soffitto, sui lettori dei bracciali. Scala nel bagno staff, dietro la porta di ingresso.)
+4. Controllo funzionamento illuminazione, in caso di fari non funzionanti comunicarlo all'istruttore per scriverlo sul gruppo Whatsapp (SALA ATTREZZI E PT GIULIANOVA).
+
+ZONA 4) COFFEE BREAK
+
+1. Controllo funzionamento distributore bevande automatico. Prendere le chiavi con l'apposita dicitura (DISTRIBUTORE SUCCHI, chiavi nella cassetta nel bagno staff colore viola), aprire il distributore e controllare la quantità dei vari gusti; nel caso di un gusto finito, sostituirlo con lo stesso gusto (gusti posti nel primo mobiletto, sotto alle mensole espositive, dietro al desk).
+2. Riempire il distributore di acqua. L'acqua è nel locale caldaia posto sul retro, nel parcheggio; controllare anche la quantità in modo da segnalare il necessario approvvigionamento. La chiave è quella con la targhetta LOCALE CALDAIA (cassetta bagno staff colore arancione).
+
+SOLARIUM (apertura)
+
+1. Prendere la chiave con scritto SOLARIUM (chiave nella cassetta nel bagno staff colore blu) ed aprire il solarium.
+2. Controllare che ci sia il rotolo di carta ed uno spruzzino.
+3. Controllare che la lampada sia accesa (se non lo è controllare l'interruttore in fondo, dietro alla lampada).
+
+BAGNO STAFF
+
+1. Controllo presenza telini e nel caso ripiegare.
+2. In caso di mancanza di telini puliti comunicarlo sul gruppo SALA ATTREZZI E PT GIULIANOVA.
+
+### 1.1.2 STAFF COMMERCIALE
+
+Apertura Club ore 5:00. INIZIO SERVIZIO DESK ore 9:00.
+
+Prendere la chiave della cassetta presente nel bagno staff appesa dietro al desk.
+
+SOLARIUM: controllo accensione, pulizia e presenza di CARTA e SPRUZZINO nella zona adibita alla Lampada.
+
+### 1.1.3 ISTRUTTORI CORSI
+
+Arrivare 10/15 minuti prima e controllare che l'impianto audio sia funzionante:
+
+1. prendere la chiave STUDIO 3 (cassetta bagno staff colore verde)
+2. accendere il mixer e l'amplificatore (foto)
+3. controllare che ci siano spruzzini e telini, in caso contrario prenderli nel bagno STAFF.
+4. controllare che la sala sia in ordine e pulita.
+
+## PROCEDURA DI CHIUSURA
+
+### 2.1 STAFF TECNICO/COACH
+
+FINE SERVIZIO IN SALA ore 21:00.
+
+SOLARIUM (chiusura):
+
+1. prendere le chiavi dietro al desk, ultima anta a destra (foto), con scritto SOLARIUM.
+2. andare al piano superiore e chiudere il Solarium accertando che non ci sia nessuno (rumore lampada o porta chiusa)
+3. riporre la chiave al suo posto.
+
+GIORNI FESTIVI: il solarium nei giorni festivi principali (NATALE, PASQUA, PASQUETTA, CAPODANNO, FERRAGOSTO) per motivi di sicurezza non è disponibile: il giorno precedente va chiuso e lasciato il cartello sulla porta (cartelli nella cartellina nera sotto al desk, sopra gli amplificatori). Seguire la procedura di chiusura del solarium.
+
+LAVATRICE:
+
+1. Raccogliere i telini dai secchi appositi posti nella sala isotonico, in quella pesi liberi ed in studio 3 (se non portati dall'istruttore corsi, segnalarlo al Club Manager)
+2. Inserirli nella lavatrice, aggiungere il sapone ed avviare il programma di lavaggio: XPRESS SUPER SHORT selezionato con la manopola centrale, poi selezionare il tasto RAPIDO presente sotto allo schermo (appare 14 minuti di lavaggio). Selezionare 1200 di centrifuga.
+3. Premere il tasto AVVIO/PAUSA.
+
+ZONA 1) SALA ISOTONICO, CARDIO E STUDIO 1
+
+1. Riordinare i pesi liberi delle isotoniche
+2. Riordinare gli accessori della cable station
+3. Controllare ordine in sala virtual.
+4. Controllare chiusura porta emergenza posteriore, dove c'è la poltrona massaggiante.
+
+ZONA 2) SALA PESI LIBERI E SKILL ROW E BIKE
+
+1. Riordinare dischi, Manubri e Bilancieri.
+2. Caricare Tablet.
+
+ZONA 3) AREA FUNCTIONAL: riordinare gli attrezzi, sia quelli a terra che quelli della struttura.
+
+COACH: SPOGLIATOI
+
+1. Controllo funzionamento doccia uomini e donne, in caso di disconnessione wifi o malfunzionamento sbloccare le docce ruotando l'apposita chiavetta posta in alto, sul soffitto, sui lettori dei bracciali.
+2. Controllo funzionamento illuminazione, in caso di fari non funzionanti scrivere sul gruppo Whatsapp SALA ATTREZZI E PT GIULIANOVA.
+
+COACH: ASCIUGATRICE
+
+Svuotare la lavatrice se finita (altrimenti aspettare prima di aprire l'oblò), mettere i telini in asciugatrice selezionando il programma ECO e premere il tasto AVVIO/PAUSA.
+
+PORTE ESTERNE (chiusura)
+
+1. Prendere le chiavi (CHIAVI PORTE ESTERNE), girare la chiave fino a che la maniglia esterna non permetta l'apertura della porta; ripetere l'operazione sia per la porta Nord che Sud.
+2. Alzare l'interruttore con scritto CONTR. ACCESSI nel secondo quadro dietro al Desk. La chiave è sopra il quadro.
+3. Utilizzare la chiave NERA piccola per girare il bussolotto vicino al lettore esterno e controllare con il braccialetto che funzioni aprendosi e chiudendosi elettronicamente.
+
+### 2.2 STAFF COMMERCIALE
+
+FINE TURNO ore 21:00.
+
+- Chiusura cassa.
+- Controllare che non ci siano documenti lasciati come cauzione: in caso di presenza rintracciare il cliente, consegnare il documento, riprendere il braccialetto.
+- Riposizionare cassa al proprio posto, inserendo i bracciali arancioni all'interno di essa, chiudere a chiave e posizionare la chiave nel posto prestabilito.
+- Dischetti, Tablet e Pos in carica, assicurarsi che le prese siano nelle prese rosse.
+- Sgomberare il desk da ogni cosa (post-it, fogli, tessere, bracciali, password).
+- Porte esterne: stessa procedura chiavi/interruttore CONTR. ACCESSI del Coach (chiavi colore blu).
+
+## FESTIVI APERTURA E CHIUSURA
+
+Si seguono le procedure dei giorni feriali, integrate con la chiusura/apertura delle porte d'ingresso sud e nord poiché le componenti del desk non sono presenti nel Club. L'acquisto dell'ingresso nei festivi è possibile solo con il QR presente davanti al desk.
+
+Acquisto singolo ingresso con problematica app: usare il POS lasciato a disposizione (digitare importo 1300 → esce 13,00€ sul pos), consegna di bracciale oro in cambio di un documento di riconoscimento, appuntare nome e cognome su un foglio al desk, riconsegnare il documento e recuperare il bracciale prima di andare via.
+
+Per situazioni particolari: Club Manager (Giuseppe 3466055767), proprietà (Giuliano 3492630062).
+
+## CAMBIO TURNO
+
+### 3.1 STAFF TECNICO / COACH
+
+Mansioni per il coach entrante: verifica carta e sapone bagni spogliatoio; controllo livello succhi distributore; ricaricare spruzzini in Sala Attrezzi, Sala Pesi, Sala Virtual, Studio Uno e Studio Reformer; rifornire contenitori con telini puliti e lasciare riserva nel Bagno STAFF; sistemazione Sala Pesi e Area Funzionale.
+
+### 3.2 STAFF COMMERCIALE
+
+Confronto con il collega precedente per aggiornamenti odierni; check bagni carta e sapone; riconteggio della cassa.
+
+## SERVIZI
+
+### 4.1 DISTRIBUTORE BEVANDE
+
+1. prendere la chiave del distributore (cassetta DISTRIBUTORE SUCCHI colore viola), aprire il distributore
+2. controllare la quantità di liquido nei brick dei vari gusti
+3. controllare eventuali anomalie o perdite e segnalarlo al Club Manager
+4. richiudere lo sportello e controllare la funzionalità dello schermo
+
+ARRESTO ANOMALO / BLOCCO: in caso di blocco anomalo riavviare il distributore (aprire lo sportello, spegnere e riaccendere la ciabatta interna). In caso di anomalie nel sistema di lettura dei bracciali, intervenire dalla pagina SETTAGGI sul pc desk (procedura guidata nei preferiti del browser) o dal touch del distributore.
+
+### 4.2 DISTRIBUTORE ACQUA E SNACK
+
+Apertura distributore con chiave posizionata dietro al desk, ultima anta. Rifornire di acqua naturale e frizzante presente nel locale caldaia posto dietro lo stabile, e le barrette poste dietro al desk nei mobiletti sotto le mensole espositrici.
+
+### 4.3 SOLARIUM (funzionamento)
+
+Attivazione ogni 48h effettive per abbonato con servizio incluso. Durata 12 minuti, poi pausa di 3 minuti per raffreddarsi (durante la pausa non si può attivare per nessun cliente). La lampada si accende automaticamente al passaggio del bracciale.
+
+EMERGENZA: il suono di allarme arriva al desk (adibito al soccorso): prendere le chiavi dietro al desk ed aprire la porta.
+
+BLOCCO SOLARIUM: in caso di blocco/surriscaldamento, staccare la corrente diretta e riattivare dopo qualche secondo. Ruotare verso sinistra per spegnere e verso destra per riaccendere.
+
+### 4.4 POLTRONA MASSAGGIANTE
+
+Sempre disponibile per i clienti con servizio incluso in abbonamento. Dopo il passaggio del braccialetto, attivare con il tasto di accensione sul bracciolo sinistro. Durata massaggio 20 minuti, poi torna automaticamente in posizione iniziale.
+
+EMERGENZA: in caso di blocco anomalo, staccare la spina dietro alla poltrona.
+
+### 4.6 SPOGLIATOI / DOCCE
+
+Ogni cliente ha diritto a una doccia al giorno inclusa nell'abbonamento (seconda doccia a pagamento).
+
+MALFUNZIONAMENTO DOCCE: sbloccare dalla centralina posizionata in alto sopra la centralina di lettura dei bracciali (foto). Richiudere sempre la centralina dopo l'uso.
+
+BLOCCO CENTRALINA DOCCE: primo quadro a sinistra (prima anta del Desk). Staccare "CENTRALINA DOCCE" per 15 secondi e riattaccare.
+
+### 4.7 DEFIBRILLATORE (DAE)
+
+Dispositivo medico che eroga una scarica elettrica al cuore per riportarne il movimento naturale in caso di sospetto arresto cardiaco. L'uso è consentito anche a chi non ha formazione specifica (fonte: Ministero della Salute).
+
+POSIZIONAMENTO: zona sala pesi liberi di fianco al led wall.
+
+IN CASO DI LAMPEGGIO LUCE ROSSA SEGNALARE IMMEDIATAMENTE.
+
+### 4.9 LAVATRICE / ASCIUGATRICE
+
+Lavatrice su XPRESS Super Short con centrifuga a 1200; asciugatrice su XPRESS Super Short.
+
+### 4.9.1 TELEVISIONI
+
+Si accendono automaticamente alle 5:00 e si spengono alle 22:00, riproducendo il contenuto scelto dal Club.
+
+ANOMALIE: staccare l'alimentatore della fire stick per 10 secondi (dietro al desk, terza anta, sotto al dispositivo antincendio), ricollegare e attendere l'accensione; col telecomando selezionare l'utente "Giuliano" sul dispositivo in STAFF ONLY osservando le tv nell'area funzionale; aprire l'app OptiSing per far ripartire la riproduzione corretta.
+
+## AREE
+
+### 5.1 SALA VIRTUAL
+
+Attiva dalle 5:10 alle 21, lezioni ogni ora in punto. Da monitorare e tenere in ordine. ATTENZIONE: dalle 18:00 alle 20:00 dal lunedì al venerdì il servizio virtual è interrotto per uso come corpo libero (valido fino a nuova comunicazione).
+
+All'apertura: accendere tutte le luci della sala (interruttori laterali vicino alla porta), controllare schermo su schermata iniziale, riordinare (togliere tappetini e step in giro). Alle 20:00 ripristinare la sala.
+
+L'audio non va toccato (volume costante, accensione automatica).
+
+MODIFICA LEZIONI: il Coach recupera il mouse nello scompartimento del desk lato sala virtual (accensione: cursore da OFF verso la punta; riposizionare su OFF dopo l'uso; cambiare batterie se non si accende) e rimette il mouse nell'ultimo cassetto del desk dopo l'uso.
+
+### 5.2 AREA FUNCTIONAL
+
+Area utilizzata da tutti gli iscritti, riservata ai soli iscritti dei corsi Funzionale e Calisthenics nelle ore di lezione. Va monitorata costantemente perché soggetta a disordine rapido; rispettare i posti dei materiali come nelle immagini di riferimento.
+
+### 5.3 SALA PESI LIBERI E SKILL ROW E BIKE
+
+Area centrale tra le due aree laterali: manubri, Rack, zona cavi, panche, skill bike e skill row.
+
+### 5.4 SALA ISOTONICO E CARDIO
+
+Zona Cardio con macchine cardio, linea Selection 900 Technogym e linea Pure Technogym.
+
+### 5.5 STUDIO TRE
+
+Sala corsi Tonificazione e Olistici. Impianto audio: vedere procedura apertura/chiusura istruttore corsi.
+
+### 5.6 STUDIO DUE
+
+Sala Olistica e Reformer.
+
+### 5.8 TORNELLI INGRESSO
+
+Interruttori posizionati sotto al desk, sopra gli amplificatori.
+
+EMERGENZA: sbloccare tenendo premuto il tasto centrale e quello laterale in direzione della funzione del tornello (uscita/entrata).
+
+Problema MECCANICO: chiavetta apposita (tornello uscita sotto di esse, tornello entrata nel mazzo chiavi "TORNELLI" mascherina blu). Problema ELETTRICO: primo quadro dietro alla prima anta del desk, interruttore "TORNELLI" (riattivare solo dopo il completo spegnimento del lettore di entrata).
+
+### 5.9 IMPIANTO AUDIO PRINCIPALE
+
+Tasto di accensione in basso a destra. Canale volume per sale isotonico, funzionale e pesi. Il resto non va toccato. Accensione in modalità automatica.
+
+## CONTATTI UTILI DEL CLUB
+
+Proprietario: Giuliano Appicciutoli, tel 3492630062, email giuliano.appi@gmail.com.
+Club Manager: Giuseppe Bruno, tel 3466055767, email giovagiu89@gmail.com.
+Resp. Corsi/formazione: Emanuela Marfisi, tel 3476720801, email manu.marfisi@gmail.com.
+Manutentore: Andrea, tel 3283327622.
+Elettricista: Federico Polci, tel 3925852688.
+Sicurezza sul lavoro: Girolamo (STONE), tel 3393231941.
+Citigas (idraulica): Christian Picchio, tel 3485819343.
+Pulizie: Elda, tel 3496797710.
+Distributore bevande: Stefano, tel 3356126507 / 3280716401.
+Ciprietti caffè (sede): tel 3356694831 / 0861414964; tecnico Stefano 3895504891.
+Technogym tecnico: Stefano, tel 3459353387.
+Technogym assistenza: tel 0547650650 / 3456481188.
+
+NOTA: le password di accesso a Wi-Fi, PC, sistemi virtual, PagoLight/SmallPay/email e altri account non sono incluse in questa ricerca per sicurezza — sono disponibili solo nel documento completo su Drive ("Modifica mansionario").`,
+    roseto: `## INTRODUZIONE
+
+Il mansionario nasce con lo scopo di raccogliere tutte le funzioni da svolgere durante gli orari di servizio all'interno del Club Planet Fitness Roseto con l'obiettivo unico di rendere tutte le procedure più semplici, veloci e chiare ad ogni componente dello staff tecnico e staff commerciale.
+
+Ogni suggerimento di aggiunta o variazione di tali procedure sono bene accette.
+
+Buon Lavoro.
+
+## PROCEDURA DI APERTURA
+
+### 1.1 STAFF TECNICO / COACH
+
+Apertura Club ore 5:00. INIZIO SERVIZIO IN SALA ore 9:00.
+
+- Verifica completa accensione e funzionamento di Sala Virtual, Solarium e Poltrona massaggiante
+- Apertura SOLARIUM: aprire la porta chiusa a chiave (chiave nel portachiavi in Staff Only), dare corrente al Solarium ruotando verso destra.
+- Verifica presenza carta e sapone nei bagni dello spogliatoio e del piano superiore (rifornire e segnalare al Club Manager per l'impresa di pulizia se manca)
+- Rifornire il frigo di bottiglie acqua e barrette energetiche, rispettando i posti in base ai prezzi (vedere voce DISTRIBUTORE ACQUA E BARRETTE)
+- Controllo livello dei succhi dal distributore (vedere voce DISTRIBUTORE BEVANDE)
+- Ricaricare con mix di acqua e prodotto gli spruzzini presenti in Sala Attrezzi, Sala Pesi, Sala Virtual, Studio Uno e Studio Due
+- Salire un rotolo di carta, se mancante, nel solarium e nella poltrona massaggiante, con annessi spruzzini
+- Rifornire i contenitori di Sala Attrezzi, Sala Pesi, Sala Virtual con telini puliti e lasciare riserva nello stanzino privato per gli istruttori dei corsi
+- Sistemazione Sala Pesi e Area Funzionale
+- Apertura Box Privato (chiave nello stanzino Only Staff piano terra)
+
+### 1.1.2 STAFF COMMERCIALE
+
+Apertura Club ore 5:00. INIZIO SERVIZIO DESK ore 9:00.
+
+- Verifica corretta accensione impianto di illuminazione e musica, impostare le luci in base alla giornata in LUCI PIOGGIA/SOLE (premere scenari, poi premere LUCI PIOG/SOL: un tocco = pioggia, tocco prolungato 2 secondi = sole). NON va usata mentre ci sono lezioni in corso.
+- Accensione interruttore "FM DESK" nello stanzino Only Staff
+- Verifica carta e sapone nei bagni femminili spogliatoio e piano superiore
+- Apertura porte del Club lato collina (chiavi nello stanzino only staff) e lato mare (procedura con bracciale e pulsantiera: aspettare il suono, premere APERTO, aspettare 5 secondi, premere DISALIMENTATO — la porta resta battente, la chiave lato mare non si usa più). In caso di mancanza di energia entrare con la chiave dal lato collina.
+- Recupero della Cassa e conteggio Fondo Cassa del giorno precedente, deve essere 150€
+- Predisposizione di Dischetti, Tablet, Pos
+- Apertura del gestionale WIC, Email e Whatsapp sul PC Desk
+- Fare tesseramenti CSEN per le vendite del giorno precedente
+- Accensione impianto areazione: tenere il dito su "UNLOCK" fino alla scomparsa del lucchetto lampeggiante, poi premere ON/OFF per attivare.
+
+### 1.1.3 ISTRUTTORI CORSI
+
+Prima della lezione: recuperare chiave "Staff Only" nel primo cassetto del desk lato sala attrezzi e accendere il climatizzatore dello studio; assicurarsi che ci siano telini puliti (altrimenti prelevarli nello stanzino privato); assicurarsi che gli spruzzini siano carichi; accensione in autonomia delle luci della sala; accensione impianto audio secondo indicazioni (prima il mixer poi le casse, tasto power, poi I per accendere).
+
+## PROCEDURA DI CHIUSURA
+
+### 2.1 STAFF TECNICO/COACH
+
+FINE SERVIZIO IN SALA ore 21:00. Fino alle 21 si resta in sala per dare servizio di assistenza (soprattutto su prime sedute/nuove schede), facendo capire che il servizio termina ma senza abbandonare i clienti.
+
+- Sistemazione Sala Pesi e Area Funzionale (anche durante la giornata)
+- Verificare carta e spruzzini nel Solarium e Poltrona massaggiante
+- Verifica carta e sapone nei bagni spogliatoio e piano superiore
+- Raccogliere i telini usati di Sala Attrezzi, Sala Pesi, Sala Virtual e depositarli nello scatolone nello stanzino privato
+- Chiusura SOLARIUM: staccare la corrente e chiudere a chiave la porta (chiave nel portachiavi in Staff Only), ruotare verso sinistra per spegnere
+- Lavaggio telini: lavatrice su XPRESS Super Short centrifuga 1200, poi asciugatrice su XPRESS Super Short
+- Chiusura Box Privato: chiudere a chiave e posizionare la chiave come da foto nello stanzino Only Staff piano terra
+
+### 2.2 STAFF COMMERCIALE
+
+FINE TURNO ore 21:00.
+
+- Chiusura cassa + chiusura del pos con invio della foto sul gruppo desk WhatsApp
+- Controllare che non ci siano documenti lasciati come cauzione: in caso di presenza rintracciare il cliente, consegnare il documento, riprendere il braccialetto e far attivare il QR per restare nel club
+- Chiusura delle porte lato mare (premere ALIMENTATO, aspettare 5 secondi, premere CHIUSO, aspettare 5 secondi, chiudere la porta a mano senza usare la chiave) e lato collina con chiave
+- Chiusura interruttore FM DESK nello stanzino Only staff
+- Riposizionare cassa al proprio posto, inserendo i bracciali arancioni all'interno, chiudere a chiave e posizionare la chiave nel posto prestabilito
+- Dischetti, Tablet e Pos in carica, prese rosse
+- Sgomberare il desk da ogni cosa (post-it, fogli, tessere, bracciali, password)
+- Spegnere impianto di areazione: tenere il dito su "UNLOCK" fino alla scomparsa del lucchetto, poi premere ON/OFF per spegnere
+
+### 2.3 ISTRUTTORI CORSI
+
+Dopo la lezione: spegnimento in autonomia delle luci della sala; spegnimento impianto audio (prima le casse poi il mixer, tasto O per spegnere); se ultima lezione della giornata, scendere i telini nello stanzino privato e svuotarli nell'apposito cesto, poi risalire il sacco nel cesto della sala; spegnimento del climatizzatore nello stanzino Staff Only.
+
+## FESTIVI APERTURA E CHIUSURA
+
+Si seguono le procedure dei giorni feriali, integrate con la chiusura/apertura delle porte d'ingresso est e ovest poiché le componenti del desk non sono presenti nel Club. Il totem con il QR davanti al desk permette ai clienti di acquistare un ingresso — è l'unico modo (no contanti, no pos, niente apertura tornelli per eccezioni varie).
+
+PROBLEMA APP (dall'8 novembre, deciso in riunione): se un cliente non riesce a scaricare l'app perché non appare sullo store (escluse tutte le altre situazioni, come tornello rosso o pagamenti scaduti), si procede con: consegna di bracciale marrone in cambio di un documento di riconoscimento, appuntare nome e cognome su un foglio al desk, riconsegnare il documento e recuperare il bracciale prima che il cliente vada via. Stessa procedura per chi riceve errore nel recupero delle credenziali d'accesso dell'app.
+
+Sullo stesso foglio si segna anche chi è dovuto tornare a casa per tornello rosso, così il lunedì le ragazze del desk possono contattare il cliente per risolvere il problema.
+
+Acquisto singolo ingresso con problematica app: POS a disposizione (digitare importo 1300 → esce 13,00€), consegna di bracciale arancione in cambio di documento di riconoscimento, stessa procedura di annotazione e restituzione.
+
+Per situazioni particolari: Club Manager (Emanuele 3898737945), Resp. Desk (Cristina 3280470920), proprietà (Giuliano 3492630062).
+
+## CAMBIO TURNO
+
+### 3.1 STAFF TECNICO / COACH
+
+Mansioni per il coach entrante: verifica carta e sapone bagni spogliatoio e piano superiore; rifornire il frigo di acqua e barrette (stanzino privato) rispettando i posti nel distributore; controllo livello succhi; ricaricare spruzzini in Sala Attrezzi, Sala Pesi, Sala Virtual, Studio Uno e Studio Due; salire un rotolo di carta se mancante nel solarium e nella poltrona; rifornire contenitori con telini puliti e lasciare riserva nello stanzino privato; sistemazione Sala Pesi e Area Funzionale.
+
+### 3.2 STAFF COMMERCIALE
+
+Confronto con collega predecessore per aggiornamenti odierni; check bagni carta e sapone; riconteggio della cassa.
+
+## SERVIZI
+
+### 4.1 DISTRIBUTORE BEVANDE
+
+Monitorare i livelli dei succhi e cambiarli quando a ridosso dell'1% (non prima di essere certi che siano finiti). Chiave nello stanzino Only Staff. Il processo di sostituzione dei succhi è ripreso in un video fissato in cima alla chat SALA ATTREZZI E PT.
+
+NECESSARIO POSIZIONARE LA BORRACCIA MANAGER NELL'APPOSITO SPAZIO DEL DISTRIBUTORE ALTRIMENTI NON SI ATTIVA (borraccia in Only Staff piano terra). Il servizio bevande è a pagamento e va attivato esclusivamente dal braccialetto del cliente.
+
+ARRESTO ANOMALO / BLOCCO: riavviare staccando l'alimentazione. Stanzino Staff Only piano terra, quadro a sinistra: staccare "MACCHINA CAFFE'" per 15 secondi e riattaccare.
+
+### 4.2 DISTRIBUTORE ACQUA E SNACK
+
+Apertura con chiave nello stanzino Only Staff. Rifornire di acqua naturale, frizzante e barrette conservate nello stanzino Privato.
+
+### 4.3 SOLARIUM (funzionamento)
+
+Attivazione ogni 48h effettive per abbonato con servizio incluso. Durata 12 minuti, poi pausa di 3 minuti per raffreddarsi (durante la pausa non si può attivare per nessun cliente). La lampada si accende automaticamente al passaggio del bracciale.
+
+EMERGENZA: in caso di allarme sonoro con illuminazione sopra lo stanzino Only Staff, recuperare la chiave nello stanzino Only Staff e procedere al soccorso.
+
+BLOCCO SOLARIUM: in caso di blocco/surriscaldamento staccare la corrente diretta e riattivare dopo qualche secondo. Ruotare verso sinistra per spegnere e verso destra per riaccendere.
+
+### 4.4 POLTRONA MASSAGGIANTE
+
+Utilizzabile ogni 12h effettive dai clienti con servizio incluso. Attivare con il tasto sul telecomando dopo il passaggio del braccialetto. Durata massaggio 20 minuti, poi premere 2 volte il tasto di accensione per riportare la poltrona in posizione di partenza. NB: dopo 2 ore dalla prima attivazione la poltrona si arresta forzatamente anche se un cliente ha appena iniziato un ciclo (problema noto, da risolvere).
+
+ALERT: se emette un suono di "bip bip" continuo, staccare l'alimentazione per un reset e ricollegare.
+
+### 4.5 SERVIZI IGIENICI 2° PIANO
+
+Monitorati come i servizi igienici degli spogliatoi.
+
+### 4.6 SPOGLIATOI / DOCCE
+
+Una doccia al giorno inclusa nell'abbonamento (seconda doccia a pagamento).
+
+MALFUNZIONAMENTO DOCCE: sbloccare dalla centralina posizionata in alto sopra la porta del bagno. Richiudere sempre dopo l'uso.
+
+BLOCCO CENTRALINA DOCCE: stanzino Staff Only piano terra, quadro a sinistra — staccare "BADGE UOMO/DONNA" per 15 secondi e riattaccare.
+
+### 4.7 DEFIBRILLATORE (DAE)
+
+Eroga una scarica elettrica al cuore per ripristinarne il movimento naturale in caso di sospetto arresto cardiaco. Uso consentito anche a chi non ha formazione specifica (fonte: Ministero della Salute). POSIZIONAMENTO: davanti all'uscita degli spogliatoi. IN CASO DI LAMPEGGIO LUCE ROSSA SEGNALARE IMMEDIATAMENTE.
+
+### 4.8 SISTEMA AREAZIONE CALDO / FREDDO
+
+Programmato da remoto in base alla stagione, diversificato per area. Pannello di controllo in Studio Uno (stanzino Only Staff piano terra, parete destra): al centro la temperatura rilevata, a destra l'umidità, a sinistra la modalità (es. COOL). Attivazione manuale: tenere il dito su "UNLOCK" fino alla scomparsa del lucchetto, poi ON/OFF per attivare, freccia destra per la voce temperatura, freccia su/giù per aumentare/ridurre, OK per confermare. Gestione automatica anche tramite due app sullo smartphone del Club (una per lo Studio 1, una per l'impianto principale). Cambio modalità COOL/HEAT: richiede il passaggio a modalità manuale dal menu assistenza (procedura con codice interno).
+
+### 4.9 LAVATRICE / ASCIUGATRICE
+
+Lavatrice su XPRESS Super Short con centrifuga 1200; asciugatrice su XPRESS Super Short.
+
+### 4.9.1 TELEVISIONI
+
+Si accendono automaticamente alle 5:00 e si spengono alle 22:00, con contenuto scelto dal Club.
+
+ANOMALIE: staccare l'alimentatore della fire stick per 10 secondi (stanzino Staff Only), ricollegare e attendere l'accensione; col telecomando selezionare l'utente "Giuliano" osservando lo schermo tv nell'area funzionale; aprire l'app OptiSing per far ripartire la riproduzione.
+
+## AREE
+
+### 5.1 SALA VIRTUAL
+
+Attiva dalle 5:10 alle 21, lezioni ogni ora in punto. Da monitorare e tenere in ordine. Impianto audio: tasto accensione nel riquadro rosso (POWER), volume regolato nel riquadro verde — il resto non va toccato. Accensione in automatico.
+
+MODIFICA LEZIONI: il Coach recupera il mouse nello scompartimento del desk lato sala virtual (accensione: cursore da OFF verso la punta; riposizionare su OFF dopo l'uso; ricaricare con il cavo nella scatola se scarico).
+
+### 5.2 AREA FUNZIONALE
+
+Area utilizzata da tutti gli iscritti, riservata ai soli iscritti dei corsi Funzionale e Calisthenics nelle ore di lezione. Va monitorata costantemente perché soggetta a disordine rapido; rispettare i posti dei materiali come nelle immagini.
+
+### 5.3 SALA PESI
+
+Area sul gommato: manubri, macchine linea Strength Pure Technogym, Rack, zona cavi, panche addome e zona corpo libero.
+
+### 5.4 SALA ISOTONICA
+
+Zona Cardio con macchine cardio e linea Selection 900 Technogym.
+
+### 5.5 STUDIO UNO
+
+Sala corsi Tonificazione e Olistici (interruttori luci nel riquadro rosso). Impianto audio: vedere procedura apertura/chiusura istruttore corsi.
+
+### 5.6 STUDIO DUE
+
+Sala Olistica Small Group.
+
+### 5.7 SALA OPEN SPACE
+
+Utilizzabile per lavori a corpo libero. Non dispone di materiali, telini o spruzzini propri: ciò che viene portato va riportato nell'area di appartenenza.
+
+### 5.8 TORNELLI INGRESSO
+
+Interruttori sotto al desk, angolo vicino al PC. Emergenza/necessità specifica: sbloccare pigiando il tasto I.
+
+### 5.9 IMPIANTO AUDIO PRINCIPALE
+
+Tasto accensione nel riquadro rosso (POWER), volume nel riquadro verde — il resto non va toccato. Accensione automatica.
+
+## LUCI CLUB
+
+Pannello di controllo sotto il desk, con nomi diversi per area: Gym A (sala isotonico&cardio, con strip blu al soffitto sempre accesa), Virtual (sala virtual, tenuta spenta per favorire la proiezione), Gym B (sala pesi, illuminazione mai totale), Studio UNO (strip blu sempre accesa, regolabile anche in sala), Studio DUE (regolabile anche in sala), Motoria (sala corpo libero primo piano), Comune (spogliatoi e servizi primo piano). I simboli gialli indicano luci accese. La voce "scenari" modifica tutte le luci del Club in contemporanea da remoto e non va usata mentre ci sono lezioni in corso — il desk gestisce LUCI PIOGGIA/SOLE la mattina in base al meteo.
+
+## CONTATTI UTILI DEL CLUB
+
+Proprietario: Giuliano Appicciutoli, tel 3492630062, email giuliano.appi@gmail.com.
+Club Manager: Emanuele Serafini, tel 3898737945, email serafini.e92@gmail.com.
+Resp. Desk: Cristina Rapagnà, tel 3280470920, email cristinarapagna0@gmail.com.
+Resp. Corsi: Emanuela Marfisi, tel 3476720801, email manu.marfisi@gmail.com.
+Manutentore: Andrea, tel 3283327622.
+Elettricista: Federico Polci, tel 3925852688.
+Sicurezza sul lavoro: Girolamo (STONE), tel 3393231941.
+Citigas (idraulica): Christian Picchio, tel 3485819343.
+Pulizie: Eva, tel 3713501796.
+Distributore WitWay commerciale: May, tel 3280716401.
+Distributore WitWay: Silvia, tel 3280716401.
+Ciprietti caffè (sede): tel 3356694831 / 0861414964; tecnico Stefano 3895504891.
+Technogym tecnico: Stefano, tel 3459353387.
+Technogym assistenza: tel 0547650650 / 3456481188.
+KOMODER (poltrona) assistenza: tel 3441827854.
+
+NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, account Tuya/eWeLink/Meeros e altri account non sono incluse in questa ricerca per sicurezza — sono disponibili solo nel documento completo su Drive ("Modifica mansionario").`,
+    mosciano: `## INTRODUZIONE
+
+Il mansionario nasce con lo scopo di raccogliere tutte le funzioni da svolgere durante gli orari di servizio all'interno del Club Planet Fitness Mosciano con l'obiettivo unico di rendere tutte le procedure più semplici, veloci e chiare ad ogni componente dello staff tecnico e staff commerciale.
+
+Ogni suggerimento di aggiunta o variazione di tali procedure sono bene accette.
+
+Buon Lavoro.
+
+## PROCEDURA DI APERTURA
+
+### 1.1 STAFF TECNICO / COACH
+
+Apertura Club ore 5:00. INIZIO SERVIZIO IN SALA ore 9:00.
+
+- inserisci /in sul bot accoglienza (telegram)
+- Verifica completa accensione e funzionamento di Sala Virtual e Poltrona massaggiante
+- Verifica presenza carta e sapone nei bagni dello spogliatoio e del piano interrato. In caso contrario rifornire; in caso di fine scorte segnalare al Club Manager.
+- Rifornire il frigo distributore di bottiglie acqua e barrette energetiche, rispettando i posti in base ai prezzi (vedere voce DISTRIBUTORE ACQUA E BARRETTE)
+- Controllo livello dei succhi dal distributore (vedere voce DISTRIBUTORE BEVANDE)
+- Ricaricare con mix di acqua e prodotto gli spruzzini presenti in Sala Attrezzi, zona Hyrox, Sala Virtual e poltrona massaggiante.
+- Rifornire i contenitori della Sala Attrezzi, zona Hyrox, Sala Virtual e poltrona massaggiante con telini puliti e lasciare contenitori di riserva pronti nello stanzino Staff Only interrato.
+- Sistemazione Sala Pesi e Area Funzionale
+
+### 1.1.2 STAFF COMMERCIALE
+
+Apertura Club ore 5:00. INIZIO SERVIZIO DESK ore 8:00.
+
+- Recupero chiave nello stanzino Staff Only Interrato e apertura cassetta delle chiavi nello stanzino Staff Only primo piano
+- Apertura porta di ingresso del Club (chiave nella cassetta)
+- Sblocco sistema antipanico (chiave nella cassetta), inserire la chiave e girare su I.
+- Apertura di tutti i cassetti del desk (chiavi nella cassetta)
+- Verifica carta e sapone nei bagni femminili e spogliatoi
+- Recupero della Cassa e conteggio Fondo Cassa, deve essere sempre 150€
+- Predisposizione di Dischetti, Tablet, Pos
+- Apertura del gestionale WIC, Email e Whatsapp sul PC Desk.
+
+### 1.1.3 ISTRUTTORI CORSI
+
+Prima della lezione: attivare sugli schermi il COUNTDOWN e poi l'allenamento della lezione se HYROX; assicurarsi che ci siano telini puliti (altrimenti prelevarli dallo stanzino Staff Only interrato); assicurarsi che gli spruzzini siano carichi (ricaricare con mix acqua/liquido se serve); cambio luci zona Hyrox in base alla lezione: ROSSO = Funzionale, GIALLO = Hyrox.
+
+## PROCEDURA DI CHIUSURA
+
+### 2.1 STAFF TECNICO/COACH
+
+FINE SERVIZIO IN SALA ore 21:00. Fino alle 21 si resta in sala per dare servizio di assistenza (soprattutto su prime sedute/nuove schede), facendo capire che il servizio termina ma senza abbandonare i clienti.
+
+Mansioni di chiusura: sistemazione Sala Pesi, zona Hyrox e Virtual (anche durante la giornata); verificare telini e spruzzini nella Poltrona massaggiante; verifica carta e sapone nei bagni spogliatoio e piano interrato; raccogliere i telini usati di Sala Attrezzi, zona Hyrox, Sala Virtual.
+
+Lavaggio telini: impostare la lavatrice su XPRESS Super Short con centrifuga 1200; al termine impostare l'asciugatrice su XPRESS Super Short dopo aver controllato il filtro.
+
+Inserire /out sul bot accoglienza (telegram) se ci si dimentica.
+
+### 2.2 STAFF COMMERCIALE
+
+FINE TURNO ore 20:00.
+
+- Chiusura cassa
+- Controllare che non ci siano documenti lasciati come cauzione: in caso di presenza rintracciare il cliente, consegnare il documento, riprendere il braccialetto e far attivare al cliente il QR per restare nel club.
+- Chiusura della porta del Club, girare la chiave del sistema della porta su O e riporre la chiave nella cassetta
+- Riposizionare cassa al proprio posto, chiudere a chiave
+- Chiudere a chiave tutti i cassetti e posizionare le chiavi nel posto prestabilito
+- Dischetti, Tablet e Pos in carica
+- Sgomberare il desk da ogni cosa (post-it, fogli, tessere, bracciali, password).
+
+### 2.3 ISTRUTTORI CORSI
+
+Dopo la lezione: luce impostata su colore BLU; TV messe nuovamente sulla routine quotidiana; sistemazione della zona Hyrox.
+
+## FESTIVI APERTURA E CHIUSURA
+
+Si seguono le procedure dei giorni feriali con la differenza che le componenti del desk non sono presenti nel Club. Sarà presente un pulsante che avvia una "chiamata" in sala attrezzi e allerta il coach per salire al piano superiore.
+
+Nella zona antistante il desk è posizionato il totem con il QR (Staff only piano terra) per l'acquisto dell'ingresso da parte dei clienti — è l'unico modo per acquistare l'ingresso. No soldi contanti, no pos, e niente apertura di tornelli per eccezioni varie. Posizionare campanello e cavaliere sul desk.
+
+Su un foglio si segnano eventuali blocchi del tornello (nome del cliente che non è riuscito ad entrare per tornello rosso), così il lunedì le ragazze del desk possono contattare il cliente per spiegare e risolvere il problema.
+
+Per situazioni particolari: Club Manager (Emanuele 3898737945), Resp. Desk (Federica 3921181865), proprietà (Giuliano 3492630062).
+
+## CAMBIO TURNO
+
+### 3.1 STAFF TECNICO / COACH
+
+Mansioni per il coach entrante: inserire /in sul bot accoglienza; verifica carta e sapone bagni spogliatoio e piano interrato; rifornire il frigo di acqua e barrette (stanzino privato) rispettando i posti nel distributore; controllo livello succhi; ricaricare spruzzini in Sala Attrezzi, Sala Pesi, Zona Hyrox, poltrona massaggiante; rifornire contenitori con telini puliti e lasciare riserva nello stanzino privato; sistemazione Sala Pesi e Zona Hyrox.
+
+### 3.2 STAFF COMMERCIALE
+
+Confronto con collega predecessore per aggiornamenti odierni; check bagni carta e sapone; riconteggio della cassa.
+
+## SERVIZI
+
+### 4.1 DISTRIBUTORE BEVANDE
+
+Monitorare i livelli dei succhi e cambiarli quando a ridosso dell'1% (non prima di essere certi che siano finiti). Chiave nello stanzino Only Staff piano terra. Il processo di sostituzione dei succhi è ripreso in un video fissato in cima alla chat SALA ATTREZZI E PT.
+
+NECESSARIO POSIZIONARE LA BORRACCIA MANAGER NELL'APPOSITO SPAZIO DEL DISTRIBUTORE ALTRIMENTI NON SI ATTIVA (borraccia in Staff Only piano interrato). Il servizio bevande è a pagamento e va attivato esclusivamente dal braccialetto del cliente.
+
+ARRESTO ANOMALO / BLOCCO: riavviare staccando l'alimentazione con l'interruttore dietro al distributore, lato sinistro.
+
+### 4.2 DISTRIBUTORE ACQUA E SNACK
+
+Apertura con chiave nello stanzino Only Staff piano terra. Rifornire di acqua naturale e frizzante dal sottoscala; barrette conservate nello stanzino Staff Only Mini.
+
+### 4.4 POLTRONA MASSAGGIANTE
+
+Utilizzabile ogni 12h effettive dai clienti con servizio incluso. Attivare con il tasto sul braccio della poltrona dopo il passaggio del braccialetto. Durata massaggio 20 minuti.
+
+ALERT: se emette un suono di "bip bip" continuo, staccare l'alimentazione per un reset e ricollegare.
+
+### 4.5 SERVIZI IGIENICI PIANO INTERRATO
+
+Monitorati come i servizi igienici degli spogliatoi.
+
+### 4.6 SPOGLIATOI / DOCCE
+
+Una doccia al giorno inclusa nell'abbonamento (seconda doccia a pagamento).
+
+MALFUNZIONAMENTO DOCCE: sbloccare dalla centralina posizionata sopra l'ingresso della zona bagni/docce (chiavi in Staff Only piano terra). Richiudere sempre la centralina dopo l'uso.
+
+BLOCCO CENTRALINA DOCCE: stanzino Staff Only sotto scala, quadro elettrico — staccare "BADGE UOMO/DONNA" per 15 secondi e riattaccare.
+
+### 4.7 DEFIBRILLATORE (DAE)
+
+Eroga una scarica elettrica al cuore per ripristinarne il movimento naturale in caso di sospetto arresto cardiaco. Uso consentito anche a chi non ha formazione specifica (fonte: Ministero della Salute). POSIZIONAMENTO: alla fine delle scale nel piano interrato. IN CASO DI LAMPEGGIO LUCE ROSSA SEGNALARE IMMEDIATAMENTE.
+
+### 4.8 SISTEMA AREAZIONE CALDO / FREDDO
+
+Programmato da remoto in base alla stagione, diversificato per area del Club; gestione automatica tramite app.
+
+### 4.9 LAVATRICE / ASCIUGATRICE
+
+Lavatrice su XPRESS Super Short con centrifuga 1200; asciugatrice su XPRESS Super Short.
+
+### 4.9.1 TELEVISIONI
+
+Si accendono automaticamente alle 5:00 e si spengono alle 22:00, con contenuto scelto dal Club.
+
+ANOMALIE: staccare l'alimentatore della fire stick per 10 secondi (nello stanzino Staff Only piano terra), ricollegare e attendere l'accensione; col telecomando selezionare l'utente "Giuliano" osservando lo schermo tv del desk; aprire l'app OptiSing per far ripartire la riproduzione.
+
+## AREE
+
+### 5.1 SALA VIRTUAL
+
+Attiva dalle 5:10 alle 21, lezioni ogni ora in punto. Volume regolato dal subwoofer in sala. Accensione impianto in automatico. Dispositivo video nello stanzino Staff Only Mini.
+
+MODIFICA LEZIONI: il Coach accede dal tablet al portale di riferimento e inserisce la lezione (per ora mantenere sempre la programmazione).
+
+### 5.2 ZONA HYROX
+
+Area utilizzata da tutti gli iscritti, riservata ai soli iscritti dei corsi Funzionale e Hyrox nelle ore di lezione. Va monitorata costantemente perché soggetta a disordine rapido; rispettare i posti dei materiali come nelle immagini.
+
+### 5.3 SALA PESI
+
+Area sul gommato con manubri, macchine, Rack, panche addome e zona corpo libero.
+
+### 5.4 SALA ISOTONICA
+
+Zona Cardio con macchine cardio e linea Matrix Versa, più angolo corpo libero.
+
+### 5.5 TORNELLI INGRESSO
+
+Interruttori sotto al desk, angolo vicino al PC. Situazione di emergenza/necessità specifica: sbloccare pigiando il tasto I.
+
+### 5.6 IMPIANTO AUDIO PRINCIPALE
+
+Musica tramite Spotify dal tablet in Staff Only piano terra. Accensione in modalità automatica.
+
+## CONTATTI UTILI DEL CLUB
+
+Proprietario: Giuliano Appicciutoli, tel 3492630062, email giuliano@planet.fit.
+Club Manager: Emanuele Serafini, tel 3898737945, email e.serafini@planet.fit.
+Resp. Desk: Federica Morelli, tel 3921181865, email morellifederica8@gmail.com.
+Resp. Corsi e formazione: Emanuela Marfisi, tel 3476720801, email manu.marfisi@gmail.com.
+Amministrazione: Kesia Cichetti, tel 3466176715, email amministrazione@planet.fit.
+Resp. Commerciale: Gianmarco Serenelli, tel 3454864490.
+Manutentore: Andrea Tempera, tel 3283327622.
+Elettricista: Marco (ditta Umili), tel 3207527483.
+Sicurezza sul lavoro: Girolamo (STONE), tel 3393231941.
+Citigas (idraulica): Roberto Umili, tel 3400707868.
+Pulizie: Eva, tel 3713501796.
+Distributore WitWay commerciale: May, tel 3280716401.
+Distributore WitWay: Silvia, tel 3280716401.
+Ciprietti caffè (sede): tel 3356694831 / 0861414964; tecnico Stefano 3895504891.
+Technogym tecnico: Stefano, tel 3459353387.
+Technogym assistenza: tel 0547650650 / 3456481188.
+KOMODER (poltrona) assistenza: tel 3441827854.
+Rappr. carta igienica: Attilio Caprioni, tel 3482562927.
+Trink Acqua (amministrazione): tel 085898109.
+
+## PROCEDURE DI PAGAMENTO DESK
+
+### 8.1 PAGOLIGHT (COMPASS, ora HEYLIGHT)
+
+Selezionare "HEYLIGHT", fare login con le proprie credenziali e iniziare una nuova pratica. Selezionare carta di debito/credito o bancomat (NO Postepay, NO prepagate o ricaricabili). Inserire tutti i dati del cliente, scegliere il numero di rate e inserire l'importo DA DILAZIONARE (es: 418,80€ in 6 rate → acconto subito di 69,80€, poi 349€ da inserire su 5 rate).
+
+### 8.2 SMALLPAY
+
+Login con le proprie credenziali; nella tendina a sinistra selezionare "VENDI"; selezionare "OPEN"; inserire i dati del cliente e del prodotto (es. 12 mesi Unlimited); selezionare come metodo di pagamento KLARNA (MAI Nexi), inserendo l'importo totale del prodotto (il sistema calcola automaticamente le rate, solo 3); inviare il link tramite email o far inquadrare il QR code al cliente per il pagamento (la prima rata viene scalata subito). Per verificare l'esito e lo stato della pratica: sezione "CLIENTI".
+
+NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, email e Wati non sono incluse in questa ricerca per sicurezza — sono disponibili solo nel documento completo su Drive ("Modifica mansionario").`
+  };
+
+  // ---------- Mansionario (procedure operative per club) ----------
+  // Testo statico per club, redatto dai documenti Drive "MANSIONARIO STAFF <CLUB>".
+  // Le sezioni PASSWORD sono state escluse per sicurezza (lo strumento e' pubblicato
+  // come sito statico GitHub Pages, con solo un gate client-side, non una vera
+  // autenticazione server-side): qui restano procedure, attrezzature, contatti; le
+  // password restano disponibili solo nel documento Drive originale.
+  function orMansionarioSections(club){
+    var testo = MANSIONARIO_TESTO[club];
+    if (!testo) return [];
+    var lines = testo.split("\n");
+    var sections = [];
+    var current = null;
+    lines.forEach(function(line){
+      var m = line.match(/^#{2,3}\s+(.+)$/);
+      if (m){
+        current = { titolo: m[1].trim(), corpo: [] };
+        sections.push(current);
+      } else if (current){
+        current.corpo.push(line);
+      } else {
+        current = { titolo: "Introduzione", corpo: [line] };
+        sections.push(current);
+      }
+    });
+    sections.forEach(function(s){ s.testo = s.corpo.join("\n").trim(); });
+    return sections.filter(function(s){ return s.testo; });
+  }
+
+  function orEscapeHtml(s){
+    return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;");
+  }
+
+  function orMansionarioHighlight(text, words){
+    var escaped = orEscapeHtml(text);
+    if (!words.length) return escaped;
+    words.forEach(function(w){
+      var safe = w.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      escaped = escaped.replace(new RegExp("(" + safe + ")", "gi"), "<mark>$1</mark>");
+    });
+    return escaped;
+  }
+
+  function orMansionarioSearch(club, query){
+    var sections = orMansionarioSections(club);
+    var q = (query || "").trim();
+    if (!q) return sections.slice(0, 3);
+    var words = q.toLowerCase().split(/\s+/).filter(function(w){ return w.length >= 3; });
+    if (!words.length) words = [q.toLowerCase()];
+    var qLower = q.toLowerCase();
+    var scored = sections.map(function(s){
+      var textLower = (s.titolo + " " + s.testo).toLowerCase();
+      var score = 0;
+      words.forEach(function(w){
+        if (!w) return;
+        score += textLower.split(w).length - 1;
+      });
+      if (textLower.indexOf(qLower) !== -1) score += 5;
+      return { section: s, score: score };
+    });
+    var matched = scored.filter(function(x){ return x.score > 0; });
+    matched.sort(function(a,b){ return b.score - a.score; });
+    return matched.slice(0, 6).map(function(x){ return x.section; });
+  }
+
+  function orMansionarioRenderResults(){
+    var container = document.getElementById("mansionarioResults");
+    if (!container) return;
+    var queryEl = document.getElementById("mansionarioQuery");
+    var q = queryEl ? queryEl.value : "";
+    var club = state.club;
+    var results = orMansionarioSearch(club, q);
+    var words = q.trim().length ? q.toLowerCase().split(/\s+/).filter(function(w){ return w.length >= 3; }) : [];
+    if (!results.length){
+      container.innerHTML = '<div class="mnt-empty">Nessun risultato per \u201c' + orEscapeHtml(q) + '\u201d nel mansionario di ' + (CLUBS[club] ? CLUBS[club].label : club) + '. Prova con un\'altra parola, oppure consulta il documento completo su Drive.</div>';
+      return;
+    }
+    container.innerHTML = results.map(function(s){
+      return '<div class="mnsn-result"><h4>' + orEscapeHtml(s.titolo) + '</h4><pre>' + orMansionarioHighlight(s.testo, words) + '</pre></div>';
+    }).join("");
+  }
+
+  function renderMansionario(){
+    var lbl = document.getElementById("mansionarioClubLabel");
+    if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
+    var link = document.getElementById("mansionarioEditLink");
+    if (link) link.setAttribute("href", MANSIONARIO_URL[state.club] || "#");
+    var queryEl = document.getElementById("mansionarioQuery");
+    if (queryEl) queryEl.value = "";
+    orMansionarioRenderResults();
+  }
+
+  function initMansionario(){
+    var btn = document.getElementById("mansionarioSearchBtn");
+    var input = document.getElementById("mansionarioQuery");
+    if (btn) btn.addEventListener("click", function(){ orMansionarioRenderResults(); });
+    if (input){
+      input.addEventListener("keydown", function(e){
+        if (e.key === "Enter"){ e.preventDefault(); orMansionarioRenderResults(); }
+      });
+      input.addEventListener("input", function(){ orMansionarioRenderResults(); });
+    }
+  }
+
 
   function todayISO(){ return new Date().toISOString().slice(0,10); }
   function daysBetween(iso){
@@ -1428,6 +2274,7 @@
     renderMaintenance();
     renderMntUpcoming();
     renderOrari();
+    renderMansionario();
   }
 
   // ---------- Coach in sala oggi ----------
@@ -1919,6 +2766,7 @@
     if (mntSeedDone) return;
     if (!state.db || Object.keys(state.maintenance).length > 0) return;
     mntSeedDone = true;
+    var jobs = [];
     Object.keys(MAINTENANCE_SEED).forEach(function(club){
       MAINTENANCE_SEED[club].forEach(function(base){
         var full = club + "__" + base.id;
@@ -1929,11 +2777,28 @@
         if (data.fatto === undefined) data.fatto = false;
         if (data.dataPrevista === undefined) data.dataPrevista = null;
         state.maintenance[full] = data;
-        state.db.doc("maintenance/" + full).set(data).catch(function(){});
+        jobs.push({ full: full, data: data });
       });
     });
     renderMaintenance();
     renderMntUpcoming();
+    // Scrittura UNA ALLA VOLTA, mai tutte insieme: ~187 scritture concorrenti
+    // verso l'endpoint Apps Script possono fallirne una parte sotto carico
+    // (stesso problema diagnosticato e corretto il 13/11/2026 in orImportBackup).
+    // Questo seed avviene una sola volta per club (solo se "maintenance" è vuota
+    // sul server), ma una scrittura persa qui sparirebbe silenziosamente al primo
+    // sondaggio periodico, quindi vale lo stesso rimedio.
+    var idx = 0;
+    function next(){
+      if (idx >= jobs.length) return;
+      var job = jobs[idx];
+      state.db.doc("maintenance/" + job.full).set(job.data).then(function(){
+        idx++; next();
+      }).catch(function(){
+        idx++; next();
+      });
+    }
+    next();
   }
 
   function buildMntRow(it, items){
@@ -2388,9 +3253,22 @@
     var list = orPresenzeForClubMonth(state.club, monthKey);
     var collabName = {};
     orCollabiForClub(state.club).forEach(function(c){ collabName[c.id] = c.nome; });
+    // Filtro di visualizzazione: per impostazione predefinita mostra tutti i turni;
+    // se l'utente deseleziona "Mostra tutti i turni", la tabella sotto mostra solo
+    // i turni del collaboratore attualmente selezionato nel menu sopra (lo stesso
+    // selettore usato per aggiungere un turno / copiare il mese precedente).
+    var mostraTuttiBox = document.getElementById("orPresMostraTutti");
+    var collabSel = document.getElementById("orPresCollab");
+    var mostraTutti = !mostraTuttiBox || mostraTuttiBox.checked;
+    if (!mostraTutti && collabSel && collabSel.value){
+      list = list.filter(function(p){ return p.collabId === collabSel.value; });
+    }
     var head = "<tr><th>Data</th><th>Collaboratore</th><th>Inizio</th><th>Fine</th><th>Ore</th><th></th><th></th></tr>";
     if (!list.length){
-      table.innerHTML = head + '<tr><td colspan="7"><div class="mnt-empty">Nessuna presenza registrata per questo mese.</div></td></tr>';
+      var emptyMsg = (!mostraTutti && collabSel && collabSel.value)
+        ? "Nessuna presenza registrata per questo mese per il collaboratore selezionato."
+        : "Nessuna presenza registrata per questo mese.";
+      table.innerHTML = head + '<tr><td colspan="7"><div class="mnt-empty">' + emptyMsg + '</div></td></tr>';
       return;
     }
     table.innerHTML = head + list.map(function(p){
@@ -2481,6 +3359,15 @@
     });
     var monthInput = document.getElementById("orPresMonth");
     if (monthInput) monthInput.addEventListener("change", renderOrari);
+    // Filtro "Mostra tutti i turni": la tabella sotto si aggiorna subito sia
+    // quando si (de)seleziona la spunta, sia quando si cambia il collaboratore
+    // nel menu — utile perché lo stesso menu serve anche per aggiungere un turno.
+    var mostraTuttiBox = document.getElementById("orPresMostraTutti");
+    if (mostraTuttiBox) mostraTuttiBox.addEventListener("change", renderOrari);
+    var collabSelFiltro = document.getElementById("orPresCollab");
+    if (collabSelFiltro) collabSelFiltro.addEventListener("change", function(){
+      if (mostraTuttiBox && !mostraTuttiBox.checked) renderOrariPresenze();
+    });
     var copiaBtn = document.getElementById("orCopiaMesePrecedenteBtn");
     if (copiaBtn) copiaBtn.addEventListener("click", function(){
       var esito = document.getElementById("orCopiaMesePrecedenteEsito");
@@ -2618,6 +3505,79 @@
 
     var stats = document.getElementById("orCovStats");
     if (stats) stats.textContent = "Ore coperte nel mese: " + (Math.round(copQ/4*100)/100) + " h. Ore scoperte nel mese: " + (Math.round(buchiQ/4*100)/100) + " h.";
+
+    renderOrariCoperturaSettimana();
+  }
+
+  // ---------- Copertura — settimana in corso (lunedì-domenica) ----------
+  // Vista rapida richiesta dai Club Manager: sotto la griglia mensile, la
+  // settimana reale in corso (indipendente dal mese selezionato nel picker
+  // condiviso, che può differire — es. a cavallo di due mesi), con nome e
+  // orario di ogni turno coach sala, leggibili a colpo d'occhio senza dover
+  // passare il mouse sulle celle come nella griglia mensile sopra.
+  function orMondayOfWeekContaining(dateISO){
+    var d = new Date(dateISO + "T12:00:00");
+    var day = d.getDay(); // 0=domenica,1=lunedì,...,6=sabato
+    var diffToMonday = (day === 0) ? -6 : (1 - day);
+    d.setDate(d.getDate() + diffToMonday);
+    return d.toISOString().slice(0,10);
+  }
+  function orAddDaysISO(dateISO, n){
+    var d = new Date(dateISO + "T12:00:00");
+    d.setDate(d.getDate() + n);
+    return d.toISOString().slice(0,10);
+  }
+  function orPresenzeForClubDateRange(club, startISO, endISO){
+    var out = [];
+    Object.keys(state.orariPresenze).forEach(function(key){
+      var p = state.orariPresenze[key];
+      if (p && p.club === club && p.data >= startISO && p.data <= endISO) out.push(p);
+    });
+    out.sort(function(a,b){
+      if (a.data !== b.data) return a.data.localeCompare(b.data);
+      return (a.inizio||"").localeCompare(b.inizio||"");
+    });
+    return out;
+  }
+  function renderOrariCoperturaSettimana(){
+    var table = document.getElementById("orCovWeekTable");
+    var lbl = document.getElementById("orCovWeekLabel");
+    if (!table) return;
+    var today = todayISO();
+    var monday = orMondayOfWeekContaining(today);
+    var sunday = orAddDaysISO(monday, 6);
+    var fmt = function(iso){ return iso.slice(8,10) + "/" + iso.slice(5,7); };
+    if (lbl) lbl.textContent = "Copertura sala — settimana in corso (" + fmt(monday) + " – " + fmt(sunday) + ")";
+    var salaList = orCollabiForClubMonth(state.club, today.slice(0,7)).filter(function(c){ return orHasRole(c,"sala"); });
+    var nameById = {}, colorById = {};
+    salaList.forEach(function(c, i){ nameById[c.id] = c.nome; colorById[c.id] = orPaletteColor(i); });
+    var turni = orPresenzeForClubDateRange(state.club, monday, sunday).filter(function(t){
+      return nameById.hasOwnProperty(t.collabId);
+    });
+    var turniByDate = {};
+    turni.forEach(function(t){ (turniByDate[t.data] = turniByDate[t.data] || []).push(t); });
+
+    var head = "<tr><th>Giorno</th><th>Turni coach sala</th></tr>";
+    var rows = [];
+    for (var i2=0; i2<7; i2++){
+      var dateStr = orAddDaysISO(monday, i2);
+      var giornoNome = OR_GIORNI_IT[new Date(dateStr + "T12:00:00").getDay()];
+      giornoNome = giornoNome.charAt(0).toUpperCase() + giornoNome.slice(1);
+      var isToday = dateStr === today;
+      var festivo = orIsFestivoClub(dateStr);
+      var dayTurni = (turniByDate[dateStr] || []).slice().sort(function(a,b){ return (a.inizio||"").localeCompare(b.inizio||""); });
+      var cellContent = dayTurni.length
+        ? dayTurni.map(function(t){
+            return '<span class="or-week-turno"><span class="or-week-dot" style="background:' + (colorById[t.collabId] || OR_COV_GAP_COLOR) + ';"></span>' +
+              (nameById[t.collabId] || "(rimosso)") + " " + t.inizio + "–" + t.fine + '</span>';
+          }).join("")
+        : '<span class="sub">Nessun turno registrato</span>';
+      rows.push('<tr' + (isToday ? ' class="or-week-today"' : '') + '>' +
+        '<td>' + giornoNome + " " + fmt(dateStr) + (festivo ? ' <span class="or-holiday-badge">festivo</span>' : '') + (isToday ? ' <span class="or-holiday-badge" style="background:rgba(56,106,123,.14);color:var(--teal-deep);">oggi</span>' : '') + '</td>' +
+        '<td>' + cellContent + '</td>' +
+      '</tr>');
+    }
+    table.innerHTML = head + rows.join("");
   }
 
   // ---------- Helper condivisi (Corsi / Desk / Ore PT / Riepilogo / Compensi) ----------
@@ -2729,20 +3689,55 @@
       var obj;
       try { obj = JSON.parse(reader.result); }
       catch(e){ if (esito) esito.textContent = "File non valido: " + e.message; return; }
-      var ok = 0, fail = 0;
+      var skipped = 0;
+      var validPaths = [];
       Object.keys(obj).forEach(function(path){
+        var coll = path.split("/")[0];
+        if (OR_BACKUP_COLLECTIONS.indexOf(coll) === -1 && coll !== "orariSettings") { skipped++; return; }
+        validPaths.push(path);
+      });
+      // Applica tutto subito in locale (lo strumento mostra subito l'esito atteso),
+      // poi scrive sul server UNA CHIAVE ALLA VOLTA, in sequenza, mai tutte insieme:
+      // un import può contenere centinaia di chiavi, e scritture concorrenti in massa
+      // verso l'endpoint Apps Script ne fanno fallire una parte in modo silenzioso
+      // (confermato il 13/11/2026 — sotto carico concorrente alto l'endpoint non
+      // risponde in modo affidabile a tutte le richieste). In quel caso, il successivo
+      // sondaggio periodico (ogni 15s) sovrascrive lo stato locale con la verità del
+      // server — incompleta — e le righe appena importate ma non salvate spariscono.
+      // Scrivendo una chiave alla volta si evita il problema a monte, e si sa con
+      // certezza quali chiavi sono davvero arrivate al server.
+      validPaths.forEach(function(path){
         var parts = path.split("/");
         var coll = parts[0], key = parts.slice(1).join("/");
-        if (OR_BACKUP_COLLECTIONS.indexOf(coll) === -1 && coll !== "orariSettings") { fail++; return; }
-        var rec = obj[path];
-        state[coll][key] = rec;
-        if (state.db) {
-          state.db.doc(coll + "/" + key).set(rec).then(hideDbSyncWarning).catch(notifyWriteFailed);
-          ok++;
-        } else { fail++; }
+        state[coll][key] = obj[path];
       });
-      if (esito) esito.textContent = "Import completato: " + ok + " chiavi importate" + (fail ? (", " + fail + " fallite") : "") + ".";
       renderOrari();
+      if (!state.db){
+        if (esito) esito.textContent = "Import locale completato: " + validPaths.length + " chiavi" +
+          (skipped ? (", " + skipped + " ignorate (tipo non riconosciuto)") : "") +
+          ". Nessuna connessione al database: non ancora salvato sul server.";
+        return;
+      }
+      var ok = 0, writeFail = 0, idx = 0;
+      function next(){
+        if (idx >= validPaths.length){
+          if (writeFail) showDbSyncWarning(); else hideDbSyncWarning();
+          if (esito) esito.textContent = "Import completato: " + ok + " chiavi salvate sul server" +
+            (writeFail ? (", " + writeFail + " NON salvate (riprovare l'import per queste)") : "") +
+            (skipped ? (", " + skipped + " ignorate (tipo non riconosciuto)") : "") + ".";
+          return;
+        }
+        var path = validPaths[idx];
+        var parts = path.split("/");
+        var coll = parts[0], key = parts.slice(1).join("/");
+        if (esito) esito.textContent = "Salvataggio sul server in corso… " + (idx + 1) + "/" + validPaths.length;
+        state.db.doc(coll + "/" + key).set(obj[path]).then(function(){
+          ok++; idx++; next();
+        }).catch(function(){
+          writeFail++; idx++; next();
+        });
+      }
+      next();
     };
     reader.readAsText(file);
   }
@@ -4449,6 +5444,7 @@
     initOrBackup();
     initOrRiepilogo();
     initOrCompFinaliTable();
+    initMansionario();
     initNav();
     initStatTiles();
     initRoleGate();
