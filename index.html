@@ -23,6 +23,11 @@
     --line:#e2e0d9; --warn:#b3442f; --amber:#a3761f; --good:#2f7a4f;
     --shadow: 0 1px 2px rgba(20,20,20,.06), 0 6px 20px rgba(20,20,20,.06);
     --sidebar-fg: rgba(255,255,255,.82);
+    /* --title: colore dei titoli di sezione (h2 delle card, sottogruppi mansioni).
+       In chiaro coincide con --teal-deep; in scuro usa il --teal più chiaro
+       perché --teal-deep su sfondo --surface scuro scende sotto il contrasto
+       leggibile (~2.7:1) — vedi i due blocchi dark qui sotto. */
+    --title: var(--teal-deep);
     color-scheme: light;
   }
   @media (prefers-color-scheme: dark){
@@ -30,6 +35,7 @@
       --teal:#6FA4B8; --teal-deep:#3E7088; --teal-ink:#0f1a1f; --gold:#D9C08A;
       --paper:#141c20; --surface:#1e2a30; --ink:#F3F1EA; --ink-dim:#a9b4b4;
       --line:#2c3a3c; --warn:#e0735c; --amber:#d9a84e; --good:#58b37d;
+      --title: var(--teal);
       color-scheme: dark;
     }
   }
@@ -37,6 +43,7 @@
     --teal:#6FA4B8; --teal-deep:#3E7088; --teal-ink:#0f1a1f; --gold:#D9C08A;
     --paper:#141c20; --surface:#1e2a30; --ink:#F3F1EA; --ink-dim:#a9b4b4;
     --line:#2c3a3c; --warn:#e0735c; --amber:#d9a84e; --good:#58b37d;
+    --title: var(--teal);
     color-scheme: dark;
   }
   *{ box-sizing: border-box; }
@@ -132,7 +139,7 @@
   }
   #upcomingPanel[hidden]{ display:none; }
   .upcoming-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:14px 18px; border-bottom:1px solid var(--line); }
-  .upcoming-head h2{ font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:var(--teal-deep); }
+  .upcoming-head h2{ font-size:15px; text-transform:uppercase; letter-spacing:.06em; color:var(--title); }
   .upcoming-close{ background:none; border:none; color:var(--ink-dim); font-size:18px; line-height:1; cursor:pointer; padding:2px 4px; }
   .upcoming-close:hover{ color:var(--warn); }
   .upcoming-list{ max-height:360px; overflow-y:auto; }
@@ -175,7 +182,7 @@
   .card .icon-badge{ width:28px; height:28px; border-radius:8px; background:rgba(41,78,97,.12); color:var(--teal-deep);
     display:flex; align-items:center; justify-content:center; flex:none; }
   .card .icon-badge svg{ width:15px; height:15px; }
-  .card h2{ font-size:15px; text-transform:uppercase; letter-spacing:.06em; color: var(--teal-deep); }
+  .card h2{ font-size:15px; text-transform:uppercase; letter-spacing:.06em; color: var(--title); }
   .card .sub{ font-size:12.5px; color:var(--ink-dim); margin-top:3px; }
   .card-body{ margin-top:12px; }
 
@@ -187,7 +194,7 @@
   .task-group{ margin-bottom:14px; }
   .task-group:last-child{ margin-bottom:0; }
   .task-group h3{ font-size:11.5px; text-transform:uppercase; letter-spacing:.08em; color:var(--ink-dim); margin-bottom:8px; }
-  .task-group h3.task-subgroup{ margin-top:10px; color:var(--teal-deep); }
+  .task-group h3.task-subgroup{ margin-top:10px; color:var(--title); }
   .task{ display:flex; align-items:flex-start; gap:10px; padding:8px 0; border-top:1px solid var(--line); }
   .task:first-child{ border-top:none; }
   .task.row-overdue{ border-left:3px solid var(--warn); padding-left:8px; margin-left:-11px; }
@@ -202,6 +209,7 @@
   .badge.soon{ background: rgba(163,118,31,.14); color: var(--amber); }
   .badge.ok{ background: rgba(47,122,79,.13); color: var(--good); }
   .badge.upcoming{ background: rgba(92,106,102,.12); color: var(--ink-dim); }
+  .badge.new{ background: rgba(174,163,113,.22); color: var(--gold); margin-right:6px; }
   .task-right{ margin-left:auto; display:flex; flex-direction:column; align-items:flex-end; gap:4px; }
   .custom-remove{ background:none; border:none; color:var(--ink-dim); font-size:16px; line-height:1; cursor:pointer; padding:2px 2px; margin-left:2px; }
   .custom-remove:hover{ color:var(--warn); }
@@ -212,6 +220,16 @@
   }
 
   .task-hist-sort{ display:flex; gap:8px; margin-bottom:12px; }
+  .task-hist-filters{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+  .task-hist-filters[hidden]{ display:none; }
+  .task-hist-filters .mnt-search{ flex:1 1 200px; }
+  .task-hist-toggle{
+    display:block; width:100%; font:inherit; font-size:12.5px; font-weight:700; background:none;
+    border:none; border-top:1px solid var(--line); color:var(--title); cursor:pointer;
+    text-align:left; padding:10px 2px 0; margin-top:4px;
+  }
+  .task-hist-toggle[hidden]{ display:none; }
+  .task-hist-toggle:hover{ text-decoration:underline; }
   .task-hist-list{ max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:1px; }
   .task-hist-row{
     display:flex; align-items:baseline; gap:12px; padding:8px 4px; border-bottom:1px solid var(--line);
@@ -775,6 +793,21 @@
         <div class="grid">
           <div class="col">
 
+            <section class="card" id="card-opdash-assign">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg></span>
+                <h2>Assegna una mansione a un Club Manager</h2>
+              </div>
+              <div class="sub">Per un'esigenza estemporanea con una scadenza propria — es. "entro una settimana far tagliare l'erba" perché sei passato e l'hai vista. Compare nella sua Oggi/Mansioni con l'etichetta "Nuova", finché non la vede. Per una mansione stabile aggiungila invece direttamente nel club, da Mansioni.</div>
+              <form class="custom-task-form" id="opAssignForm">
+                <select id="opAssignClub" class="mnt-area-select" required></select>
+                <input type="text" id="opAssignTitle" placeholder="Cosa deve fare" maxlength="120" required>
+                <input type="date" id="opAssignDate" required>
+                <button type="submit">Assegna</button>
+              </form>
+              <div class="sub" id="opAssignConfirm" style="margin-top:8px;"></div>
+            </section>
+
             <section class="card" id="card-opdash-kpi">
               <div class="hd">
                 <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="3.4"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3"/></svg></span>
@@ -846,12 +879,17 @@
                 <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
                 <h2>Archivio delle mie mansioni svolte</h2>
               </div>
-              <div class="sub">Ogni volta che una tua mansione periodica viene spuntata resta registrata qui, con la data.</div>
+              <div class="sub">Ogni volta che una tua mansione periodica viene spuntata resta registrata qui, con la data. Per non allungarsi all'infinito mostra solo le ultime 10: usa "Altre mansioni" per cercare nello storico completo.</div>
               <div class="task-hist-sort" id="opdashHistSort">
                 <button type="button" class="mnt-chip active" data-sort="data">Per data</button>
                 <button type="button" class="mnt-chip" data-sort="mansione">Per mansione</button>
               </div>
+              <div class="task-hist-filters" id="opdashHistFilters" hidden>
+                <input type="text" id="opdashHistSearch" class="mnt-search" placeholder="Cerca per nome mansione...">
+                <select id="opdashHistMonth" class="mnt-area-select"><option value="">Tutti i mesi</option></select>
+              </div>
               <div class="card-body task-hist-list" id="opdashHistBody"><div class="sub">Caricamento…</div></div>
+              <button type="button" class="task-hist-toggle" id="opdashHistToggle" hidden></button>
             </section>
 
           </div>
@@ -983,12 +1021,17 @@
                 <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
                 <h2>Archivio mansioni svolte</h2>
               </div>
-              <div class="sub">Ogni volta che una mansione viene spuntata resta registrata qui, con la data — a ritroso nel tempo, senza limiti.</div>
+              <div class="sub">Ogni volta che una mansione viene spuntata resta registrata qui, con la data. Per non allungarsi all'infinito mostra solo le ultime 10: usa "Altre mansioni" per cercare nello storico completo.</div>
               <div class="task-hist-sort" id="mntHistSort">
                 <button type="button" class="mnt-chip active" data-sort="data">Per data</button>
                 <button type="button" class="mnt-chip" data-sort="mansione">Per mansione</button>
               </div>
+              <div class="task-hist-filters" id="mntHistFilters" hidden>
+                <input type="text" id="mntHistSearch" class="mnt-search" placeholder="Cerca per nome mansione...">
+                <select id="mntHistMonth" class="mnt-area-select"><option value="">Tutti i mesi</option></select>
+              </div>
               <div class="card-body task-hist-list" id="mntHistBody"><div class="sub">Caricamento…</div></div>
+              <button type="button" class="task-hist-toggle" id="mntHistToggle" hidden></button>
             </section>
 
           </div>
@@ -1082,7 +1125,7 @@
             <div class="card-body tbl-wrap">
               <table id="kpiTable"></table>
             </div>
-            <div class="note">Valori obiettivo del club, di riferimento per Operation.</div>
+            <div class="note">"Previsti": obiettivo impostato dalla direzione, di riferimento per Operation. "Attuali": calcolato in automatico dai collaboratori con ruolo PT attivi questo mese in Orari &amp; Compensi.</div>
           </section>
 
         </div>
@@ -2593,6 +2636,14 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (!CLUBS[key]) key = CLUB_ORDER[0];
     state.club = key;
     if (pushHash) { try { location.hash = key; } catch(e){} }
+    // Cambiando club si azzerano ricerca/mese/vista-estesa dell'archivio mansioni (restano
+    // legati al club precedente, non avrebbe senso portarseli dietro): l'ordinamento scelto
+    // (per data/per mansione) invece è una preferenza di visualizzazione e resta.
+    taskHistoryUI.club.expanded = false;
+    taskHistoryUI.club.search = "";
+    taskHistoryUI.club.month = "";
+    var mntSearchEl = document.getElementById("mntHistSearch");
+    if (mntSearchEl) mntSearchEl.value = "";
     renderClubSwitcher();
     renderCmReports();
     renderPeople();
@@ -2829,10 +2880,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var fidelLabel = k.fidelizzazione != null
       ? k.fidelizzazione + "%"
       : '<span class="sub" style="font-weight:600;">— da collegare al gestionale</span>';
+    // PT attivi "attuali": stesso calcolo live già usato in Contatti per "Personal Trainer
+    // attivi" (Orari & Compensi, ruolo "pt", mese corrente) — esclude di proposito chi ha
+    // solo il ruolo "pt_pilates" (PT Pilates/reformer), su richiesta esplicita.
+    var ptAttualiCount = orCollabiForClubMonth(state.club, todayISO().slice(0,7))
+      .filter(function(x){ return orHasRole(x, "pt"); }).length;
     var rows = [
       ["Tasso di fidelizzazione", fidelLabel],
       ["Obiettivo PT (ore/mese)", k.obiettivoPT],
       ["N. PT attivi previsti", k.numeroPT],
+      ["N. PT attivi attuali", ptAttualiCount + ' <span class="sub" style="font-weight:600;">— da Orari &amp; Compensi, esclusi PT Pilates/reformer</span>'],
       ["Budget mensile", k.budget.toLocaleString("it-IT") + " €"]
     ];
     var t = document.getElementById("kpiTable");
@@ -5122,12 +5179,20 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     row.innerHTML =
       '<input type="checkbox">' +
       '<div style="min-width:0;"><div class="t-title"></div><div class="t-meta"></div></div>' +
-      '<div class="task-right"><span class="badge '+badgeClass+'"></span><span class="t-meta"></span></div>' +
+      '<div class="task-right"><span class="badge status-badge '+badgeClass+'"></span><span class="t-meta"></span></div>' +
       '<button type="button" class="custom-remove" title="Rimuovi questa scadenza">×</button>';
     var dueLabel = new Date(ct.dueDate + "T00:00:00").toLocaleDateString("it-IT", { day:"numeric", month:"long" });
-    row.querySelector(".t-title").textContent = ct.title;
-    row.querySelector(".t-meta").textContent = "Scadenza aggiunta dal club · " + dueLabel;
-    row.querySelector(".badge").textContent = badgeText;
+    var titleEl = row.querySelector(".t-title");
+    var showNew = ct.fromOperation && !ct.seenByCm;
+    if (showNew){
+      var newBadge = document.createElement("span");
+      newBadge.className = "badge new";
+      newBadge.textContent = "Nuova";
+      titleEl.appendChild(newBadge);
+    }
+    titleEl.appendChild(document.createTextNode(ct.title));
+    row.querySelector(".t-meta").textContent = (ct.fromOperation ? "Assegnata da Operation · " : "Scadenza aggiunta dal club · ") + dueLabel;
+    row.querySelector(".status-badge").textContent = badgeText;
     row.querySelectorAll(".t-meta")[1].textContent = st.label;
     row.querySelector("input").addEventListener("change", function(){
       removeCustomTask(ct.id); // una scadenza personalizzata è un evento unico: spuntarla la archivia
@@ -5135,7 +5200,24 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     row.querySelector(".custom-remove").addEventListener("click", function(){
       removeCustomTask(ct.id);
     });
+    // La riga viene disegnata così per chiunque la veda (anche Operation, su "Operation" o
+    // passando dal club); l'etichetta "Nuova" si spegne solo quando è davvero il Club
+    // Manager destinatario a vederla — non quando è Operation a controllare lo stato.
+    // Il marcaggio è ritardato (non immediato): altrimenti un secondo render innescato
+    // nello stesso istante dal giro di polling del db (comune appena dopo il boot) toglie
+    // il badge prima che il Club Manager abbia fatto in tempo a vederlo comparire.
+    if (showNew && ruolo && ruolo.tipo === "cm"){
+      setTimeout(function(){ markCustomTaskSeenByCm_(ct.id); }, 1500);
+    }
     return row;
+  }
+
+  function markCustomTaskSeenByCm_(id){
+    var ct = state.customTasks[id];
+    if (!ct || ct.seenByCm) return;
+    ct.seenByCm = true;
+    renderTasks();
+    if (state.db) state.db.doc("customTasks/" + id).set(ct).then(hideDbSyncWarning).catch(notifyWriteFailed);
   }
 
   function renderTasks(){
@@ -5309,7 +5391,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
   }
 
-  var taskHistorySort = { club: "data", operation: "data" }; // "data" o "mansione", per contesto (club selezionato / dashboard Operation)
+  // Stato UI dell'archivio mansioni svolte, per contesto (club selezionato / dashboard
+  // Operation): sort = "data"|"mansione"; expanded = vista compatta (solo le ultime 10,
+  // nessun filtro) o vista estesa con ricerca testo + filtro mese. Serve perché dopo
+  // qualche mese l'elenco cresce troppo per scorrerlo — la vista compatta è il default,
+  // "Altre mansioni" apre quella estesa coi filtri.
+  var taskHistoryUI = {
+    club: { sort: "data", expanded: false, search: "", month: "" },
+    operation: { sort: "data", expanded: false, search: "", month: "" }
+  };
+  var TASK_HIST_COMPACT_LIMIT = 10;
+  var MNT_HIST_IDS = { sort:"mntHistSort", filters:"mntHistFilters", search:"mntHistSearch", month:"mntHistMonth", body:"mntHistBody", toggle:"mntHistToggle", scope:"club" };
+  var OPDASH_HIST_IDS = { sort:"opdashHistSort", filters:"opdashHistFilters", search:"opdashHistSearch", month:"opdashHistMonth", body:"opdashHistBody", toggle:"opdashHistToggle", scope:"operation" };
 
   function taskHistoryForClub(club){
     var out = Object.keys(state.taskHistory).map(function(id){
@@ -5319,28 +5412,87 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     return out;
   }
 
-  function renderTaskHistoryArchive_(club, bodyId, sortKey, emptyText){
-    var body = document.getElementById(bodyId);
+  // Mesi (YYYY-MM) presenti nell'archivio, più recenti prima — per popolare il filtro mese.
+  function taskHistoryMonths_(items){
+    var set = {};
+    items.forEach(function(it){ if (it.date) set[it.date.slice(0,7)] = true; });
+    return Object.keys(set).sort().reverse();
+  }
+  function taskHistoryMonthLabel_(monthKey){
+    try {
+      var label = new Date(monthKey + "-01T00:00:00").toLocaleDateString("it-IT", { month:"long", year:"numeric" });
+      return label.charAt(0).toUpperCase() + label.slice(1);
+    } catch(e){ return monthKey; }
+  }
+
+  function renderTaskHistoryArchive_(club, ids, emptyText){
+    var body = document.getElementById(ids.body);
     if (!body) return;
-    var items = taskHistoryForClub(club);
-    var mode = taskHistorySort[sortKey] || "data";
+    var ui = taskHistoryUI[ids.scope];
+    var all = taskHistoryForClub(club);
+
+    // Opzioni del filtro mese, ricalcolate sul totale non filtrato — si evita di
+    // ricostruirle (e perdere l'eventuale selezione) quando il contenuto non cambia.
+    var monthSelect = document.getElementById(ids.month);
+    if (monthSelect){
+      var months = taskHistoryMonths_(all);
+      var optsKey = months.join(",");
+      if (monthSelect.getAttribute("data-opts") !== optsKey){
+        monthSelect.innerHTML = '<option value="">Tutti i mesi</option>' + months.map(function(m){
+          return '<option value="' + m + '">' + taskHistoryMonthLabel_(m) + '</option>';
+        }).join("");
+        monthSelect.setAttribute("data-opts", optsKey);
+      }
+      monthSelect.value = ui.month || "";
+    }
+
+    var items = all.slice();
     items.sort(function(a, b){
-      if (mode === "mansione"){
+      if (ui.sort === "mansione"){
         if (a.title !== b.title) return a.title < b.title ? -1 : 1;
         return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); // a parità di mansione, più recente prima
       }
       if (a.date !== b.date) return a.date < b.date ? 1 : -1; // più recente prima
       return a.title < b.title ? -1 : (a.title > b.title ? 1 : 0);
     });
+
+    var filtersWrap = document.getElementById(ids.filters);
+    var toggleBtn = document.getElementById(ids.toggle);
+    var visible;
+    if (ui.expanded){
+      if (filtersWrap) filtersWrap.removeAttribute("hidden");
+      var q = (ui.search || "").trim().toLowerCase();
+      visible = items.filter(function(it){
+        if (ui.month && it.date.slice(0,7) !== ui.month) return false;
+        if (q && it.title.toLowerCase().indexOf(q) === -1) return false;
+        return true;
+      });
+      if (toggleBtn){
+        toggleBtn.removeAttribute("hidden");
+        toggleBtn.textContent = "Mostra solo le ultime " + TASK_HIST_COMPACT_LIMIT;
+      }
+    } else {
+      if (filtersWrap) filtersWrap.setAttribute("hidden","");
+      visible = items.slice(0, TASK_HIST_COMPACT_LIMIT);
+      if (toggleBtn){
+        if (items.length > TASK_HIST_COMPACT_LIMIT){
+          toggleBtn.removeAttribute("hidden");
+          toggleBtn.textContent = "Altre mansioni (" + (items.length - TASK_HIST_COMPACT_LIMIT) + ") →";
+        } else {
+          toggleBtn.setAttribute("hidden","");
+        }
+      }
+    }
+
     body.innerHTML = "";
-    if (!items.length){
+    if (!visible.length){
       var empty = document.createElement("div");
       empty.className = "sub";
-      empty.textContent = emptyText;
+      empty.textContent = items.length ? "Nessuna mansione trovata con questi filtri." : emptyText;
       body.appendChild(empty);
       return;
     }
-    items.forEach(function(it){
+    visible.forEach(function(it){
       var row = document.createElement("div");
       row.className = "task-hist-row";
       var dateLabel = it.date;
@@ -5358,21 +5510,51 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // elementi DOM nascosti se la pagina non è quella attiva, renderli a vuoto non costa
   // nulla ed evita di doversi agganciare al cambio pagina.
   function renderTaskHistoryViews_(){
-    renderTaskHistoryArchive_(state.club, "mntHistBody", "club", "Nessuna mansione ancora registrata come svolta per questo club.");
-    renderTaskHistoryArchive_("operation", "opdashHistBody", "operation", "Nessuna mansione personale ancora registrata come svolta.");
+    renderTaskHistoryArchive_(state.club, MNT_HIST_IDS, "Nessuna mansione ancora registrata come svolta per questo club.");
+    renderTaskHistoryArchive_("operation", OPDASH_HIST_IDS, "Nessuna mansione personale ancora registrata come svolta.");
   }
 
-  function initTaskHistorySort(toggleId, sortKey){
-    var wrap = document.getElementById(toggleId);
-    if (!wrap) return;
-    var buttons = Array.prototype.slice.call(wrap.querySelectorAll("button[data-sort]"));
-    buttons.forEach(function(btn){
-      btn.addEventListener("click", function(){
-        taskHistorySort[sortKey] = btn.getAttribute("data-sort");
-        buttons.forEach(function(b){ b.classList.toggle("active", b === btn); });
+  // Sort, ricerca, filtro mese e toggle vista estesa/compatta: gli elementi dei filtri
+  // (search/select) sono fuori da "body" e non vengono mai ricreati da renderTaskHistoryArchive_,
+  // quindi scrivere mentre l'elenco si aggiorna non fa perdere il focus o il cursore.
+  function initTaskHistoryControls_(ids){
+    var ui = taskHistoryUI[ids.scope];
+    var sortWrap = document.getElementById(ids.sort);
+    if (sortWrap){
+      var buttons = Array.prototype.slice.call(sortWrap.querySelectorAll("button[data-sort]"));
+      buttons.forEach(function(btn){
+        btn.addEventListener("click", function(){
+          ui.sort = btn.getAttribute("data-sort");
+          buttons.forEach(function(b){ b.classList.toggle("active", b === btn); });
+          renderTaskHistoryViews_();
+        });
+      });
+    }
+    var searchEl = document.getElementById(ids.search);
+    if (searchEl){
+      searchEl.addEventListener("input", function(){
+        ui.search = searchEl.value;
         renderTaskHistoryViews_();
       });
-    });
+    }
+    var monthEl = document.getElementById(ids.month);
+    if (monthEl){
+      monthEl.addEventListener("change", function(){
+        ui.month = monthEl.value;
+        renderTaskHistoryViews_();
+      });
+    }
+    var toggleBtn = document.getElementById(ids.toggle);
+    if (toggleBtn){
+      toggleBtn.addEventListener("click", function(){
+        ui.expanded = !ui.expanded;
+        if (!ui.expanded){
+          ui.search = ""; ui.month = "";
+          if (searchEl) searchEl.value = "";
+        }
+        renderTaskHistoryViews_();
+      });
+    }
   }
 
   // Scadenze personalizzate: aggiunte liberamente dal club (titolo + data), non fanno
@@ -5382,16 +5564,23 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var out = [];
     Object.keys(state.customTasks).forEach(function(id){
       var ct = state.customTasks[id];
-      if (ct && ct.club === club && ct.title && ct.dueDate) out.push({ id: id, title: ct.title, dueDate: ct.dueDate });
+      if (ct && ct.club === club && ct.title && ct.dueDate) {
+        out.push({ id: id, title: ct.title, dueDate: ct.dueDate, fromOperation: !!ct.fromOperation, seenByCm: !!ct.seenByCm });
+      }
     });
     out.sort(function(a, b){ return a.dueDate < b.dueDate ? -1 : (a.dueDate > b.dueDate ? 1 : 0); });
     return out;
   }
 
-  function addCustomTask(title, dueDate, club){
+  // fromOperation: true quando la scadenza non viene aggiunta dal club stesso ma assegnata
+  // da Operation da un altro club (vedi initOperationAssignForm) — in quel caso resta
+  // "seenByCm:false" finché il Club Manager di destinazione non la vede almeno una volta
+  // (markCustomTaskSeenByCm_), e buildCustomRow mostra l'etichetta "Nuova" finché dura.
+  function addCustomTask(title, dueDate, club, fromOperation){
     club = club || state.club;
     var id = "c" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
     var data = { club: club, title: title, dueDate: dueDate, createdAt: todayISO() };
+    if (fromOperation) { data.fromOperation = true; data.seenByCm = false; }
     state.customTasks[id] = data;
     renderTasks();
     renderUpcoming();
@@ -5434,6 +5623,37 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       addCustomTask(title, date, club);
       titleEl.value = "";
       dateEl.value = "";
+      titleEl.focus();
+    });
+  }
+
+  // Form di Operation (in cima a "La mia Dashboard") per assegnare una scadenza estemporanea
+  // a un club che non è quello correntemente selezionato: stessa addCustomTask() di sopra,
+  // solo con club scelto da un menu invece che implicito, e fromOperation:true così
+  // buildCustomRow la segnala come "Nuova" al Club Manager di destinazione.
+  function initOperationAssignForm(){
+    var form = document.getElementById("opAssignForm");
+    if (!form) return;
+    var clubEl = document.getElementById("opAssignClub");
+    if (clubEl){
+      clubEl.innerHTML = '<option value="" disabled selected>Club...</option>' + CLUB_ORDER.map(function(key){
+        return '<option value="' + key + '">' + CLUBS[key].label + '</option>';
+      }).join("");
+    }
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var titleEl = document.getElementById("opAssignTitle");
+      var dateEl = document.getElementById("opAssignDate");
+      var club = clubEl.value;
+      var title = titleEl.value.trim();
+      var date = dateEl.value;
+      if (!club || !title || !date) return;
+      addCustomTask(title, date, club, true);
+      var confirmEl = document.getElementById("opAssignConfirm");
+      if (confirmEl) confirmEl.textContent = "Assegnata a " + CLUBS[club].label + ": comparirà nella sua Oggi/Mansioni con l'etichetta \"Nuova\".";
+      titleEl.value = "";
+      dateEl.value = "";
+      clubEl.value = "";
       titleEl.focus();
     });
   }
@@ -6920,6 +7140,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           });
           Object.keys(state.orariCollaboratori).forEach(function(id){ if (!seen[id]) delete state.orariCollaboratori[id]; });
           renderOrari();
+          renderKPI();
         });
         db.collection("orariPresenze").onSnapshot(function(snap){
           var seen = {};
@@ -7078,8 +7299,9 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     initRecurringTaskForm("opdash", function(){ return "operation"; });
     initCustomTaskForm("opdashDueForm", "opdashDueTitle", "opdashDueDate", "operation");
     initOperationKpiForm();
-    initTaskHistorySort("mntHistSort", "club");
-    initTaskHistorySort("opdashHistSort", "operation");
+    initOperationAssignForm();
+    initTaskHistoryControls_(MNT_HIST_IDS);
+    initTaskHistoryControls_(OPDASH_HIST_IDS);
     initOrTabs();
     initOrCollabAddForm();
     initOrPresAddForm();
