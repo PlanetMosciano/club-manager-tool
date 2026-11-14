@@ -211,6 +211,16 @@
     background: var(--surface); color: var(--ink); width:110px;
   }
 
+  .task-hist-sort{ display:flex; gap:8px; margin-bottom:12px; }
+  .task-hist-list{ max-height:360px; overflow-y:auto; display:flex; flex-direction:column; gap:1px; }
+  .task-hist-row{
+    display:flex; align-items:baseline; gap:12px; padding:8px 4px; border-bottom:1px solid var(--line);
+    font-size:13.5px;
+  }
+  .task-hist-row:last-child{ border-bottom:none; }
+  .task-hist-date{ flex:0 0 150px; color:var(--ink-dim); font-variant-numeric:tabular-nums; }
+  .task-hist-title{ min-width:0; }
+
   .custom-task-form{ display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
   .custom-task-form input{
     font: inherit; font-size:13.5px; padding:7px 10px; border:1px solid var(--line); border-radius:8px;
@@ -831,6 +841,19 @@
               </form>
             </section>
 
+            <section class="card" id="card-opdash-history">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                <h2>Archivio delle mie mansioni svolte</h2>
+              </div>
+              <div class="sub">Ogni volta che una tua mansione periodica viene spuntata resta registrata qui, con la data.</div>
+              <div class="task-hist-sort" id="opdashHistSort">
+                <button type="button" class="mnt-chip active" data-sort="data">Per data</button>
+                <button type="button" class="mnt-chip" data-sort="mansione">Per mansione</button>
+              </div>
+              <div class="card-body task-hist-list" id="opdashHistBody"><div class="sub">Caricamento…</div></div>
+            </section>
+
           </div>
         </div>
       </div>
@@ -955,6 +978,19 @@
               </form>
             </section>
 
+            <section class="card" id="card-mnt-history">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></span>
+                <h2>Archivio mansioni svolte</h2>
+              </div>
+              <div class="sub">Ogni volta che una mansione viene spuntata resta registrata qui, con la data — a ritroso nel tempo, senza limiti.</div>
+              <div class="task-hist-sort" id="mntHistSort">
+                <button type="button" class="mnt-chip active" data-sort="data">Per data</button>
+                <button type="button" class="mnt-chip" data-sort="mansione">Per mansione</button>
+              </div>
+              <div class="card-body task-hist-list" id="mntHistBody"><div class="sub">Caricamento…</div></div>
+            </section>
+
           </div>
         </div>
       </div>
@@ -1046,7 +1082,7 @@
             <div class="card-body tbl-wrap">
               <table id="kpiTable"></table>
             </div>
-            <div class="note">Dati correnti dell'app Gestione Orari &amp; Compensi — aggiornali lì, qui sono solo un riepilogo.</div>
+            <div class="note">Valori obiettivo del club, di riferimento per Operation.</div>
           </section>
 
         </div>
@@ -1113,8 +1149,6 @@
               <h2>Orari &amp; Compensi</h2>
             </div>
             <div class="sub" id="orariClubLabel"></div>
-            <div class="note">Copia di lavoro di "Gestione Orari &amp; Compensi", in prova. Lo strumento originale resta attivo e invariato — usalo come riferimento finché questa copia non è verificata su tutte le schede.</div>
-
             <div class="or-tabs" id="orariTabs">
               <button type="button" class="or-tab" data-or-tab="collaboratori">Collaboratori</button>
               <button type="button" class="or-tab" data-or-tab="presenze">Presenze</button>
@@ -1280,7 +1314,7 @@
               <h2>Richieste PT</h2>
             </div>
             <div class="sub" id="ptReqClubLabel"></div>
-            <div class="note">Portato qui dal vecchio strumento esterno "RichiestePT-DB": lo storico reale già raccolto dai Club Manager è stato importato. Le note cliente possono contenere informazioni sanitarie riferite dal cliente stesso — restano visibili solo qui dentro, mai nel banner di "Oggi".</div>
+            <div class="note">Le note cliente possono contenere informazioni sanitarie riferite dal cliente stesso — restano visibili solo qui dentro, mai nel banner di "Oggi".</div>
 
             <div class="ptreq-stats" id="ptReqStats">
               <div class="ptreq-stat"><span class="ptreq-stat-label">Totale</span><span class="ptreq-stat-value" id="ptReqStatTotale">0</span></div>
@@ -1632,7 +1666,7 @@
   var TASK_CATALOG = [
     { key: "dae", title: "Presa visione DAE — corretto funzionamento", area: "Struttura — Mansionario §2", cadence: "settimanale", anchor: { type: "weekly", weekday: 1 } },
     { key: "orePT", title: "Inserimento ore PT erogate dallo staff", area: "Amministrazione — Mansionario §7", cadence: "settimanale", anchor: { type: "weekly", weekday: 4 } },
-    { key: "compensi", title: "Conteggio ore sala, lezioni corsi e verifica dei compensi", area: "Amministrazione — app Gestione Orari & Compensi", cadence: "mensile", anchor: { type: "monthly", day: 28 } },
+    { key: "compensi", title: "Conteggio ore sala, lezioni corsi e verifica dei compensi", area: "Amministrazione — Orari & Compensi", cadence: "mensile", anchor: { type: "monthly", day: 28 } },
     { key: "estintori", title: "Controllo valvole e pressione estintori", area: "Struttura — Mansionario §2", cadence: "mensile", anchor: { type: "monthly", day: 10 } },
     { key: "barrette", title: "Controllo scadenza barrette nel frigo", area: "Struttura — Mansionario §2", cadence: "mensile", anchor: { type: "monthly", day: 28 } },
     { key: "entrate", title: "Verifica trasmissione dati Desk → Agenzia delle Entrate", area: "Amministrazione — Mansionario §7 (solo Mosciano)", cadence: "mensile", anchor: { type: "monthly", day: 1 }, clubs: ["mosciano"] },
@@ -1682,7 +1716,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -1709,16 +1743,6 @@
   // potrebbe reggere in una sola esecuzione, per restare entro il tempo massimo di
   // esecuzione di Apps Script anche su foglio molto più grande di oggi.
   var OR_BATCH_SIZE = 40;
-
-  var GESTIONE_ORARI_URL = "https://claude.ai/artifact/Rsfqr4VSeCATWnUxVE3Eg8";
-
-  function orariUrl(){ return GESTIONE_ORARI_URL + "#" + state.club; }
-  function updateOrariLinks(){
-    // In passato aggiornava i link rapidi "Gestione Orari" (blocco "Strumenti" e
-    // pagina "App & Web"), rimossi il 13/11/2026 — lo strumento esterno è sostituito
-    // dalla scheda "Orari & Compensi" integrata qui. Funzione lasciata (vuota) perché
-    // richiamata da selectClub(); nessun elemento da aggiornare al momento.
-  }
 
   var MANSIONARIO_URL = {
     giulianova: "https://docs.google.com/document/d/1uHRtyHbRaLcYS8s8q-n8wQh8OHGpZ6ZjFel93zsWE88/edit",
@@ -2578,13 +2602,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     renderUpcoming();
     renderPTBanner();
     renderOpFlagsBar();
-    updateOrariLinks();
     renderCoachOggiAuto();
     renderMaintenance();
     renderMntUpcoming();
     renderOrari();
     renderMansionario();
     renderPtReq();
+    renderTaskHistoryViews_();
   }
 
   // ---------- Coach in sala oggi ----------
@@ -5213,32 +5237,142 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // attualmente selezionato nello switcher — le mansioni del catalogo non lo impostano e
   // continuano a usare state.club, come prima.
   function markDone(task){
-    var id = (task._club || state.club) + "__" + task.key;
-    state.tasks[id] = { lastCompletedAt: todayISO() };
+    var club = task._club || state.club;
+    var id = club + "__" + task.key;
+    var today = todayISO();
+    state.tasks[id] = { lastCompletedAt: today };
+    logTaskHistory_(club, task.key, task.title, today);
     renderTasks();
     renderUpcoming();
     renderOperationDash();
+    renderTaskHistoryViews_();
     if (state.flags[id]) dismissFlag(id); // risolta: sparisce anche dall'avviso Operation
     else renderOperation();
     if (state.db) {
-      state.db.doc("tasks/" + id).set({ lastCompletedAt: todayISO() }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+      state.db.doc("tasks/" + id).set({ lastCompletedAt: today }).then(hideDbSyncWarning).catch(notifyWriteFailed);
     } else {
       showDbSyncWarning();
     }
   }
 
   function markUndone(task){
-    var id = (task._club || state.club) + "__" + task.key;
+    var club = task._club || state.club;
+    var id = club + "__" + task.key;
+    var rec = state.tasks[id];
+    var removedDate = rec && rec.lastCompletedAt;
     delete state.tasks[id];
+    if (removedDate) unlogTaskHistory_(club, task.key, removedDate);
     renderTasks();
     renderUpcoming();
     renderOperationDash();
+    renderTaskHistoryViews_();
     renderOperation();
     if (state.db) {
       state.db.doc("tasks/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
     } else {
       showDbSyncWarning();
     }
+  }
+
+  // ---------- Archivio mansioni svolte ----------
+  // Storico di OGNI volta che una mansione (catalogo o periodica personalizzata, di un
+  // club o della dashboard personale di Operation) viene spuntata — a differenza di
+  // state.tasks (una sola data, l'ultima, sovrascritta a ogni ciclo), qui ogni
+  // completamento resta come voce separata, consultabile a ritroso. Non registra CHI
+  // l'ha fatta (richiesto esplicitamente: solo quando). Una voce per club+mansione+data
+  // (idempotente: più spunte nello stesso giorno sulla stessa mansione non duplicano),
+  // rimossa solo se quella stessa spunta viene annullata (vedi markUndone). Salvata in
+  // db.collection("taskHistory").
+  function logTaskHistory_(club, taskKey, title, date){
+    var already = Object.keys(state.taskHistory).some(function(id){
+      var h = state.taskHistory[id];
+      return h && h.club === club && h.taskKey === taskKey && h.date === date;
+    });
+    if (already) return;
+    var id = "h" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    var data = { club: club, taskKey: taskKey, title: title, date: date };
+    state.taskHistory[id] = data;
+    if (state.db) {
+      state.db.doc("taskHistory/" + id).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function unlogTaskHistory_(club, taskKey, date){
+    Object.keys(state.taskHistory).forEach(function(id){
+      var h = state.taskHistory[id];
+      if (h && h.club === club && h.taskKey === taskKey && h.date === date){
+        delete state.taskHistory[id];
+        if (state.db) state.db.doc("taskHistory/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+      }
+    });
+  }
+
+  var taskHistorySort = { club: "data", operation: "data" }; // "data" o "mansione", per contesto (club selezionato / dashboard Operation)
+
+  function taskHistoryForClub(club){
+    var out = Object.keys(state.taskHistory).map(function(id){
+      var h = state.taskHistory[id];
+      return h && h.club === club ? { title: h.title, date: h.date } : null;
+    }).filter(Boolean);
+    return out;
+  }
+
+  function renderTaskHistoryArchive_(club, bodyId, sortKey, emptyText){
+    var body = document.getElementById(bodyId);
+    if (!body) return;
+    var items = taskHistoryForClub(club);
+    var mode = taskHistorySort[sortKey] || "data";
+    items.sort(function(a, b){
+      if (mode === "mansione"){
+        if (a.title !== b.title) return a.title < b.title ? -1 : 1;
+        return a.date < b.date ? 1 : (a.date > b.date ? -1 : 0); // a parità di mansione, più recente prima
+      }
+      if (a.date !== b.date) return a.date < b.date ? 1 : -1; // più recente prima
+      return a.title < b.title ? -1 : (a.title > b.title ? 1 : 0);
+    });
+    body.innerHTML = "";
+    if (!items.length){
+      var empty = document.createElement("div");
+      empty.className = "sub";
+      empty.textContent = emptyText;
+      body.appendChild(empty);
+      return;
+    }
+    items.forEach(function(it){
+      var row = document.createElement("div");
+      row.className = "task-hist-row";
+      var dateLabel = it.date;
+      try { dateLabel = new Date(it.date + "T00:00:00").toLocaleDateString("it-IT", { day:"numeric", month:"long", year:"numeric" }); } catch(e){}
+      row.innerHTML = '<span class="task-hist-date"></span><span class="task-hist-title"></span>';
+      row.querySelector(".task-hist-date").textContent = dateLabel;
+      row.querySelector(".task-hist-title").textContent = it.title;
+      body.appendChild(row);
+    });
+  }
+
+  // Richiamata da markDone/markUndone: aggiorna entrambi gli archivi visibili (quello
+  // del club selezionato nella pagina Mansioni, e quello personale nella dashboard di
+  // Operation), qualunque sia la pagina effettivamente aperta in questo momento — sono
+  // elementi DOM nascosti se la pagina non è quella attiva, renderli a vuoto non costa
+  // nulla ed evita di doversi agganciare al cambio pagina.
+  function renderTaskHistoryViews_(){
+    renderTaskHistoryArchive_(state.club, "mntHistBody", "club", "Nessuna mansione ancora registrata come svolta per questo club.");
+    renderTaskHistoryArchive_("operation", "opdashHistBody", "operation", "Nessuna mansione personale ancora registrata come svolta.");
+  }
+
+  function initTaskHistorySort(toggleId, sortKey){
+    var wrap = document.getElementById(toggleId);
+    if (!wrap) return;
+    var buttons = Array.prototype.slice.call(wrap.querySelectorAll("button[data-sort]"));
+    buttons.forEach(function(btn){
+      btn.addEventListener("click", function(){
+        taskHistorySort[sortKey] = btn.getAttribute("data-sort");
+        buttons.forEach(function(b){ b.classList.toggle("active", b === btn); });
+        renderTaskHistoryViews_();
+      });
+    });
   }
 
   // Scadenze personalizzate: aggiunte liberamente dal club (titolo + data), non fanno
@@ -5625,10 +5759,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   }
 
   // Banner "Nuova richiesta PT": alimentato da db.collection("ptRequests"), un documento
-  // per club (vedi connectDB), scritto da un task programmato che legge il foglio
-  // RichiestePT-DB e conta le richieste con stato "nuova". Mostra solo cliente/obiettivo/
-  // data: le note interne/cliente nella fonte possono contenere dati sensibili (es. note
-  // sanitarie) e restano volutamente fuori da qui — si consultano nell'app Richieste PT.
+  // per club (vedi connectDB), aggiornato direttamente qui dentro dalla pagina
+  // "Richieste PT". Mostra solo cliente/obiettivo/data: le note interne/cliente possono
+  // contenere dati sensibili (es. note sanitarie) e restano volutamente fuori da qui —
+  // si consultano nella pagina "Richieste PT".
   function renderPTBanner(){
     var banner = document.getElementById("ptRequestBanner");
     if (!banner) return;
@@ -6847,6 +6981,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           renderOperationDash();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
+      try {
+        db.collection("taskHistory").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.taskHistory[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.taskHistory).forEach(function(id){ if (!seen[id]) delete state.taskHistory[id]; });
+          renderTaskHistoryViews_();
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
     })();
 
     function loadNow(){
@@ -6932,6 +7078,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     initRecurringTaskForm("opdash", function(){ return "operation"; });
     initCustomTaskForm("opdashDueForm", "opdashDueTitle", "opdashDueDate", "operation");
     initOperationKpiForm();
+    initTaskHistorySort("mntHistSort", "club");
+    initTaskHistorySort("opdashHistSort", "operation");
     initOrTabs();
     initOrCollabAddForm();
     initOrPresAddForm();
