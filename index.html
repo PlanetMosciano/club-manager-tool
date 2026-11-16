@@ -386,6 +386,7 @@
   .ptlist-row .ptlist-tel input{ width:100%; font:inherit; font-size:13px; padding:6px 9px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); }
   .ptlist-row button[data-del-pt]{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:15px; padding:2px 6px; flex:0 0 auto; }
   .ptlist-row button[data-del-pt]:hover{ color:var(--warn); }
+  .ptlist-auto-tag{ font-size:10.5px; font-weight:700; letter-spacing:.02em; padding:3px 9px; border-radius:999px; background:rgba(47,107,122,.13); color:var(--teal-deep); white-space:nowrap; flex:0 0 auto; }
   .mnt-track-btn{ font:inherit; font-size:11px; font-weight:700; padding:5px 9px; border-radius:7px; border:1px solid var(--teal-deep); background:transparent; color:var(--teal-deep); cursor:pointer; white-space:nowrap; }
   .mnt-track-btn:hover{ background: rgba(41,78,97,.08); }
   .mnt-track-btn:disabled{ opacity:.5; cursor:default; }
@@ -6040,16 +6041,88 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   var ptReqFilter = { q: "", stato: "" };
 
   function ptReqItemsForClub(club){ return (state.ptRequests[club] && state.ptRequests[club].items) || []; }
-  // Elenco PT: ogni voce è { nome, telefono }. Dati scritti dal vecchio formato
-  // ({names:[...]} di sole stringhe, già presente in produzione) vengono letti
-  // ancora correttamente qui (telefono vuoto finché non lo si inserisce), e
-  // risalvati nel nuovo formato ({pts:[...]}) alla prima modifica.
-  function ptReqListForClub(club){
+  // Elenco PT inserito a mano in questa pagina (storico + eventuali PT esterni non
+  // presenti in Orari & Compensi). Dati scritti dal vecchio formato ({names:[...]}
+  // di sole stringhe, già presente in produzione) vengono letti ancora correttamente
+  // qui (telefono vuoto finché non lo si inserisce). Usata SOLO per il controllo
+  // "c'è già qualcosa salvato?" (ptReqSeedIfEmpty): i PT derivati automaticamente da
+  // Orari & Compensi non devono mai contare come "dato già presente" per quel
+  // controllo, altrimenti il seed storico non partirebbe mai in un club che ha già
+  // collaboratori PT impostati.
+  function ptReqListManualeForClub(club){
     var raw = state.ptList[club];
     if (!raw) return [];
     if (raw.pts) return raw.pts;
     if (raw.names) return raw.names.map(function(n){ return { nome: n, telefono: "" }; });
     return [];
+  }
+  // In Orari & Compensi il collaboratore si inserisce come "Nome Cognome"; in
+  // Richieste PT, finora, si è sempre usato solo il nome (richiesta di Emanuele,
+  // 16/11/2026). Qui si riduce ogni nome completo al solo nome di battesimo, e si
+  // aggiunge l'iniziale del cognome SOLO se, tra i PT attivi dello stesso club,
+  // più persone condividono lo stesso nome — evita inutili "Mario R." quando in
+  // quel club c'è un solo Mario. Limite accettato (per non complicare): se oltre
+  // al nome coincidesse anche l'iniziale del cognome, le due rimarrebbero
+  // indistinguibili in elenco — caso estremo, non gestito apposta.
+  function ptNomiBrevi_(nomiCompleti){
+    var primoNomeConta = {};
+    nomiCompleti.forEach(function(n){
+      var primo = (n || "").trim().split(/\s+/)[0] || "";
+      primoNomeConta[primo] = (primoNomeConta[primo] || 0) + 1;
+    });
+    var mappa = {};
+    nomiCompleti.forEach(function(n){
+      var parti = (n || "").trim().split(/\s+/);
+      var primo = parti[0] || "";
+      var cognome = parti.slice(1).join(" ");
+      mappa[n] = (primoNomeConta[primo] > 1 && cognome)
+        ? primo + " " + cognome.charAt(0).toUpperCase() + "."
+        : primo;
+    });
+    return mappa;
+  }
+
+  // PT derivati automaticamente da Orari & Compensi (16/11/2026, su richiesta di
+  // Emanuele: un collaboratore con ruolo "pt" attivo questo mese deve comparire da
+  // solo qui, senza doverlo re-inserire a mano). Stesso identico criterio di
+  // "attivo questo mese" già usato per il conteggio KPI "PT attivi (attuali)" —
+  // orCollabiForClubMonth + orHasRole("pt") — per restare coerenti con quel numero.
+  // Esclude "pt_pilates" di proposito, come già nella KPI: un PT Pilates/reformer
+  // non è un personal trainer da assegnare a una richiesta PT. Il nome mostrato è
+  // già abbreviato (vedi ptNomiBrevi_) per restare coerente con le richieste
+  // inserite finora, dove si è sempre usato solo il nome.
+  function ptReqAutoListForClub(club){
+    var monthKey = todayISO().slice(0, 7);
+    var collaboratoriPt = orCollabiForClubMonth(club, monthKey).filter(function(c){ return orHasRole(c, "pt"); });
+    var nomiBrevi = ptNomiBrevi_(collaboratoriPt.map(function(c){ return c.nome; }));
+    return collaboratoriPt.map(function(c){ return { nome: nomiBrevi[c.nome] || c.nome, telefono: "" }; });
+  }
+  // Elenco PT effettivo mostrato ovunque nell'app (dropdown "PT assegnato", elenco
+  // PT in Richieste PT): unione dei PT automatici da Orari & Compensi + quelli
+  // inseriti a mano qui (stesso nome = stessa persona, confronto senza maiuscole/
+  // spazi). In caso di doppione vince il telefono inserito a mano, se presente;
+  // "auto:true" marca le voci che arrivano da Orari & Compensi (serve solo per
+  // l'interfaccia: niente pulsante "rimuovi" su quelle, si gestiscono da lì).
+  function ptReqListForClub(club){
+    var auto = ptReqAutoListForClub(club);
+    var manuale = ptReqListManualeForClub(club);
+    var manualeByChiave = {};
+    manuale.forEach(function(p){ manualeByChiave[(p.nome || "").trim().toLowerCase()] = p; });
+    var visti = {};
+    var risultato = [];
+    auto.forEach(function(p){
+      var chiave = (p.nome || "").trim().toLowerCase();
+      visti[chiave] = true;
+      var m = manualeByChiave[chiave];
+      risultato.push({ nome: p.nome, telefono: (m && m.telefono) || "", auto: true });
+    });
+    manuale.forEach(function(p){
+      var chiave = (p.nome || "").trim().toLowerCase();
+      if (visti[chiave]) return;
+      visti[chiave] = true;
+      risultato.push({ nome: p.nome, telefono: p.telefono || "", auto: false });
+    });
+    return risultato;
   }
   function ptReqPtPhone(club, nome){
     if (!nome) return "";
@@ -6064,8 +6137,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     else showDbSyncWarning();
   }
   function ptReqSaveList(club, list){
-    state.ptList[club] = { pts: list };
-    if (state.db) state.db.doc("ptList/" + club).set({ pts: list }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    // Pulisce sempre a { nome, telefono } prima di salvare: ptReqListForClub()
+    // (da cui spesso arriva "list" già pronta per il salvataggio, es. dal click su
+    // "rimuovi" o dalla modifica di un numero di telefono) aggiunge un campo
+    // "auto" solo per l'interfaccia — non deve mai finire scritto nel database,
+    // altrimenti al prossimo caricamento verrebbe letto come se fosse un dato
+    // vero invece che ricalcolato ogni volta.
+    var pulita = list.map(function(p){ return { nome: p.nome, telefono: p.telefono || "" }; });
+    state.ptList[club] = { pts: pulita };
+    if (state.db) state.db.doc("ptList/" + club).set({ pts: pulita }).then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
   function ptReqGenId(){ return "ptr" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7); }
@@ -6486,10 +6566,17 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var nomeEsc = (p.nome || "").replace(/</g, "&lt;");
       var nomeAttr = (p.nome || "").replace(/"/g, "&quot;");
       var telVal = (p.telefono || "").replace(/"/g, "&quot;");
+      // I PT automatici (ruolo "pt" attivo in Orari & Compensi) non hanno il
+      // pulsante "rimuovi": si tolgono da lì, non da qui — altrimenti
+      // ricomparirebbero al render successivo e sembrerebbe un bug. Resta invece
+      // modificabile il telefono, utile per contattarli dalle richieste.
+      var azione = p.auto
+        ? '<span class="ptlist-auto-tag" title="Deriva dal ruolo PT impostato in Orari &amp; Compensi">da Orari &amp; Compensi</span>'
+        : '<button type="button" data-del-pt="' + nomeAttr + '" title="Rimuovi">✕</button>';
       return '<div class="ptlist-row">' +
         '<span class="ptlist-nome">' + nomeEsc + '</span>' +
         '<span class="ptlist-tel"><input type="tel" data-tel-pt="' + nomeAttr + '" value="' + telVal + '" placeholder="Numero di telefono"></span>' +
-        '<button type="button" data-del-pt="' + nomeAttr + '" title="Rimuovi">✕</button>' +
+        azione +
         '</div>';
     }).join("");
   }
@@ -6631,7 +6718,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (!orFirstDbLoadDone) return;
     if (ptReqSeedDone) return;
     var anyData = CLUB_ORDER.some(function(club){
-      return ptReqItemsForClub(club).length > 0 || ptReqListForClub(club).length > 0;
+      return ptReqItemsForClub(club).length > 0 || ptReqListManualeForClub(club).length > 0;
     });
     if (anyData) return;
     ptReqSeedDone = true;
@@ -7157,6 +7244,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           Object.keys(state.orariCollaboratori).forEach(function(id){ if (!seen[id]) delete state.orariCollaboratori[id]; });
           renderOrari();
           renderKPI();
+          // 16/11/2026: un collaboratore con ruolo PT aggiunto/tolto in Orari &
+          // Compensi deve riflettersi subito anche in Richieste PT (elenco PT,
+          // dropdown "PT assegnato") — vedi ptReqAutoListForClub/ptReqListForClub.
+          renderPtReq();
         });
         db.collection("orariPresenze").onSnapshot(function(snap){
           var seen = {};
