@@ -1439,6 +1439,7 @@
               <h2>Mansionario</h2>
             </div>
             <div class="sub" id="mansionarioClubLabel"></div>
+            <div class="mnt-empty" id="mansionarioSyncNote" style="padding:0 0 10px;"></div>
             <div class="mnsn-topbar">
               <input type="text" id="mansionarioQuery" class="mnsn-search" placeholder="Cerca nel mansionario (es. 'apertura', 'wifi', 'solarium')...">
               <button type="button" class="mnsn-search-btn" id="mansionarioSearchBtn">Cerca</button>
@@ -1759,7 +1760,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2491,7 +2492,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // autenticazione server-side): qui restano procedure, attrezzature, contatti; le
   // password restano disponibili solo nel documento Drive originale.
   function orMansionarioSections(club){
-    var testo = MANSIONARIO_TESTO[club];
+    var live = state.mansionarioTesto && state.mansionarioTesto[club];
+    var testo = (live && live.testo) ? live.testo : MANSIONARIO_TESTO[club];
     if (!testo) return [];
     var lines = testo.split("\n");
     var sections = [];
@@ -2570,6 +2572,20 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
     var link = document.getElementById("mansionarioEditLink");
     if (link) link.setAttribute("href", MANSIONARIO_URL[state.club] || "#");
+    var noteEl = document.getElementById("mansionarioSyncNote");
+    if (noteEl){
+      var live = state.mansionarioTesto && state.mansionarioTesto[state.club];
+      if (live && live.testo && live.aggiornato){
+        var d;
+        try { d = new Date(live.aggiornato); } catch(e){ d = null; }
+        var quando = (d && !isNaN(d.getTime()))
+          ? d.toLocaleString("it-IT", { day:"numeric", month:"long", hour:"2-digit", minute:"2-digit" })
+          : "";
+        noteEl.textContent = "Sincronizzato automaticamente dal Documento Google" + (quando ? (" — ultimo aggiornamento: " + quando) : "") + ".";
+      } else {
+        noteEl.textContent = "";
+      }
+    }
     var queryEl = document.getElementById("mansionarioQuery");
     if (queryEl) queryEl.value = "";
     orMansionarioRenderResults();
@@ -7212,6 +7228,26 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           });
           Object.keys(state.taskHistory).forEach(function(id){ if (!seen[id]) delete state.taskHistory[id]; });
           renderTaskHistoryViews_();
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
+      try {
+        // Sincronizzazione automatica mansionari (15/11/2026): un trigger
+        // lato Apps Script (syncMansionario(), eseguito su orario, fuori da
+        // qui) legge i 3 Documenti Google e scrive qui il testo estratto.
+        // Quando presente, questo testo sostituisce MANSIONARIO_TESTO[club]
+        // statico in orMansionarioSections() — vedi quella funzione. Se il
+        // trigger non è ancora stato configurato o non ha mai scritto nulla,
+        // questa collezione resta vuota e l'app continua a usare il testo
+        // statico come già faceva prima: nessuna regressione.
+        db.collection("mansionarioTesto").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.mansionarioTesto[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.mansionarioTesto).forEach(function(id){ if (!seen[id]) delete state.mansionarioTesto[id]; });
+          renderMansionario();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
     })();
