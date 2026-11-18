@@ -6016,12 +6016,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function renderPTBanner(){
     var banner = document.getElementById("ptRequestBanner");
     if (!banner) return;
-    var rec = state.ptRequests[state.club];
     // Solo stato "nuova": da quando Richieste PT è gestito qui dentro (vedi pagina
-    // dedicata più sotto), l'array contiene lo storico completo con tutti gli stati,
-    // non solo le richieste in attesa — il banner in Oggi deve restare un avviso di
-    // "nuove richieste", non un elenco di tutto lo storico.
-    var items = ((rec && rec.items) || []).filter(function(it){ return it.stato === "nuova"; });
+    // dedicata più sotto), lo storico completo contiene tutti gli stati, non solo le
+    // richieste in attesa — il banner in Oggi deve restare un avviso di "nuove
+    // richieste", non un elenco di tutto lo storico.
+    var items = ptReqItemsForClub(state.club).filter(function(it){ return it.stato === "nuova"; });
     if (!items.length){ banner.setAttribute("hidden",""); return; }
     banner.removeAttribute("hidden");
     var sub = document.getElementById("ptRequestSub");
@@ -6053,7 +6052,28 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   var ptReqActiveTab = "elenco";
   var ptReqFilter = { q: "", stato: "" };
 
-  function ptReqItemsForClub(club){ return (state.ptRequests[club] && state.ptRequests[club].items) || []; }
+  // MIGRAZIONE 18/11/2026: prima ptRequests/<club> era UN SOLO documento con dentro
+  // {items:[...]} tutto l'array — rischiava di superare i 50.000 caratteri per cella
+  // di Google Sheets (circa 80-90 richieste per club con note tipiche), con
+  // troncamento silenzioso e perdita dell'intero storico di quel club. Ora, come
+  // maintenance/tasks/ecc., ogni richiesta è un documento a sé: ptRequests/<club>__<id>.
+  // ptReqItemsForClub ricostruisce l'elenco filtrando le chiavi per prefisso club,
+  // esattamente come mntItemsForClub.
+  function ptReqItemsForClub(club){
+    var out = [];
+    Object.keys(state.ptRequests).forEach(function(fullId){
+      var sep = fullId.indexOf("__");
+      if (sep === -1) return; // vecchio formato non ancora migrato: ptReqMigraVecchioFormatoSeServe_ lo risolve
+      if (fullId.slice(0, sep) !== club) return;
+      var data = state.ptRequests[fullId];
+      if (!data) return;
+      var it = { _fullId: fullId };
+      Object.keys(data).forEach(function(k){ it[k] = data[k]; });
+      if (!it.id) it.id = fullId.slice(sep + 2);
+      out.push(it);
+    });
+    return out;
+  }
   // Elenco PT inserito a mano in questa pagina (storico + eventuali PT esterni non
   // presenti in Orari & Compensi). Dati scritti dal vecchio formato ({names:[...]}
   // di sole stringhe, già presente in produzione) vengono letti ancora correttamente
@@ -6143,10 +6163,19 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     return m ? (m.telefono || "") : "";
   }
 
-  function ptReqSave(club){
-    var items = ptReqItemsForClub(club);
-    state.ptRequests[club] = { items: items };
-    if (state.db) state.db.doc("ptRequests/" + club).set({ items: items }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+  // Salva UNA richiesta (deve avere _fullId, impostato da ptReqItemsForClub o da chi
+  // la crea) — mai più tutto l'array del club in un colpo, vedi nota sulla migrazione
+  // sopra. Stesso schema di mntSave.
+  function ptReqSave(it){
+    var data = {};
+    Object.keys(it).forEach(function(k){ if (k !== "_fullId") data[k] = it[k]; });
+    state.ptRequests[it._fullId] = data;
+    if (state.db) state.db.doc("ptRequests/" + it._fullId).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  function ptReqDelete(it){
+    delete state.ptRequests[it._fullId];
+    if (state.db) state.db.doc("ptRequests/" + it._fullId).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
   function ptReqSaveList(club, list){
@@ -6291,7 +6320,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     var isOpen = !!ptReqExpanded[it.id];
     card.classList.toggle("open", isOpen);
 
-    function save(){ ptReqSave(club); }
+    function save(){ ptReqSave(it); }
 
     // ---- Riga di riepilogo: sempre visibile, un solo rigo. Clic per aprire/chiudere. ----
     var summary = document.createElement("div");
@@ -6393,9 +6422,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     delBtn.addEventListener("click", function(){
       var etichetta = it.cliente ? ("di " + it.cliente) : "senza nome cliente";
       if (!window.confirm("Eliminare definitivamente la richiesta " + etichetta + "? L'operazione non si può annullare.")) return;
-      var items = ptReqItemsForClub(club).filter(function(x){ return x.id !== it.id; });
-      state.ptRequests[club] = { items: items };
-      ptReqSave(club);
+      ptReqDelete(it);
       delete ptReqExpanded[it.id];
       renderPtReq();
     });
@@ -6665,11 +6692,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         stato: "nuova",
         feedback: "",
         whatsappScaricato: false,
-        inseritoDa: (ruolo && ruolo.tipo === "operation") ? "operation" : "club_manager"
+        inseritoDa: (ruolo && ruolo.tipo === "operation") ? "operation" : "club_manager",
+        club: club
       };
-      var items = ptReqItemsForClub(club).concat([it]);
-      state.ptRequests[club] = { items: items };
-      ptReqSave(club);
+      it._fullId = club + "__" + it.id;
+      ptReqSave(it);
       form.reset();
       ptReqActiveTab = "elenco";
       renderPtReq();
@@ -6723,6 +6750,43 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
   }
 
+  // MIGRAZIONE una tantum dal vecchio formato "un documento per club con {items:[...]}
+  // dentro" al nuovo "un documento per richiesta" (vedi nota su ptReqItemsForClub).
+  // Il vecchio documento ptRequests/<club> (chiave SENZA "__", quindi invisibile a
+  // ptReqItemsForClub) viene letto una volta, riscritto come tanti documenti
+  // ptRequests/<club>__<id>, poi cancellato. Deve girare PRIMA di ptReqSeedIfEmpty
+  // (vedi chiamata più sotto): altrimenti, finché la migrazione non è avvenuta,
+  // ptReqItemsForClub vedrebbe zero richieste reali e il seme storico scatterebbe
+  // per errore sopra dati reali non ancora migrati.
+  var ptReqMigrazioneInCorso = {};
+  function ptReqMigraVecchioFormatoSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    CLUB_ORDER.forEach(function(club){
+      if (ptReqMigrazioneInCorso[club]) return;
+      var vecchio = state.ptRequests[club];
+      if (!vecchio || !Array.isArray(vecchio.items)) return; // già migrato, o mai esistito in quel formato
+      ptReqMigrazioneInCorso[club] = true;
+      var writes = [];
+      vecchio.items.forEach(function(base){
+        var data = {};
+        Object.keys(base).forEach(function(k){ data[k] = base[k]; });
+        data.club = club;
+        if (!data.id) data.id = ptReqGenId();
+        var full = club + "__" + data.id;
+        state.ptRequests[full] = data;
+        writes.push({ action: "set", key: "ptRequests/" + full, value: data });
+      });
+      delete state.ptRequests[club];
+      writes.push({ action: "delete", key: "ptRequests/" + club });
+      if (state.db.primeCache){
+        writes.forEach(function(w){ if (w.action === "set") state.db.primeCache(w.key, w.value); });
+      }
+      state.db.batchWrite(writes).then(function(){
+        if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+      }).catch(function(){ /* segnalato da notifyWriteFailed sui prossimi salvataggi */ });
+    });
+  }
+
   // Seme iniziale: scritto una sola volta, solo se NESSUN club ha ancora richieste PT
   // o un elenco PT nel db condiviso — stessa identica guardia anti-reseed-alla-ricarica
   // di mntSeedIfEmpty (vedi lì per i dettagli: senza orFirstDbLoadDone, il controllo
@@ -6739,9 +6803,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     CLUB_ORDER.forEach(function(club){
       var items = PTREQ_SEED[club] || [];
       var pts = PTLIST_SEED[club] || [];
-      state.ptRequests[club] = { items: items };
+      items.forEach(function(base){
+        var data = {};
+        Object.keys(base).forEach(function(k){ data[k] = base[k]; });
+        data.club = club;
+        if (!data.id) data.id = ptReqGenId();
+        var full = club + "__" + data.id;
+        state.ptRequests[full] = data;
+        writes.push({ action: "set", key: "ptRequests/" + full, value: data });
+      });
       state.ptList[club] = { pts: pts };
-      writes.push({ action: "set", key: "ptRequests/" + club, value: { items: items } });
       writes.push({ action: "set", key: "ptList/" + club, value: { pts: pts } });
     });
     if (state.db && state.db.primeCache){
@@ -7176,6 +7247,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
             if (id && data) { state.ptRequests[id] = data; seen[id] = true; }
           });
           Object.keys(state.ptRequests).forEach(function(id){ if (!seen[id]) delete state.ptRequests[id]; });
+          ptReqMigraVecchioFormatoSeServe_();
           ptReqSeedIfEmpty();
           renderPTBanner();
           renderPtReq();
