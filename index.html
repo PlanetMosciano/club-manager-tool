@@ -468,6 +468,9 @@
   .div-group-label:first-child{ margin-top:0; }
   .div-group-count{ font-weight:400; color:var(--ink-dim); font-size:12px; }
   .div-collab-table select{ font:inherit; font-size:12.5px; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); min-width:68px; }
+  .div-collab-cell{ white-space:nowrap; }
+  .div-div-qty{ font:inherit; font-size:12.5px; padding:5px 6px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); width:46px; margin-left:5px; text-align:center; font-variant-numeric:tabular-nums; }
+  .div-div-qty:disabled{ opacity:.45; }
   .div-stock-table th, .div-stock-table td{ text-align:center; }
   .div-stock-table th:first-child, .div-stock-table td.div-genere-label{ text-align:left; }
   .div-genere-label{ font-weight:700; white-space:nowrap; }
@@ -497,6 +500,12 @@
   .or-month-row label{ font-size:12px; font-weight:700; color:var(--ink-dim); }
   .or-month-row input[type="month"]{ font:inherit; font-size:13px; padding:6px 9px; border-radius:8px; border:1px solid var(--line); background:var(--surface); color:var(--ink); }
   .or-month-note{ font-size:11.5px; color:var(--ink-dim); }
+  .or-storico-details{ margin-top:4px; }
+  .or-storico-details summary{ font-size:11.5px; color:var(--teal, var(--ink-dim)); cursor:pointer; font-weight:600; }
+  .or-storico-table{ margin-top:6px; border-collapse:collapse; font-size:11.5px; }
+  .or-storico-table th, .or-storico-table td{ padding:4px 10px 4px 0; text-align:left; white-space:nowrap; color:var(--ink-dim); }
+  .or-storico-table th{ font-weight:700; }
+  .or-storico-table td:first-child{ color:var(--ink); }
   .or-empty-note{ font-size:13px; color:var(--ink-dim); padding:14px 0; }
   .or-pt-stats{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
   .or-pt-stats .or-stat{ background:rgba(174,163,113,.1); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:12.5px; }
@@ -1482,7 +1491,7 @@
               <h2>Divise — Collaboratori</h2>
             </div>
             <div class="sub" id="diviseClubLabel"></div>
-            <div class="mnt-empty" style="padding:0 0 12px;">Taglia consegnata per ciascun capo. Il "Sesso" (per la suddivisione qui sotto) si imposta in Orari &amp; Compensi → Collaboratori.</div>
+            <div class="mnt-empty" style="padding:0 0 12px;">Per ciascun capo: taglia consegnata e quantità di quella taglia (il numero accanto alla taglia, precompilato con lo standard — 3 Polo PT, 3 T-Shirt Coach, 1 Felpa Coach — ma modificabile per ogni collaboratore). Il "Sesso" (per la suddivisione qui sotto) si imposta in Orari &amp; Compensi → Collaboratori — se non ancora impostato viene dedotto in automatico dal nome (segnato con "?": verificalo).</div>
             <div id="diviseCollabGroups"></div>
           </section>
 
@@ -1491,7 +1500,7 @@
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M3 7l2-4h14l2 4"/><path d="M9 11v3M15 11v3"/></svg></span>
               <h2>Divise — Magazzino</h2>
             </div>
-            <div class="mnt-empty" style="padding:0 0 12px;">Inserisci la quantità in magazzino per taglia: "disponibili" si calcola da solo sottraendo le divise già consegnate ai collaboratori di questo club.</div>
+            <div class="mnt-empty" style="padding:0 0 12px;">Inserisci la quantità in magazzino per taglia: "disponibili" si calcola da solo sottraendo le quantità già consegnate (impostate per ciascun collaboratore qui sopra) ai collaboratori di questo club.</div>
             <div id="diviseMagazzinoGrids"></div>
           </section>
 
@@ -2659,16 +2668,74 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // del collaboratore in Orari & Compensi (campo c.sesso): si imposta/modifica lì,
   // non ha un suo controllo separato qui, per non avere due posti diversi dove
   // aggiornare lo stesso dato.
+  // qty = quantità standard consegnata a ciascun collaboratore per quel capo (regola
+  // indicata da Emanuele il 19/11/2026: 3 Polo PT, 3 T-Shirt Coach, 1 Felpa Coach a
+  // testa) — un collaboratore con una taglia assegnata su un capo conta per "qty" pezzi
+  // consegnati di quella taglia, non per 1 solo.
   var DIVISE_GARMENTS = [
-    { key: "poloPt", campo: "divisaPoloPt", label: "Polo PT" },
-    { key: "tshirtCoach", campo: "divisaTshirtCoach", label: "T-Shirt Coach" },
-    { key: "felpaCoach", campo: "divisaFelpaCoach", label: "Felpa Coach" }
+    { key: "poloPt", campo: "divisaPoloPt", label: "Polo PT", qty: 3 },
+    { key: "tshirtCoach", campo: "divisaTshirtCoach", label: "T-Shirt Coach", qty: 3 },
+    { key: "felpaCoach", campo: "divisaFelpaCoach", label: "Felpa Coach", qty: 1 }
   ];
   var DIVISE_TAGLIE = ["S", "M", "L", "XL"];
   var DIVISE_GENERI = [
     { key: "uomo", label: "Uomo" },
     { key: "donna", label: "Donna" }
   ];
+
+  // Deduzione automatica del sesso dal nome proprio (19/11/2026, richiesta esplicita di
+  // Emanuele: "dal nome salvato riesci a dedurre se uomo o donna, assegna il sesso ai
+  // collaboratori già presenti"). Regola: nomi che finiscono in "-a" -> donna, in "-o" ->
+  // uomo, SALVO l'elenco di eccezioni qui sotto (nomi italiani comuni che violano questa
+  // regola, es. "Andrea"/"Luca" maschili pur finendo in -a, oppure "Irene"/"Noemi"
+  // femminili che non finiscono né in -a né in -o). Per qualunque nome fuori da queste
+  // casistiche note (finali ambigue tipo -e/-i/-u non elencate) la funzione restituisce
+  // null: NON indovina — coerente con "non vuole fatti inventati, segnalare l'incertezza"
+  // — il campo resta da impostare manualmente in Orari & Compensi.
+  var DIVISE_NOMI_MASCHILI_ECCEZIONE_ = {
+    "andrea":1, "luca":1, "elia":1, "mattia":1, "nicola":1, "battista":1, "bonaventura":1,
+    "cosma":1, "barnaba":1,
+    "daniele":1, "gabriele":1, "michele":1, "simone":1, "emanuele":1, "samuele":1,
+    "raffaele":1, "achille":1, "ercole":1, "salvatore":1, "gioele":1,
+    "luigi":1, "gigi":1
+  };
+  var DIVISE_NOMI_FEMMINILI_ECCEZIONE_ = {
+    "irene":1, "beatrice":1, "alice":1, "adele":1, "agnese":1, "noemi":1
+  };
+  function divInferisciSesso_(nome){
+    if (!nome) return null;
+    var primo = nome.trim().split(/\s+/)[0].toLowerCase()
+      .normalize("NFD").replace(/[̀-ͯ]/g, "");
+    if (DIVISE_NOMI_MASCHILI_ECCEZIONE_[primo]) return "uomo";
+    if (DIVISE_NOMI_FEMMINILI_ECCEZIONE_[primo]) return "donna";
+    if (/a$/.test(primo)) return "donna";
+    if (/o$/.test(primo)) return "uomo";
+    return null;
+  }
+  // Un solo passaggio sui collaboratori già presenti senza "sesso" impostato: deduce dal
+  // nome e scrive subito (sessoAuto:true, per distinguerlo da una scelta manuale — vedi
+  // il tag "(dedotto)" in renderDiviseCollaboratori_). Un collaboratore con sesso già
+  // impostato (manualmente o da una precedente deduzione) non viene più toccato: la
+  // funzione è autolimitante, non serve un flag "in corso" come per altre migrazioni.
+  function divInferisciSessoSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    var writes = [];
+    Object.keys(state.orariCollaboratori).forEach(function(full){
+      var c = state.orariCollaboratori[full];
+      if (!c || c.sesso) return;
+      var dedotto = divInferisciSesso_(c.nome);
+      if (!dedotto) return;
+      c.sesso = dedotto;
+      c.sessoAuto = true;
+      state.orariCollaboratori[full] = c;
+      writes.push({ action: "set", key: "orariCollaboratori/" + full, value: c });
+    });
+    if (!writes.length) return;
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
+  }
 
   function divStockKey_(garmentKey, genereKey, taglia){ return garmentKey + "|" + genereKey + "|" + taglia; }
   function divStockMappaForClub_(club){
@@ -2688,13 +2755,90 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (state.db) state.db.doc("diviseMagazzino/" + club).set({ stock: mappa }).then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
-  // Quante divise di un certo capo/genere/taglia sono già state consegnate ai
-  // collaboratori DI QUESTO CLUB — conta direttamente sui record di Orari &
-  // Compensi (orCollabiForClub), nessun doppio inserimento altrove.
-  function divConsegnateCount(club, garmentCampo, genereKey, taglia){
+  // Giacenza di magazzino comunicata da Emanuele il 19/11/2026 per Giulianova — scritta
+  // una sola volta se per quel club non esiste ancora nessun documento diviseMagazzino
+  // (stesso principio "seed if empty" già usato per mntSeedIfEmpty/ptReqSeedIfEmpty): non
+  // sovrascrive mai dati già presenti o modificati in seguito dal CM.
+  var DIVISE_MAGAZZINO_SEED_ = {
+    giulianova: {
+      "poloPt|uomo|S": 5, "poloPt|donna|S": 12,
+      "poloPt|uomo|M": 3, "poloPt|donna|M": 13,
+      "poloPt|uomo|L": 14, "poloPt|donna|L": 7,
+      "poloPt|uomo|XL": 2, "poloPt|donna|XL": 1,
+      "tshirtCoach|uomo|S": 6, "tshirtCoach|donna|S": 7,
+      "tshirtCoach|uomo|M": 9, "tshirtCoach|donna|M": 8,
+      "tshirtCoach|uomo|L": 2, "tshirtCoach|donna|L": 14,
+      "tshirtCoach|uomo|XL": 0, "tshirtCoach|donna|XL": 1,
+      "felpaCoach|uomo|S": 0, "felpaCoach|donna|S": 2,
+      "felpaCoach|uomo|M": 2, "felpaCoach|donna|M": 4,
+      "felpaCoach|uomo|L": 0, "felpaCoach|donna|L": 0,
+      "felpaCoach|uomo|XL": 0, "felpaCoach|donna|XL": 0
+    },
+    // Comunicato da Emanuele il 19/11/2026 (foto + testo della tabella magazzino Roseto):
+    // celle vuote nella tabella originale = 0 in magazzino.
+    roseto: {
+      "poloPt|uomo|S": 2, "poloPt|donna|S": 5,
+      "poloPt|uomo|M": 4, "poloPt|donna|M": 6,
+      "poloPt|uomo|L": 8, "poloPt|donna|L": 0,
+      "poloPt|uomo|XL": 3, "poloPt|donna|XL": 0,
+      "tshirtCoach|uomo|S": 0, "tshirtCoach|donna|S": 6,
+      "tshirtCoach|uomo|M": 6, "tshirtCoach|donna|M": 8,
+      "tshirtCoach|uomo|L": 2, "tshirtCoach|donna|L": 3,
+      "tshirtCoach|uomo|XL": 0, "tshirtCoach|donna|XL": 0,
+      "felpaCoach|uomo|S": 2, "felpaCoach|donna|S": 3,
+      "felpaCoach|uomo|M": 1, "felpaCoach|donna|M": 6,
+      "felpaCoach|uomo|L": 0, "felpaCoach|donna|L": 0,
+      "felpaCoach|uomo|XL": 0, "felpaCoach|donna|XL": 0
+    }
+  };
+  function divMagazzinoSeedIfEmpty_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    Object.keys(DIVISE_MAGAZZINO_SEED_).forEach(function(club){
+      if (state.diviseMagazzino[club]) return; // già presente (dato reale o già seminato): non toccare
+      var stock = DIVISE_MAGAZZINO_SEED_[club];
+      state.diviseMagazzino[club] = { stock: stock };
+      if (state.db.primeCache) state.db.primeCache("diviseMagazzino/" + club, { stock: stock });
+      state.db.doc("diviseMagazzino/" + club).set({ stock: stock }).catch(function(){});
+    });
+  }
+  // 19/11/2026 (richiesta esplicita di Emanuele: "non voglio che per ogni capo segno
+  // solo la taglia, ma anche la quantità consegnata a quel collaboratore") — ogni capo
+  // su un collaboratore non è più una semplice taglia (stringa), ma {taglia, qty}: taglia
+  // assegnata + quante unità di QUELLA taglia gli sono state consegnate (non più un
+  // numero fisso uguale per tutti). divCollabGarmentValue_ normalizza anche il vecchio
+  // formato (stringa semplice, da quando la quantità era fissa 3/3/1 per tutti — vedi
+  // DIVISE_GARMENTS[].qty, qui riusato solo come valore di default suggerito la prima
+  // volta che si assegna una taglia) così i dati già scritti restano leggibili.
+  function divGarmentByCampo_(campo){
+    for (var i = 0; i < DIVISE_GARMENTS.length; i++){ if (DIVISE_GARMENTS[i].campo === campo) return DIVISE_GARMENTS[i]; }
+    return null;
+  }
+  function divCollabGarmentValue_(c, garment){
+    var raw = c[garment.campo];
+    if (raw && typeof raw === "object") return { taglia: raw.taglia || "", qty: raw.qty != null ? raw.qty : 0 };
+    if (typeof raw === "string" && raw) return { taglia: raw, qty: garment.qty }; // formato precedente: solo taglia
+    return { taglia: "", qty: 0 };
+  }
+  // Quante PERSONE di un certo capo/genere/taglia risultano servite — conta
+  // direttamente sui record di Orari & Compensi (orCollabiForClub), nessun doppio
+  // inserimento altrove. Usata solo per il dettaglio "(n persone)" nel magazzino.
+  function divCollabServitiCount(club, garment, genereKey, taglia){
     return orCollabiForClub(club).filter(function(c){
-      return c.sesso === genereKey && c[garmentCampo] === taglia;
+      return c.sesso === genereKey && divCollabGarmentValue_(c, garment).taglia === taglia;
     }).length;
+  }
+  // Quanti PEZZI risultano consegnati per quel capo/genere/taglia: somma delle quantità
+  // (non più più un fisso a testa) impostate su ciascun collaboratore di quella
+  // combinazione sesso+taglia.
+  function divPezziConsegnatiCount(club, garment, genereKey, taglia){
+    var totale = 0;
+    orCollabiForClub(club).forEach(function(c){
+      if (c.sesso !== genereKey) return;
+      var v = divCollabGarmentValue_(c, garment);
+      if (v.taglia !== taglia) return;
+      totale += (v.qty || 0);
+    });
+    return totale;
   }
 
   function renderDiviseCollaboratori_(){
@@ -2712,30 +2856,55 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var head = "<tr><th>Nome</th>" + DIVISE_GARMENTS.map(function(garment){ return "<th>" + garment.label + "</th>"; }).join("") + "</tr>";
       var righe = g.collab.map(function(c){
         var celle = DIVISE_GARMENTS.map(function(garment){
-          var attuale = c[garment.campo] || "";
+          var v = divCollabGarmentValue_(c, garment);
           var opzioni = '<option value="">—</option>' + DIVISE_TAGLIE.map(function(t){
-            return '<option value="' + t + '"' + (attuale === t ? " selected" : "") + '>' + t + '</option>';
+            return '<option value="' + t + '"' + (v.taglia === t ? " selected" : "") + '>' + t + '</option>';
           }).join("");
-          return '<td><select data-div-collab="' + c.id + '" data-div-campo="' + garment.campo + '">' + opzioni + '</select></td>';
+          var qtyAttr = v.taglia ? ('value="' + v.qty + '"') : 'value="" disabled';
+          return '<td class="div-collab-cell" data-div-cell="' + c.id + '|' + garment.campo + '">' +
+            '<select class="div-div-taglia">' + opzioni + '</select>' +
+            '<input class="div-div-qty" type="number" min="0" step="1" placeholder="n." title="Quantità consegnata di questa taglia" ' + qtyAttr + '>' +
+          '</td>';
         }).join("");
-        return '<tr><td>' + orEscapeHtml(c.nome || "") + '</td>' + celle + '</tr>';
+        var dedottoTag = c.sessoAuto ? ' <span class="or-sesso-tag" title="Sesso dedotto automaticamente dal nome — verifica in Orari &amp; Compensi">?</span>' : '';
+        return '<tr><td>' + orEscapeHtml(c.nome || "") + dedottoTag + '</td>' + celle + '</tr>';
       }).join("");
       return '<div class="div-group-label">' + g.label + ' <span class="div-group-count">(' + g.collab.length + ')</span></div>' +
         '<div class="tbl-wrap"><table class="or-table div-collab-table">' + head + righe + '</table></div>';
     }).join("");
     container.innerHTML = html || '<div class="mnt-empty">Nessun collaboratore per questo club. Aggiungine uno in Orari &amp; Compensi.</div>';
 
-    Array.prototype.slice.call(container.querySelectorAll("[data-div-collab]")).forEach(function(sel){
-      sel.addEventListener("change", function(){
-        var full = orCollabId(club, sel.dataset.divCollab);
+    Array.prototype.slice.call(container.querySelectorAll("[data-div-cell]")).forEach(function(cell){
+      var parti = cell.dataset.divCell.split("|");
+      var collabId = parti[0], campo = parti[1];
+      var garment = divGarmentByCampo_(campo);
+      var selTaglia = cell.querySelector(".div-div-taglia");
+      var inpQty = cell.querySelector(".div-div-qty");
+      function salva(){
+        var full = orCollabId(club, collabId);
         var c = state.orariCollaboratori[full];
         if (!c) return;
-        c[sel.dataset.divCampo] = sel.value || null;
+        var taglia = selTaglia.value;
+        if (!taglia){
+          c[campo] = null;
+        } else {
+          var qty = parseInt(inpQty.value, 10);
+          if (isNaN(qty) || qty < 0) qty = 0;
+          c[campo] = { taglia: taglia, qty: qty };
+        }
         state.orariCollaboratori[full] = c;
         if (state.db) state.db.doc("orariCollaboratori/" + full).set(c).then(hideDbSyncWarning).catch(notifyWriteFailed);
         else showDbSyncWarning();
+        renderDiviseCollaboratori_(); // riabilita/disabilita il campo quantità in base alla taglia
         renderDiviseMagazzino_(); // "consegnate"/"disponibili" dipendono da questo dato
+      }
+      selTaglia.addEventListener("change", function(){
+        // alla prima assegnazione di una taglia, precompila la quantità con lo standard
+        // del capo (3 Polo PT/T-Shirt Coach, 1 Felpa Coach) — resta comunque modificabile.
+        if (selTaglia.value && !inpQty.value) inpQty.value = garment ? garment.qty : 1;
+        salva();
       });
+      inpQty.addEventListener("change", salva);
     });
   }
 
@@ -2748,12 +2917,14 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var righe = DIVISE_GENERI.map(function(genere){
         var celle = DIVISE_TAGLIE.map(function(taglia){
           var inMagazzino = divStockGet(club, garment.key, genere.key, taglia);
-          var consegnate = divConsegnateCount(club, garment.campo, genere.key, taglia);
+          var persone = divCollabServitiCount(club, garment, genere.key, taglia);
+          var consegnate = divPezziConsegnatiCount(club, garment, genere.key, taglia);
           var disponibili = inMagazzino - consegnate;
           var classeDisp = disponibili < 0 ? "div-disp-negativo" : "div-disp";
+          var dettaglioConsegnate = persone > 0 ? (consegnate + ' (' + persone + (persone === 1 ? ' persona' : ' persone') + ')') : '0';
           return '<td class="div-stock-cell">' +
             '<input type="number" min="0" step="1" value="' + inMagazzino + '" data-div-stock="' + divStockKey_(garment.key, genere.key, taglia) + '">' +
-            '<div class="' + classeDisp + '">consegnate ' + consegnate + ' · disponibili <b>' + disponibili + '</b></div>' +
+            '<div class="' + classeDisp + '">consegnate ' + dettaglioConsegnate + ' · disponibili <b>' + disponibili + '</b></div>' +
           '</td>';
         }).join("");
         return '<tr><td class="div-genere-label">' + genere.label + '</td>' + celle + '</tr>';
@@ -5022,6 +5193,94 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function orCollabiForClubMonth(club, monthKey){
     return orCollabiForClub(club).filter(function(c){ return orCollabActiveInMonth(c, monthKey); });
   }
+  // Un campo "di compenso" è cambiato tra il record esistente e i valori appena compilati
+  // nel modulo? Usata per decidere se una modifica deve aprire un nuovo record storico
+  // (sì, se cambia qualcosa che incide sui compensi) o aggiornare in-place (no, es. solo
+  // sesso/nome/saldo apertura) — vedi il submit handler del modulo Collaboratori.
+  var OR_CAMPI_COMPENSO_ = ["oreComprese", "tariffaLezione", "tariffaLezioneCoreografata", "tariffaLezioneReformer", "tariffaDeskOra", "compensoFisso"];
+  function orPayrollFieldsChanged_(oldRec, nuovi){
+    for (var i = 0; i < OR_CAMPI_COMPENSO_.length; i++){
+      var k = OR_CAMPI_COMPENSO_[i];
+      var a = oldRec[k] != null ? oldRec[k] : null;
+      var b = nuovi[k] != null ? nuovi[k] : null;
+      if (a !== b) return true;
+    }
+    var ra = (oldRec.ruoli || []).slice().sort().join(",");
+    var rb = (nuovi.ruoli || []).slice().sort().join(",");
+    return ra !== rb;
+  }
+  // Storico completo (record correnti + chiusi) di un collaboratore per nome, ordinato
+  // cronologicamente — usato per "Storico modifiche" in elenco: risponde a "in che mese
+  // ho cambiato una tariffa", senza dover tenere più righe visibili per la stessa persona.
+  function orCollabStoricoPerNome_(club, nome){
+    var chiave = (nome || "").trim().toLowerCase();
+    if (!chiave) return [];
+    return orCollabiForClub(club).filter(function(c){
+      return (c.nome || "").trim().toLowerCase() === chiave;
+    }).sort(function(a, b){ return (a.attivoDal || "").localeCompare(b.attivoDal || ""); });
+  }
+
+  // Deduplica collaboratori (19/11/2026, richiesta esplicita di Emanuele: a Mosciano
+  // risultavano due "Alessia Ferretti", due "Emanuele Vicentini" e due "Alessandro Core"
+  // — uno con sesso assegnato e uno senza — "lasciami solo quello attivo"). Residuo del
+  // vecchio meccanismo di split-record (rimosso qui sopra nel submit handler: un edit non
+  // crea più un secondo record), che ha lasciato coppie con lo stesso nome entrambe
+  // ancora "attive" nel mese corrente. Raggruppa per (club, nome normalizzato) i record
+  // attivi in questo mese; tra i duplicati tiene quello con l'id più recente (il più
+  // probabile "corretto"/corrente), gli trasferisce eventuali campi mancanti presi dagli
+  // altri (sesso, divise — così non si perde il dato "con sesso assegnato"), e chiude gli
+  // altri dal mese corrente in avanti (mai cancellati: restano storico, semplicemente non
+  // più "attivi" — stesso principio del bottone "✕"). Autolimitante: una volta deduplicati,
+  // non restano più duplicati attivi nello stesso mese, quindi non fa più nulla.
+  function orCollabDeduplicaSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    var currentMonth = orSharedMonthKey();
+    var gruppi = {};
+    Object.keys(state.orariCollaboratori).forEach(function(full){
+      var c = state.orariCollaboratori[full];
+      if (!c || !c.nome || !c.club) return;
+      if (!orCollabActiveInMonth(c, currentMonth)) return;
+      var key = c.club + "__" + c.nome.trim().toLowerCase();
+      (gruppi[key] = gruppi[key] || []).push(full);
+    });
+    var writes = [];
+    Object.keys(gruppi).forEach(function(key){
+      var fulls = gruppi[key];
+      if (fulls.length < 2) return;
+      fulls.sort(function(a, b){
+        var ca = state.orariCollaboratori[a], cb = state.orariCollaboratori[b];
+        return String(cb.id || "").localeCompare(String(ca.id || ""));
+      });
+      var tenutoFull = fulls[0];
+      var tenuto = state.orariCollaboratori[tenutoFull];
+      var modificato = false;
+      for (var i = 1; i < fulls.length; i++){
+        var scartatoFull = fulls[i];
+        var scartato = state.orariCollaboratori[scartatoFull];
+        ["sesso", "sessoAuto", "divisaPoloPt", "divisaTshirtCoach", "divisaFelpaCoach"].forEach(function(campo){
+          if ((tenuto[campo] === null || tenuto[campo] === undefined) && scartato[campo] != null){
+            tenuto[campo] = scartato[campo];
+            modificato = true;
+          }
+        });
+        var closeMonth = orMonthKeyAdd(currentMonth, -1);
+        if (!scartato.attivoAl || scartato.attivoAl >= currentMonth){
+          scartato.attivoAl = closeMonth;
+          state.orariCollaboratori[scartatoFull] = scartato;
+          writes.push({ action: "set", key: "orariCollaboratori/" + scartatoFull, value: scartato });
+        }
+      }
+      if (modificato){
+        state.orariCollaboratori[tenutoFull] = tenuto;
+        writes.push({ action: "set", key: "orariCollaboratori/" + tenutoFull, value: tenuto });
+      }
+    });
+    if (!writes.length) return;
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
+  }
 
   function orRoleLabel(r){
     return { sala:"Sala", corsi:"Corsi", desk:"Desk", pt:"PT", pt_pilates:"PT Pilates", clubmanager:"Club Manager" }[r] || r;
@@ -5103,9 +5362,32 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (c.attivoDal) storicoBits.push("dal " + orFmtMonthLabel(c.attivoDal));
       if (c.attivoAl) storicoBits.push("al " + orFmtMonthLabel(c.attivoAl));
       var storicoNote = storicoBits.length ? ('<div class="or-month-note">Attivo ' + storicoBits.join(" ") + '</div>') : '';
-      var sessoTag = c.sesso ? (' <span class="or-sesso-tag">' + (c.sesso === "uomo" ? "U" : "D") + '</span>') : '';
+      var sessoTag = c.sesso ? (' <span class="or-sesso-tag" title="' + (c.sessoAuto ? "Dedotto automaticamente dal nome — verifica" : "Impostato manualmente") + '">' + (c.sesso === "uomo" ? "U" : "D") + (c.sessoAuto ? '<sup>?</sup>' : '') + '</span>') : '';
+      // "Storico modifiche": tutte le versioni passate (anche chiuse) di questo
+      // collaboratore con un cambio di compenso/ruolo — risponde a "in che mese ho fatto
+      // un cambio tariffa" senza una riga per versione nell'elenco principale (vedi
+      // orCollabStoricoPerNome_ e orPayrollFieldsChanged_ nel submit handler).
+      var catenaStorica = orCollabStoricoPerNome_(c.club, c.nome);
+      var storicoDettaglio = "";
+      if (catenaStorica.length > 1){
+        var righeStorico = catenaStorica.map(function(v){
+          var periodo = (v.attivoDal ? orFmtMonthLabel(v.attivoDal) : "sempre") + " – " + (v.attivoAl ? orFmtMonthLabel(v.attivoAl) : "oggi");
+          var ruoliTxt = (v.ruoli || []).map(orRoleLabel).join(", ") || "—";
+          var tariffeTxt = [
+            v.tariffaLezione != null ? ("lezione € " + v.tariffaLezione) : null,
+            v.tariffaLezioneCoreografata != null ? (orCoreoLabelTariffaCol(c.club) + " € " + v.tariffaLezioneCoreografata) : null,
+            v.tariffaLezioneReformer != null ? ("reformer € " + v.tariffaLezioneReformer) : null,
+            v.tariffaDeskOra != null ? ("desk € " + v.tariffaDeskOra + "/ora") : null,
+            v.compensoFisso ? ("fisso € " + v.compensoFisso) : null
+          ].filter(function(x){ return x; }).join(" · ") || "—";
+          var corrente = !v.attivoAl ? ' <span class="or-fisso-badge">attuale</span>' : '';
+          return '<tr><td>' + periodo + corrente + '</td><td>' + ruoliTxt + '</td><td>' + (v.oreComprese != null ? v.oreComprese : "—") + '</td><td>' + tariffeTxt + '</td></tr>';
+        }).join("");
+        storicoDettaglio = '<details class="or-storico-details"><summary>Storico modifiche (' + catenaStorica.length + ')</summary>' +
+          '<table class="or-storico-table"><tr><th>Periodo</th><th>Ruoli</th><th>Ore/sett.</th><th>Tariffe/compenso</th></tr>' + righeStorico + '</table></details>';
+      }
       return '<tr>' +
-        '<td>' + (c.nome||"") + sessoTag + storicoNote + '</td>' +
+        '<td>' + (c.nome||"") + sessoTag + storicoNote + storicoDettaglio + '</td>' +
         '<td>' + ruoliHtml + '</td>' +
         '<td>' + (c.oreComprese != null ? c.oreComprese : '—') + '</td>' +
         '<td>' + (c.tariffaLezione != null ? '€ '+c.tariffaLezione : '—') + '</td>' +
@@ -5195,7 +5477,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         tariffaDeskOra: numOrNull("orCollabTariffaDeskOra"),
         compensoFisso: numOrNull("orCollabCompensoFisso"),
         saldoApertura: numOrNull("orCollabSaldoApertura") || 0,
-        sesso: document.getElementById("orCollabSesso").value || null
+        // sessoAuto:false perché qui il sesso è una scelta esplicita della persona che
+        // compila il modulo (anche se il valore mostrato è quello dedotto automaticamente
+        // dal nome) — da questo momento non è più "da verificare".
+        sesso: document.getElementById("orCollabSesso").value || null,
+        sessoAuto: false
       };
 
       if (orCollabEditingId){
@@ -5206,10 +5492,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         if (!oldRec) { renderOrariCollaboratori(); return; }
         var currentMonth = orSharedMonthKey();
         var closeMonth = orMonthKeyAdd(currentMonth, -1);
-        if (oldRec.attivoDal && oldRec.attivoDal > closeMonth){
-          // Il collaboratore è attivo solo da questo mese (es. appena aggiunto): non ha
-          // senso creare un secondo record per lo stesso periodo, si corregge il record
-          // esistente direttamente, senza toccare attivoDal/attivoAl.
+        // 19/11/2026 (chiarito da Emanuele dopo il primo tentativo: VUOLE lo storico dei
+        // compensi passati — il problema erano i doppioni che SEMBRAVANO un "nuovo
+        // collaboratore" nell'elenco, non lo storico in sé). Si crea un nuovo record
+        // SOLO se cambia davvero un campo che incide sui compensi (ruoli, ore comprese,
+        // tariffe, compenso fisso) — vedi orPayrollFieldsChanged_. Una modifica che
+        // tocca solo campi non di compenso (sesso, nome, saldo apertura) aggiorna
+        // SEMPRE lo stesso record in-place: non crea mai un doppione in elenco.
+        var toccaCompensi = orPayrollFieldsChanged_(oldRec, campiModificabili);
+        if (!toccaCompensi || (oldRec.attivoDal && oldRec.attivoDal > closeMonth)){
+          // Nessun campo di compenso è cambiato, OPPURE il collaboratore è attivo solo da
+          // questo mese (es. appena aggiunto): non c'è nulla da preservare come storico,
+          // si corregge il record esistente direttamente, senza toccare attivoDal/attivoAl.
           Object.keys(campiModificabili).forEach(function(k){ oldRec[k] = campiModificabili[k]; });
           state.orariCollaboratori[oldFull] = oldRec;
           if (state.db) state.db.doc("orariCollaboratori/" + oldFull).set(oldRec).then(hideDbSyncWarning).catch(notifyWriteFailed);
@@ -5217,10 +5511,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           renderOrari();
           return;
         }
-        // Collaboratore già attivo in mesi precedenti: si chiude il vecchio record alla
-        // fine del mese precedente (storico/compensi passati intatti) e si crea un nuovo
-        // record, attivo da questo mese in avanti, con i valori aggiornati — ereditando
-        // saldo/storico ore per continuità della banca ore.
+        // Cambio di ruolo/ore/tariffa/compenso su un collaboratore già attivo in mesi
+        // precedenti: si chiude il vecchio record alla fine del mese precedente
+        // (storico/compensi passati intatti — consultabile con "Storico modifiche" in
+        // elenco) e si crea un nuovo record, attivo da questo mese in avanti, con i
+        // valori aggiornati — ereditando saldo/storico ore per continuità della banca ore.
         oldRec.attivoAl = closeMonth;
         var newId = "c-" + Date.now();
         var newFull = orCollabId(state.club, newId);
@@ -5235,14 +5530,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           compensoFisso: campiModificabili.compensoFisso,
           saldoApertura: campiModificabili.saldoApertura,
           sesso: campiModificabili.sesso,
+          sessoAuto: campiModificabili.sessoAuto,
           // Banca ore: continua dallo storico del record precedente, non riparte da zero.
           saldoRecupero: oldRec.saldoRecupero != null ? oldRec.saldoRecupero : null,
           saldoAggiornatoAl: oldRec.saldoAggiornatoAl != null ? oldRec.saldoAggiornatoAl : null,
           saldoStorico: oldRec.saldoStorico ? JSON.parse(JSON.stringify(oldRec.saldoStorico)) : {},
-          // Divise (18/11/2026): le taglie già consegnate non si perdono quando un
-          // cambio di ruolo/tariffa "spacca" il record in due, esattamente come il
-          // saldo ore qui sopra — una divisa resta consegnata a prescindere da quale
-          // record del collaboratore sia attivo in un certo mese.
+          // Divise: le taglie/quantità già consegnate non si perdono quando un cambio di
+          // ruolo/tariffa "spacca" il record in due, esattamente come il saldo ore sopra.
           divisaPoloPt: oldRec.divisaPoloPt || null,
           divisaTshirtCoach: oldRec.divisaTshirtCoach || null,
           divisaFelpaCoach: oldRec.divisaFelpaCoach || null,
@@ -5276,6 +5570,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         compensoFisso: campiModificabili.compensoFisso,
         saldoApertura: campiModificabili.saldoApertura,
         sesso: campiModificabili.sesso,
+        sessoAuto: campiModificabili.sessoAuto,
         saldoRecupero: null, saldoAggiornatoAl: null, saldoStorico: {},
         divisaPoloPt: null, divisaTshirtCoach: null, divisaFelpaCoach: null,
         // Esiste da questo mese in avanti: non deve comparire nei mesi precedenti,
@@ -7516,6 +7811,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
             if (id && data) { state.orariCollaboratori[id] = data; seen[id] = true; }
           });
           Object.keys(state.orariCollaboratori).forEach(function(id){ if (!seen[id]) delete state.orariCollaboratori[id]; });
+          // 19/11/2026: prima deduplica eventuali doppioni rimasti dal vecchio
+          // meccanismo di split-record (orCollabDeduplicaSeServe_), POI deduce il sesso
+          // dal nome per chi ancora non ce l'ha (divInferisciSessoSeServe_) — in
+          // quest'ordine, così l'inferenza lavora già sui record ripuliti e non su un
+          // doppione che sta per essere chiuso. Entrambe vanno prima dei render, così lo
+          // stato mostrato è già quello corretto (stesso ordine delle altre migrazioni
+          // one-shot di questo file).
+          orCollabDeduplicaSeServe_();
+          divInferisciSessoSeServe_();
           renderOrari();
           renderKPI();
           // 16/11/2026: un collaboratore con ruolo PT aggiunto/tolto in Orari &
@@ -7628,6 +7932,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
             if (id && data) { state.diviseMagazzino[id] = data; seen[id] = true; }
           });
           Object.keys(state.diviseMagazzino).forEach(function(id){ if (!seen[id]) delete state.diviseMagazzino[id]; });
+          divMagazzinoSeedIfEmpty_();
           renderDivise();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
