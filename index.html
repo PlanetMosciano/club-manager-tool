@@ -506,6 +506,14 @@
   .or-storico-table th, .or-storico-table td{ padding:4px 10px 4px 0; text-align:left; white-space:nowrap; color:var(--ink-dim); }
   .or-storico-table th{ font-weight:700; }
   .or-storico-table td:first-child{ color:var(--ink); }
+  .procedura-details{ border:1px solid var(--line); border-radius:10px; padding:12px 14px; margin-bottom:10px; background:var(--surface); }
+  .procedura-details summary{ font-size:14.5px; font-weight:700; cursor:pointer; list-style:none; }
+  .procedura-details summary::-webkit-details-marker{ display:none; }
+  .procedura-details summary::before{ content:"›"; display:inline-block; margin-right:8px; transition:transform .15s ease; color:var(--ink-dim); }
+  .procedura-details[open] summary::before{ transform:rotate(90deg); }
+  .procedura-testo{ margin-top:12px; font-size:13.5px; line-height:1.55; color:var(--ink); }
+  .procedura-testo p{ margin:0 0 10px; }
+  .procedura-testo ul, .procedura-testo ol{ margin:0 0 10px; padding-left:20px; }
   .or-empty-note{ font-size:13px; color:var(--ink-dim); padding:14px 0; }
   .or-pt-stats{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
   .or-pt-stats .or-stat{ background:rgba(174,163,113,.1); border:1px solid var(--line); border-radius:8px; padding:8px 12px; font-size:12.5px; }
@@ -653,6 +661,7 @@
       <a href="#" data-page="ptreq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><span class="lbl">Richieste PT</span></a>
       <a href="#" data-page="mansionario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg><span class="lbl">Mansionario</span></a>
       <a href="#" data-page="divise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l-4.5 3L5 10h2v10h10V10h2l1.5-3L16 4l-2 2h-4z"/></svg><span class="lbl">Divise</span></a>
+      <a href="#" data-page="procedure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3M9 9l2 2 4-4"/><path d="M9 15h6"/></svg><span class="lbl">Procedure</span></a>
     </nav>
     <div class="club-block">
       <div class="label">Club</div>
@@ -1504,6 +1513,19 @@
             <div id="diviseMagazzinoGrids"></div>
           </section>
 
+        </div>
+      </div>
+
+      <div class="page" data-page="procedure" hidden>
+        <div class="col">
+          <section class="card" id="card-procedure">
+            <div class="hd">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="6" y="3" width="12" height="18" rx="2"/><path d="M9 3v2h6V3M9 9l2 2 4-4"/><path d="M9 15h6"/></svg></span>
+              <h2>Procedure</h2>
+            </div>
+            <div class="mnt-empty" style="padding:0 0 12px;">Procedure operative dello staff, valide per tutti i club. Clicca una voce per aprirla — i contenuti vengono inseriti e aggiornati nel tempo.</div>
+            <div id="procedureList"></div>
+          </section>
         </div>
       </div>
 
@@ -2981,6 +3003,45 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
     renderDiviseCollaboratori_();
     renderDiviseMagazzino_();
+  }
+
+  // 19/11/2026: nuova voce "Procedure" (richiesta esplicita di Emanuele), valida per
+  // tutti i club (non è una scheda per-club come Mansionario/Divise — le procedure di
+  // staff sono le stesse ovunque). "testo" è HTML scritto a mano qui nel file (stesso
+  // livello di fiducia del resto del contenuto statico di questo file, non input di un
+  // modulo) — per ora vuoto per tutte: "mettiamo le voci cliccabili, poi mano a mano le
+  // riempiamo" — un futuro aggiornamento compila "testo" per la procedura richiesta.
+  var PROCEDURE_LIST = [
+    {
+      id: "onboarding-staff-tecnico",
+      titolo: "Procedura di onboarding — Coach, Sala, Istruttori Corsi, PT",
+      testo: ""
+    },
+    {
+      id: "uscita-staff",
+      titolo: "Procedura di uscita dallo staff",
+      testo: ""
+    },
+    {
+      id: "formazione-coach",
+      titolo: "Formazione Coach",
+      testo: ""
+    },
+    {
+      id: "tirocinio",
+      titolo: "Tirocinio",
+      testo: ""
+    }
+  ];
+  function renderProcedure(){
+    var container = document.getElementById("procedureList");
+    if (!container) return;
+    container.innerHTML = PROCEDURE_LIST.map(function(p){
+      var corpo = (p.testo && p.testo.trim())
+        ? '<div class="procedura-testo">' + p.testo + '</div>'
+        : '<div class="mnt-empty">Contenuto non ancora inserito — in arrivo.</div>';
+      return '<details class="procedura-details" id="procedura-' + p.id + '"><summary>' + orEscapeHtml(p.titolo) + '</summary>' + corpo + '</details>';
+    }).join("");
   }
 
 
@@ -8101,6 +8162,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     applyRuolo();
     renderOperation();
     renderOperationDash();
+    renderProcedure(); // non è per-club: una volta sola in boot, non va in selectClub
     window.addEventListener("hashchange", function(){
       var k = (location.hash || "").replace("#","").toLowerCase();
       if (ruolo && ruolo.tipo === "cm"){
