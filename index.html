@@ -463,6 +463,19 @@
   .or-roles{ display:flex; flex-wrap:wrap; gap:4px; }
   .or-role-chip{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(41,78,97,.1); color:var(--teal-deep); white-space:nowrap; }
   .or-fisso-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(174,163,113,.18); color:var(--ink); }
+  .or-sesso-tag{ display:inline-flex; align-items:center; justify-content:center; width:17px; height:17px; font-size:10px; font-weight:700; border-radius:999px; background:rgba(92,106,108,.15); color:var(--ink-dim); vertical-align:middle; }
+  .div-group-label{ font-weight:700; font-size:13.5px; margin:18px 0 8px; }
+  .div-group-label:first-child{ margin-top:0; }
+  .div-group-count{ font-weight:400; color:var(--ink-dim); font-size:12px; }
+  .div-collab-table select{ font:inherit; font-size:12.5px; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); min-width:68px; }
+  .div-stock-table th, .div-stock-table td{ text-align:center; }
+  .div-stock-table th:first-child, .div-stock-table td.div-genere-label{ text-align:left; }
+  .div-genere-label{ font-weight:700; white-space:nowrap; }
+  .div-stock-cell{ min-width:110px; }
+  .div-stock-cell input{ width:64px; font:inherit; font-size:13px; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); text-align:center; font-variant-numeric:tabular-nums; }
+  .div-disp, .div-disp-negativo{ font-size:10.5px; color:var(--ink-dim); margin-top:4px; font-variant-numeric:tabular-nums; }
+  .div-disp-negativo{ color:var(--warn); font-weight:700; }
+  .div-disp-negativo b, .div-disp b{ font-size:12px; }
   .or-holiday-badge{ font-size:10.5px; font-weight:700; padding:2px 7px; border-radius:999px; background:rgba(179,68,47,.12); color:var(--warn); }
   .or-weekday-tag{ font-size:11.5px; color:var(--ink-dim); margin-left:6px; white-space:nowrap; }
   #orCovTable{ border-collapse:collapse; margin:10px 0; }
@@ -630,6 +643,7 @@
       <a href="#" data-page="orari"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg><span class="lbl">Orari &amp; Compensi</span></a>
       <a href="#" data-page="ptreq"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 10a6 6 0 1 1 12 0c0 4 1.5 5.5 1.5 5.5H4.5S6 14 6 10z"/><path d="M10 19a2 2 0 0 0 4 0"/></svg><span class="lbl">Richieste PT</span></a>
       <a href="#" data-page="mansionario"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 12h6M9 16h6M9 8h6"/><rect x="5" y="3" width="14" height="18" rx="2"/></svg><span class="lbl">Mansionario</span></a>
+      <a href="#" data-page="divise"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l-4.5 3L5 10h2v10h10V10h2l1.5-3L16 4l-2 2h-4z"/></svg><span class="lbl">Divise</span></a>
     </nav>
     <div class="club-block">
       <div class="label">Club</div>
@@ -1219,6 +1233,11 @@
                   <input type="number" id="orCollabOreComprese" placeholder="Ore/sett. comprese" min="0" step="0.5">
                   <input type="number" id="orCollabCompensoFisso" placeholder="Compenso fisso mensile (€, opzionale)" min="0" step="1">
                   <input type="number" id="orCollabSaldoApertura" placeholder="Saldo apertura (ore)" step="0.5">
+                  <select id="orCollabSesso" title="Serve per la pagina Divise (taglie distinte uomo/donna)">
+                    <option value="">Sesso — non specificato</option>
+                    <option value="uomo">Uomo</option>
+                    <option value="donna">Donna</option>
+                  </select>
                 </div>
                 <div class="mnt-add-row">
                   <label class="mnt-radio"><input type="checkbox" name="orCollabRuolo" value="sala"> Sala</label>
@@ -1449,6 +1468,31 @@
             </div>
             <div id="mansionarioResults"></div>
             <div class="mnsn-redacted-note">Per sicurezza, le password di accesso (WiFi, PC, posta, sistemi di pagamento, ecc.) non sono incluse in questa ricerca: sono disponibili solo nel documento completo su Drive, tramite "Modifica mansionario".</div>
+          </section>
+
+        </div>
+      </div>
+
+      <div class="page" data-page="divise" hidden>
+        <div class="col">
+
+          <section class="card" id="card-divise-collab">
+            <div class="hd">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 4l-4.5 3L5 10h2v10h10V10h2l1.5-3L16 4l-2 2h-4z"/></svg></span>
+              <h2>Divise — Collaboratori</h2>
+            </div>
+            <div class="sub" id="diviseClubLabel"></div>
+            <div class="mnt-empty" style="padding:0 0 12px;">Taglia consegnata per ciascun capo. Il "Sesso" (per la suddivisione qui sotto) si imposta in Orari &amp; Compensi → Collaboratori.</div>
+            <div id="diviseCollabGroups"></div>
+          </section>
+
+          <section class="card" id="card-divise-magazzino">
+            <div class="hd">
+              <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="7" width="18" height="13" rx="1.5"/><path d="M3 7l2-4h14l2 4"/><path d="M9 11v3M15 11v3"/></svg></span>
+              <h2>Divise — Magazzino</h2>
+            </div>
+            <div class="mnt-empty" style="padding:0 0 12px;">Inserisci la quantità in magazzino per taglia: "disponibili" si calcola da solo sottraendo le divise già consegnate ai collaboratori di questo club.</div>
+            <div id="diviseMagazzinoGrids"></div>
           </section>
 
         </div>
@@ -1762,7 +1806,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2605,6 +2649,137 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     }
   }
 
+  // ---------- Divise (18/11/2026, richiesta di Emanuele) ----------
+  // Due parti distinte: (1) per ogni collaboratore (letto da Orari & Compensi, la
+  // stessa fonte già usata ovunque — qui non si inserisce nulla di nuovo sui
+  // collaboratori, solo la taglia consegnata per capo) la taglia consegnata di
+  // ciascun capo, divisi Uomo/Donna; (2) il numero di divise in magazzino per
+  // club/capo/genere/taglia, con "disponibili" calcolato in automatico sottraendo
+  // le divise già risultano consegnate nella parte (1). "Sesso" vive sul record
+  // del collaboratore in Orari & Compensi (campo c.sesso): si imposta/modifica lì,
+  // non ha un suo controllo separato qui, per non avere due posti diversi dove
+  // aggiornare lo stesso dato.
+  var DIVISE_GARMENTS = [
+    { key: "poloPt", campo: "divisaPoloPt", label: "Polo PT" },
+    { key: "tshirtCoach", campo: "divisaTshirtCoach", label: "T-Shirt Coach" },
+    { key: "felpaCoach", campo: "divisaFelpaCoach", label: "Felpa Coach" }
+  ];
+  var DIVISE_TAGLIE = ["S", "M", "L", "XL"];
+  var DIVISE_GENERI = [
+    { key: "uomo", label: "Uomo" },
+    { key: "donna", label: "Donna" }
+  ];
+
+  function divStockKey_(garmentKey, genereKey, taglia){ return garmentKey + "|" + genereKey + "|" + taglia; }
+  function divStockMappaForClub_(club){
+    var rec = state.diviseMagazzino[club];
+    return (rec && rec.stock) || {};
+  }
+  function divStockGet(club, garmentKey, genereKey, taglia){
+    var v = divStockMappaForClub_(club)[divStockKey_(garmentKey, genereKey, taglia)];
+    return v != null ? v : 0;
+  }
+  function divStockSet(club, garmentKey, genereKey, taglia, valore){
+    var mappa = {};
+    var attuale = divStockMappaForClub_(club);
+    Object.keys(attuale).forEach(function(k){ mappa[k] = attuale[k]; });
+    mappa[divStockKey_(garmentKey, genereKey, taglia)] = valore;
+    state.diviseMagazzino[club] = { stock: mappa };
+    if (state.db) state.db.doc("diviseMagazzino/" + club).set({ stock: mappa }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  // Quante divise di un certo capo/genere/taglia sono già state consegnate ai
+  // collaboratori DI QUESTO CLUB — conta direttamente sui record di Orari &
+  // Compensi (orCollabiForClub), nessun doppio inserimento altrove.
+  function divConsegnateCount(club, garmentCampo, genereKey, taglia){
+    return orCollabiForClub(club).filter(function(c){
+      return c.sesso === genereKey && c[garmentCampo] === taglia;
+    }).length;
+  }
+
+  function renderDiviseCollaboratori_(){
+    var container = document.getElementById("diviseCollabGroups");
+    if (!container) return;
+    var club = state.club;
+    var tutti = orCollabiForClub(club);
+    var gruppi = [
+      { label: "Uomo", collab: tutti.filter(function(c){ return c.sesso === "uomo"; }) },
+      { label: "Donna", collab: tutti.filter(function(c){ return c.sesso === "donna"; }) },
+      { label: "Sesso da specificare — impostalo in Orari &amp; Compensi → Collaboratori", collab: tutti.filter(function(c){ return c.sesso !== "uomo" && c.sesso !== "donna"; }) }
+    ];
+    var html = gruppi.map(function(g){
+      if (!g.collab.length) return "";
+      var head = "<tr><th>Nome</th>" + DIVISE_GARMENTS.map(function(garment){ return "<th>" + garment.label + "</th>"; }).join("") + "</tr>";
+      var righe = g.collab.map(function(c){
+        var celle = DIVISE_GARMENTS.map(function(garment){
+          var attuale = c[garment.campo] || "";
+          var opzioni = '<option value="">—</option>' + DIVISE_TAGLIE.map(function(t){
+            return '<option value="' + t + '"' + (attuale === t ? " selected" : "") + '>' + t + '</option>';
+          }).join("");
+          return '<td><select data-div-collab="' + c.id + '" data-div-campo="' + garment.campo + '">' + opzioni + '</select></td>';
+        }).join("");
+        return '<tr><td>' + orEscapeHtml(c.nome || "") + '</td>' + celle + '</tr>';
+      }).join("");
+      return '<div class="div-group-label">' + g.label + ' <span class="div-group-count">(' + g.collab.length + ')</span></div>' +
+        '<div class="tbl-wrap"><table class="or-table div-collab-table">' + head + righe + '</table></div>';
+    }).join("");
+    container.innerHTML = html || '<div class="mnt-empty">Nessun collaboratore per questo club. Aggiungine uno in Orari &amp; Compensi.</div>';
+
+    Array.prototype.slice.call(container.querySelectorAll("[data-div-collab]")).forEach(function(sel){
+      sel.addEventListener("change", function(){
+        var full = orCollabId(club, sel.dataset.divCollab);
+        var c = state.orariCollaboratori[full];
+        if (!c) return;
+        c[sel.dataset.divCampo] = sel.value || null;
+        state.orariCollaboratori[full] = c;
+        if (state.db) state.db.doc("orariCollaboratori/" + full).set(c).then(hideDbSyncWarning).catch(notifyWriteFailed);
+        else showDbSyncWarning();
+        renderDiviseMagazzino_(); // "consegnate"/"disponibili" dipendono da questo dato
+      });
+    });
+  }
+
+  function renderDiviseMagazzino_(){
+    var container = document.getElementById("diviseMagazzinoGrids");
+    if (!container) return;
+    var club = state.club;
+    container.innerHTML = DIVISE_GARMENTS.map(function(garment){
+      var head = "<tr><th></th>" + DIVISE_TAGLIE.map(function(t){ return "<th>" + t + "</th>"; }).join("") + "</tr>";
+      var righe = DIVISE_GENERI.map(function(genere){
+        var celle = DIVISE_TAGLIE.map(function(taglia){
+          var inMagazzino = divStockGet(club, garment.key, genere.key, taglia);
+          var consegnate = divConsegnateCount(club, garment.campo, genere.key, taglia);
+          var disponibili = inMagazzino - consegnate;
+          var classeDisp = disponibili < 0 ? "div-disp-negativo" : "div-disp";
+          return '<td class="div-stock-cell">' +
+            '<input type="number" min="0" step="1" value="' + inMagazzino + '" data-div-stock="' + divStockKey_(garment.key, genere.key, taglia) + '">' +
+            '<div class="' + classeDisp + '">consegnate ' + consegnate + ' · disponibili <b>' + disponibili + '</b></div>' +
+          '</td>';
+        }).join("");
+        return '<tr><td class="div-genere-label">' + genere.label + '</td>' + celle + '</tr>';
+      }).join("");
+      return '<div class="div-group-label">' + garment.label + '</div>' +
+        '<div class="tbl-wrap"><table class="or-table div-stock-table">' + head + righe + '</table></div>';
+    }).join("");
+
+    Array.prototype.slice.call(container.querySelectorAll("[data-div-stock]")).forEach(function(inp){
+      inp.addEventListener("change", function(){
+        var parti = inp.dataset.divStock.split("|");
+        var val = parseInt(inp.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+        divStockSet(club, parti[0], parti[1], parti[2], val);
+        renderDiviseMagazzino_();
+      });
+    });
+  }
+
+  function renderDivise(){
+    var lbl = document.getElementById("diviseClubLabel");
+    if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
+    renderDiviseCollaboratori_();
+    renderDiviseMagazzino_();
+  }
+
 
   function todayISO(){ return new Date().toISOString().slice(0,10); }
   function daysBetween(iso){
@@ -2678,6 +2853,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     renderMansionario();
     renderPtReq();
     renderTaskHistoryViews_();
+    renderDivise();
   }
 
   // ---------- Coach in sala oggi ----------
@@ -4878,6 +5054,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     document.getElementById("orCollabTariffaLezioneCoreografata").value = c.tariffaLezioneCoreografata != null ? c.tariffaLezioneCoreografata : "";
     document.getElementById("orCollabTariffaLezioneReformer").value = c.tariffaLezioneReformer != null ? c.tariffaLezioneReformer : "";
     document.getElementById("orCollabTariffaDeskOra").value = c.tariffaDeskOra != null ? c.tariffaDeskOra : "";
+    document.getElementById("orCollabSesso").value = c.sesso || "";
     var ruoli = c.ruoli || [];
     Array.prototype.slice.call(document.querySelectorAll('input[name="orCollabRuolo"]')).forEach(function(cb){
       cb.checked = ruoli.indexOf(cb.value) !== -1;
@@ -4926,8 +5103,9 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (c.attivoDal) storicoBits.push("dal " + orFmtMonthLabel(c.attivoDal));
       if (c.attivoAl) storicoBits.push("al " + orFmtMonthLabel(c.attivoAl));
       var storicoNote = storicoBits.length ? ('<div class="or-month-note">Attivo ' + storicoBits.join(" ") + '</div>') : '';
+      var sessoTag = c.sesso ? (' <span class="or-sesso-tag">' + (c.sesso === "uomo" ? "U" : "D") + '</span>') : '';
       return '<tr>' +
-        '<td>' + (c.nome||"") + storicoNote + '</td>' +
+        '<td>' + (c.nome||"") + sessoTag + storicoNote + '</td>' +
         '<td>' + ruoliHtml + '</td>' +
         '<td>' + (c.oreComprese != null ? c.oreComprese : '—') + '</td>' +
         '<td>' + (c.tariffaLezione != null ? '€ '+c.tariffaLezione : '—') + '</td>' +
@@ -5016,7 +5194,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         tariffaLezioneReformer: numOrNull("orCollabTariffaLezioneReformer"),
         tariffaDeskOra: numOrNull("orCollabTariffaDeskOra"),
         compensoFisso: numOrNull("orCollabCompensoFisso"),
-        saldoApertura: numOrNull("orCollabSaldoApertura") || 0
+        saldoApertura: numOrNull("orCollabSaldoApertura") || 0,
+        sesso: document.getElementById("orCollabSesso").value || null
       };
 
       if (orCollabEditingId){
@@ -5055,10 +5234,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           tariffaDeskOra: campiModificabili.tariffaDeskOra,
           compensoFisso: campiModificabili.compensoFisso,
           saldoApertura: campiModificabili.saldoApertura,
+          sesso: campiModificabili.sesso,
           // Banca ore: continua dallo storico del record precedente, non riparte da zero.
           saldoRecupero: oldRec.saldoRecupero != null ? oldRec.saldoRecupero : null,
           saldoAggiornatoAl: oldRec.saldoAggiornatoAl != null ? oldRec.saldoAggiornatoAl : null,
           saldoStorico: oldRec.saldoStorico ? JSON.parse(JSON.stringify(oldRec.saldoStorico)) : {},
+          // Divise (18/11/2026): le taglie già consegnate non si perdono quando un
+          // cambio di ruolo/tariffa "spacca" il record in due, esattamente come il
+          // saldo ore qui sopra — una divisa resta consegnata a prescindere da quale
+          // record del collaboratore sia attivo in un certo mese.
+          divisaPoloPt: oldRec.divisaPoloPt || null,
+          divisaTshirtCoach: oldRec.divisaTshirtCoach || null,
+          divisaFelpaCoach: oldRec.divisaFelpaCoach || null,
           attivoDal: currentMonth, attivoAl: null
         };
         state.orariCollaboratori[oldFull] = oldRec;
@@ -5088,7 +5275,9 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         tariffaDeskOra: campiModificabili.tariffaDeskOra,
         compensoFisso: campiModificabili.compensoFisso,
         saldoApertura: campiModificabili.saldoApertura,
+        sesso: campiModificabili.sesso,
         saldoRecupero: null, saldoAggiornatoAl: null, saldoStorico: {},
+        divisaPoloPt: null, divisaTshirtCoach: null, divisaFelpaCoach: null,
         // Esiste da questo mese in avanti: non deve comparire nei mesi precedenti,
         // in cui non era ancora stato inserito.
         attivoDal: orSharedMonthKey(), attivoAl: null
@@ -7333,6 +7522,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           // Compensi deve riflettersi subito anche in Richieste PT (elenco PT,
           // dropdown "PT assegnato") — vedi ptReqAutoListForClub/ptReqListForClub.
           renderPtReq();
+          // 19/11/2026: Sesso e taglie divisa vivono sul record collaboratore
+          // (vedi nota su DIVISE_GARMENTS) — un cambio qui deve riflettersi
+          // subito nella pagina Divise (gruppi Uomo/Donna, conteggi consegnate).
+          renderDivise();
         });
         db.collection("orariPresenze").onSnapshot(function(snap){
           var seen = {};
@@ -7424,6 +7617,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           });
           Object.keys(state.mansionarioTesto).forEach(function(id){ if (!seen[id]) delete state.mansionarioTesto[id]; });
           renderMansionario();
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
+      try {
+        db.collection("diviseMagazzino").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.diviseMagazzino[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.diviseMagazzino).forEach(function(id){ if (!seen[id]) delete state.diviseMagazzino[id]; });
+          renderDivise();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
     })();
