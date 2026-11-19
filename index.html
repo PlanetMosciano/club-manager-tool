@@ -1815,7 +1815,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {}, appFlags: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2731,6 +2731,38 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       writes.push({ action: "set", key: "orariCollaboratori/" + full, value: c });
     });
     if (!writes.length) return;
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
+  }
+  // 19/11/2026: Emanuele ha verificato che i sessi dedotti automaticamente sono tutti
+  // corretti per tutti e 3 i club — "rendili ufficiali senza '?'". Toglie SOLO il flag
+  // sessoAuto (mai il valore di sesso in sé, che resta quello già dedotto) da ogni
+  // collaboratore marcato come dedotto: da qui in poi compaiono come impostati
+  // manualmente, senza il tag "?". Gira una volta sola (marcata con un documento in
+  // "appFlags", così un futuro collaboratore aggiunto più avanti e dedotto automaticamente
+  // dal nome MANTIENE il suo "?" da verificare — questa conferma riguarda solo il lotto di
+  // oggi, non disattiva la segnalazione d'incertezza per sempre).
+  var DIV_SESSO_CONFERMA_FLAG_ID = "sessoDedottoConfermato19nov2026";
+  function divConfermaSessiDedottiSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    if (state.appFlags[DIV_SESSO_CONFERMA_FLAG_ID]) return; // già fatto una volta: mai più
+    var daConfermare = Object.keys(state.orariCollaboratori).filter(function(full){
+      var c = state.orariCollaboratori[full];
+      return c && c.sessoAuto;
+    });
+    if (!daConfermare.length) return; // nulla da confermare in questo giro — non segna ancora il flag
+    var writes = [];
+    daConfermare.forEach(function(full){
+      var c = state.orariCollaboratori[full];
+      c.sessoAuto = false;
+      state.orariCollaboratori[full] = c;
+      writes.push({ action: "set", key: "orariCollaboratori/" + full, value: c });
+    });
+    var marcatore = { fatto: true, data: new Date().toISOString() };
+    state.appFlags[DIV_SESSO_CONFERMA_FLAG_ID] = marcatore;
+    writes.push({ action: "set", key: "appFlags/" + DIV_SESSO_CONFERMA_FLAG_ID, value: marcatore });
     if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
     state.db.batchWrite(writes).then(function(){
       if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
@@ -7788,6 +7820,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         });
       } catch(e) { /* no live updates available — local taps still work */ }
       try {
+        // Piccola collezione di marcatori "fatto una volta" per migrazioni one-shot che
+        // non devono mai ripetersi (es. divConfermaSessiDedottiSeServe_ qui sotto).
+        // Registrata PRIMA di orariCollaboratori così, nello stesso giro di refreshAll,
+        // state.appFlags è già popolato quando parte il controllo del flag.
+        db.collection("appFlags").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.appFlags[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.appFlags).forEach(function(id){ if (!seen[id]) delete state.appFlags[id]; });
+        });
+      } catch(e) { /* no live updates available — local taps still work */ }
+      try {
         db.collection("maintenance").onSnapshot(function(snap){
           var seen = {};
           (snap.docs || snap || []).forEach(function(d){
@@ -7819,6 +7866,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           // stato mostrato è già quello corretto (stesso ordine delle altre migrazioni
           // one-shot di questo file).
           orCollabDeduplicaSeServe_();
+          // divConfermaSessiDedottiSeServe_ PRIMA di divInferisciSessoSeServe_: così la
+          // conferma "una tantum" agisce solo sui sessoAuto:true già esistenti da prima
+          // (il lotto che Emanuele ha verificato), e non rischia di inglobare — nello
+          // stesso giro — un sessoAuto:true appena creato da una deduzione nuova.
+          divConfermaSessiDedottiSeServe_();
           divInferisciSessoSeServe_();
           renderOrari();
           renderKPI();
