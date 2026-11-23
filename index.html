@@ -2644,7 +2644,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     }).join("");
   }
 
-  function renderMansionario(){
+  function renderMansionario(resetSearch){
+    // resetSearch=true SOLO quando si cambia club davvero (selectClub): lì ha senso
+    // azzerare la ricerca. Questa funzione viene invocata anche dal refresh periodico
+    // in background (onSnapshot di mansionarioTesto, ogni REMOTE_DB_POLL_MS) che NON
+    // deve mai svuotare la casella di ricerca né i risultati che l'utente sta leggendo:
+    // prima lo faceva sempre, e la ricerca "scompariva" da sola ogni ~15s mentre si leggeva
+    // (bug segnalato dall'utente il 23/11/2026, mansionario Giulianova "distributore bevande").
     var lbl = document.getElementById("mansionarioClubLabel");
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
     var link = document.getElementById("mansionarioEditLink");
@@ -2663,8 +2669,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         noteEl.textContent = "";
       }
     }
-    var queryEl = document.getElementById("mansionarioQuery");
-    if (queryEl) queryEl.value = "";
+    if (resetSearch){
+      var queryEl = document.getElementById("mansionarioQuery");
+      if (queryEl) queryEl.value = "";
+    }
     orMansionarioRenderResults();
   }
 
@@ -3114,7 +3122,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     renderMaintenance();
     renderMntUpcoming();
     renderOrari();
-    renderMansionario();
+    renderMansionario(true);
     renderPtReq();
     renderTaskHistoryViews_();
     renderDivise();
