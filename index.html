@@ -767,6 +767,21 @@
               </div>
             </section>
 
+            <section class="card" id="card-block-note">
+              <div class="hd">
+                <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></span>
+                <h2>Block Note</h2>
+              </div>
+              <div class="sub">Appunti veloci per mansioni volanti o cose da fare una tantum — visibili a tutti i Club Manager di questo club, spuntale quando fatte.</div>
+              <div class="card-body">
+                <form id="blockNoteForm" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:10px;">
+                  <input type="text" id="blockNoteText" placeholder="Es. chiamare il tecnico per il condizionatore" maxlength="200" required style="flex:1 1 220px; min-width:0; font:inherit; font-size:13.5px; padding:7px 10px; border:1px solid var(--line); border-radius:8px; background:var(--surface); color:var(--ink);">
+                  <button type="submit" style="font:inherit; font-size:13.5px; font-weight:700; padding:7px 14px; border-radius:8px; border:1px solid var(--teal-deep); background:var(--teal-deep); color:#fff; cursor:pointer;">Aggiungi</button>
+                </form>
+                <div id="blockNoteList"></div>
+              </div>
+            </section>
+
             <section class="card" id="card-segnalazioni-operation">
               <div class="hd">
                 <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 9v4M12 16.5h.01"/><path d="M10.3 3.9L2.9 17a2 2 0 0 0 1.7 3h14.8a2 2 0 0 0 1.7-3L13.7 3.9a2 2 0 0 0-3.4 0z"/></svg></span>
@@ -1864,7 +1879,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, ptListEntries: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {}, diviseStockEntries: {}, credenziali: {}, appFlags: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, ptListEntries: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {}, diviseStockEntries: {}, credenziali: {}, blockNote: {}, appFlags: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2947,6 +2962,46 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
     }).catch(function(){});
   }
+  // 26/11/2026 — richiesta esplicita di Emanuele: "mi ricarichi i magazzini che ti avevo
+  // condiviso di roseto e giulianova, mentre a mosciano il magazzino metti tutto a zero".
+  // A differenza del seed sopra (che scrive solo celle VUOTE), questa è una ricarica
+  // esplicita: SOVRASCRIVE sempre, anche celle già modificate nel frattempo dall'auto-
+  // decremento, riportando Giulianova e Roseto ai valori reali comunicati il 19/11/2026
+  // (DIVISE_MAGAZZINO_SEED_ sopra) e azzerando TUTTE le 24 celle (3 capi × 2 generi × 4
+  // taglie) di Mosciano, che non ha mai avuto un dato reale comunicato. Gira UNA SOLA VOLTA
+  // (flag in appFlags, stesso principio delle altre migrazioni una tantum in questo file):
+  // da qui in poi i numeri sono di nuovo quelli reali e l'auto-decremento riprende a
+  // scalarli normalmente dalle assegnazioni taglia successive.
+  var DIV_MAGAZZINO_RICARICA_FLAG_ID = "diviseMagazzinoRicaricatoGiuRosetoAzzeraMosciano26nov2026";
+  function divMagazzinoRicaricaSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    if (state.appFlags[DIV_MAGAZZINO_RICARICA_FLAG_ID]) return;
+    var writes = [];
+    function setCella(club, chiave, valore){
+      var idKey = club + "__" + chiave;
+      var value = { valore: valore };
+      state.diviseStockEntries[idKey] = value;
+      writes.push({ action: "set", key: "diviseStock/" + idKey, value: value });
+    }
+    ["giulianova", "roseto"].forEach(function(club){
+      var stock = DIVISE_MAGAZZINO_SEED_[club];
+      Object.keys(stock).forEach(function(chiave){ setCella(club, chiave, stock[chiave]); });
+    });
+    DIVISE_GARMENTS.forEach(function(garment){
+      DIVISE_GENERI.forEach(function(genere){
+        DIVISE_TAGLIE.forEach(function(taglia){
+          setCella("mosciano", divStockKey_(garment.key, genere.key, taglia), 0);
+        });
+      });
+    });
+    var marcatore = { fatto: true, data: new Date().toISOString() };
+    state.appFlags[DIV_MAGAZZINO_RICARICA_FLAG_ID] = marcatore;
+    writes.push({ action: "set", key: "appFlags/" + DIV_MAGAZZINO_RICARICA_FLAG_ID, value: marcatore });
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
+  }
   // 19/11/2026 (richiesta esplicita di Emanuele: "non voglio che per ogni capo segno
   // solo la taglia, ma anche la quantità consegnata a quel collaboratore") — ogni capo
   // su un collaboratore non è più una semplice taglia (stringa), ma {taglia, qty}: taglia
@@ -3373,6 +3428,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (mntSearchEl) mntSearchEl.value = "";
     renderClubSwitcher();
     renderCmReports();
+    renderBlockNote();
     renderPeople();
     renderKPI();
     renderTasks();
@@ -3532,6 +3588,103 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var text = input.value.trim();
       if (!text) return;
       addCmReport(text);
+      input.value = "";
+      input.focus();
+    });
+  }
+
+  // 26/11/2026 — richiesto dai CM ("vorremmo un Block Note dove appuntarsi mansioni
+  // volanti e cose da fare una tantum, invece di usare le note del telefono"): stesso
+  // schema di cmReports sopra (un documento per nota, condiviso per club — tutti i CM
+  // dello stesso club vedono le stesse note, utile per passare appunti tra un turno e
+  // l'altro), con una differenza: qui la nota ha una spunta "fatto" (resta visibile,
+  // barrata) invece di sparire o passare a "in attesa/risolta" come le segnalazioni a
+  // Operation — l'eliminazione resta sempre manuale (bottone ×), fatta o no.
+  function renderBlockNote(){
+    var list = document.getElementById("blockNoteList");
+    if (!list) return;
+    var items = Object.keys(state.blockNote).map(function(id){
+      var n = state.blockNote[id];
+      return n ? { id: id, club: n.club, text: n.text, createdAt: n.createdAt, done: !!n.done, doneAt: n.doneAt } : null;
+    }).filter(function(n){ return n && n.club === state.club; });
+    // Da fare prima (più vecchie in cima, cosi' niente si dimentica), fatte dopo
+    // (più recenti in cima tra quelle).
+    items.sort(function(a, b){
+      if (a.done !== b.done) return a.done ? 1 : -1;
+      if (!a.done) return a.createdAt < b.createdAt ? -1 : (a.createdAt > b.createdAt ? 1 : 0);
+      return a.createdAt < b.createdAt ? 1 : (a.createdAt > b.createdAt ? -1 : 0);
+    });
+    list.innerHTML = "";
+    if (!items.length){
+      var empty = document.createElement("div");
+      empty.className = "sub";
+      empty.textContent = "Nessun appunto. Aggiungine uno qui sotto.";
+      list.appendChild(empty);
+      return;
+    }
+    items.forEach(function(n){
+      var row = document.createElement("div");
+      row.className = "task";
+      var dateLabel = n.createdAt;
+      try { dateLabel = new Date(n.createdAt + "T00:00:00").toLocaleDateString("it-IT", { day:"numeric", month:"long" }); } catch(e){}
+      row.innerHTML =
+        '<input type="checkbox" '+(n.done ? "checked" : "")+'>' +
+        '<div style="min-width:0;"><div class="t-title"></div><div class="t-meta"></div></div>' +
+        '<div class="task-right"><button type="button" class="custom-remove" title="Elimina questo appunto">×</button></div>';
+      var titleEl = row.querySelector(".t-title");
+      titleEl.textContent = n.text;
+      if (n.done) titleEl.style.cssText = "text-decoration:line-through; color:var(--ink-dim);";
+      row.querySelector(".t-meta").textContent = "Aggiunto il " + dateLabel;
+      row.querySelector("input").addEventListener("change", function(e){ toggleBlockNoteDone(n.id, e.target.checked); });
+      row.querySelector(".custom-remove").addEventListener("click", function(){ removeBlockNote(n.id); });
+      list.appendChild(row);
+    });
+  }
+
+  function addBlockNote(text){
+    var id = "n" + Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+    var data = { club: state.club, text: text, createdAt: todayISO(), done: false, doneAt: null };
+    state.blockNote[id] = data;
+    renderBlockNote();
+    if (state.db) {
+      state.db.doc("blockNote/" + id).set(data).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function removeBlockNote(id){
+    delete state.blockNote[id];
+    renderBlockNote();
+    if (state.db) {
+      state.db.doc("blockNote/" + id).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function toggleBlockNoteDone(id, done){
+    var n = state.blockNote[id];
+    if (!n) return;
+    n.done = !!done;
+    n.doneAt = done ? todayISO() : null;
+    renderBlockNote();
+    if (state.db) {
+      state.db.doc("blockNote/" + id).set(n).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    } else {
+      showDbSyncWarning();
+    }
+  }
+
+  function initBlockNoteForm(){
+    var form = document.getElementById("blockNoteForm");
+    if (!form) return;
+    form.addEventListener("submit", function(e){
+      e.preventDefault();
+      var input = document.getElementById("blockNoteText");
+      var text = input.value.trim();
+      if (!text) return;
+      addBlockNote(text);
       input.value = "";
       input.focus();
     });
@@ -8481,6 +8634,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           renderCmReports();
           renderOperation();
         });
+        db.collection("blockNote").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.blockNote[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.blockNote).forEach(function(id){ if (!seen[id]) delete state.blockNote[id]; });
+          renderBlockNote();
+        });
       } catch(e) { /* no live updates available — local taps still work */ }
       try {
         // Piccola collezione di marcatori "fatto una volta" per migrazioni one-shot che
@@ -8671,6 +8834,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           Object.keys(state.diviseStockEntries).forEach(function(id){ if (!seen[id]) delete state.diviseStockEntries[id]; });
           divMagazzinoMigraVecchioFormatoSeServe_();
           divMagazzinoSeedIfEmpty_();
+          divMagazzinoRicaricaSeServe_();
           renderDivise();
         });
         db.collection("credenziali").onSnapshot(function(snap){
@@ -8762,6 +8926,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     initMoreContactsToggle();
     initCustomTaskForm();
     initCmReportForm();
+    initBlockNoteForm();
     initUpcomingToggle();
     initMntToolbar();
     initMntAddForm();
