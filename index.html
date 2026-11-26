@@ -387,6 +387,14 @@
   .ptlist-row button[data-del-pt]{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:15px; padding:2px 6px; flex:0 0 auto; }
   .ptlist-row button[data-del-pt]:hover{ color:var(--warn); }
   .ptlist-auto-tag{ font-size:10.5px; font-weight:700; letter-spacing:.02em; padding:3px 9px; border-radius:999px; background:rgba(47,107,122,.13); color:var(--teal-deep); white-space:nowrap; flex:0 0 auto; }
+  .cred-row{ display:flex; align-items:center; gap:8px; padding:8px 10px; border:1px solid var(--line); border-radius:9px; margin-bottom:7px; background:var(--surface); flex-wrap:wrap; }
+  .cred-row .cred-servizio{ flex:1 1 150px; font-weight:700; font-size:13px; }
+  .cred-row input{ font:inherit; font-size:12.5px; padding:6px 8px; border:1px solid var(--line); border-radius:6px; background:var(--bg); color:var(--ink); }
+  .cred-row .cred-utente{ flex:1 1 150px; min-width:110px; }
+  .cred-row .cred-password{ flex:1 1 130px; min-width:110px; font-variant-numeric:tabular-nums; }
+  .cred-row .cred-nota{ flex:2 1 180px; min-width:140px; }
+  .cred-row .cred-del-btn{ background:none; border:none; color:var(--ink-dim); cursor:pointer; font-size:15px; padding:2px 6px; flex:0 0 auto; }
+  .cred-row .cred-del-btn:hover{ color:var(--warn); }
   .mnt-track-btn{ font:inherit; font-size:11px; font-weight:700; padding:5px 9px; border-radius:7px; border:1px solid var(--teal-deep); background:transparent; color:var(--teal-deep); cursor:pointer; white-space:nowrap; }
   .mnt-track-btn:hover{ background: rgba(41,78,97,.08); }
   .mnt-track-btn:disabled{ opacity:.5; cursor:default; }
@@ -475,7 +483,10 @@
   .div-stock-table th:first-child, .div-stock-table td.div-genere-label{ text-align:left; }
   .div-genere-label{ font-weight:700; white-space:nowrap; }
   .div-stock-cell{ min-width:110px; }
-  .div-stock-cell input{ width:64px; font:inherit; font-size:13px; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); text-align:center; font-variant-numeric:tabular-nums; }
+  .div-stock-cell input{ width:64px; font:inherit; font-size:13px; font-weight:700; padding:5px 7px; border:1px solid var(--line); border-radius:6px; background:var(--surface); color:var(--ink); text-align:center; font-variant-numeric:tabular-nums; }
+  /* 26/11/2026: il numero "in magazzino" è ora il numero più evidente e scala da solo —
+     evidenziato quando arriva a 0 (o sotto), soglia per il riordino (Emanuele, 26/11/2026). */
+  .div-stock-cell input.div-stock-zero{ color:var(--warn); border-color:var(--warn); }
   .div-disp, .div-disp-negativo{ font-size:10.5px; color:var(--ink-dim); margin-top:4px; font-variant-numeric:tabular-nums; }
   .div-disp-negativo{ color:var(--warn); font-weight:700; }
   .div-disp-negativo b, .div-disp b{ font-size:12px; }
@@ -1172,6 +1183,7 @@
             <div class="hd">
               <span class="icon-badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.4"/><path d="M15.5 14.2c2.3.4 4 2.4 4.5 5.8"/></svg></span>
               <h2>Persone e contatti</h2>
+              <button type="button" class="more-btn" id="credenzialiToggleBtn" style="margin-left:auto;" aria-expanded="false" title="Mostra/nascondi le password del club">🔒 Password</button>
             </div>
             <div class="sub" id="peopleClubLabel"></div>
             <div class="card-body tbl-wrap">
@@ -1183,6 +1195,21 @@
               <div style="margin-top:10px;">
                 <div class="sub" style="margin-bottom:6px;">Personal Trainer attivi</div>
                 <div class="pill-row" id="ptPills"></div>
+              </div>
+              <div id="credenzialiPanel" hidden style="margin-top:14px; border-top:1px solid var(--line); padding-top:12px;">
+                <div class="sub" style="margin-bottom:6px;">Password e accessi del club — Wi-Fi, PC, sistemi di pagamento, email, ecc. Visibili solo qui, premendo il tasto sopra.</div>
+                <div id="credenzialiList"></div>
+                <form class="mnt-add-form" id="credenzialiAddForm" onsubmit="return false;">
+                  <div class="mnt-add-row">
+                    <input type="text" id="credenzialiServizioInput" placeholder="Servizio (es. Wi-Fi, PagoLight, Email)" maxlength="80">
+                    <input type="text" id="credenzialiUtenteInput" placeholder="Utente/account (opzionale)" maxlength="120">
+                  </div>
+                  <div class="mnt-add-row">
+                    <input type="text" id="credenzialiPasswordInput" placeholder="Password" maxlength="120">
+                    <input type="text" id="credenzialiNotaInput" placeholder="Nota (opzionale)" maxlength="200">
+                    <button type="button" id="credenzialiAddBtn">Aggiungi</button>
+                  </div>
+                </form>
               </div>
             </div>
           </section>
@@ -1837,7 +1864,7 @@
   ];
   var ptReqSeedDone = false;
 
-  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {}, appFlags: {} };
+  var state = { club: null, db: null, user: null, tasks: {}, taskHistory: {}, customTasks: {}, customRecurringTasks: {}, operationKpi: {}, ptRequests: {}, ptList: {}, ptListEntries: {}, flags: {}, coachOggiAuto: {}, cmReports: {}, maintenance: {}, orariCollaboratori: {}, orariPresenze: {}, orariCorsi: {}, orariDesk: {}, orariPT: {}, orariPtPilates: {}, orariSettings: {}, orariQuotaManuale: {}, orariBonus: {}, mansionarioTesto: {}, diviseMagazzino: {}, diviseStockEntries: {}, credenziali: {}, appFlags: {} };
   var orariActiveTab = "collaboratori";
   // Id del collaboratore in corso di modifica tramite la matita (null = modulo in
   // modalità "aggiungi nuovo"). Vedi orBeginEditCollab/orCancelEditCollab e il ramo
@@ -2800,25 +2827,73 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   }
 
   function divStockKey_(garmentKey, genereKey, taglia){ return garmentKey + "|" + genereKey + "|" + taglia; }
-  function divStockMappaForClub_(club){
-    var rec = state.diviseMagazzino[club];
-    return (rec && rec.stock) || {};
-  }
+  // 26/11/2026: lo stock era un unico documento per club (diviseMagazzino/<club>, con
+  // dentro la mappa di TUTTE le celle) — lo stesso anti-pattern "un blob condiviso" già
+  // corretto altrove in questo file (vedi note tecniche nel progetto). Da quando il numero
+  // scala in automatico a ogni consegna assegnata (richiesta di Emanuele, 26/11/2026), ogni
+  // assegnazione scriverebbe sull'intero foglio del club: due CM che assegnano capi a
+  // collaboratori diversi nello stesso momento si cancellerebbero a vicenda. Migrato a un
+  // documento per singola cella: collezione "diviseStock", chiave
+  // "<club>__<capo>|<genere>|<taglia>" (vedi divMagazzinoMigraVecchioFormatoSeServe_ per la
+  // migrazione una tantum dal vecchio formato). Resta comunque un "leggi il valore e
+  // riscrivilo" lato client (non un incremento atomico lato server): il rischio di
+  // sovrascrittura reciproca è ridotto alla singola cella (stesso capo+genere+taglia
+  // modificati nello stesso istante da due dispositivi — caso raro), non eliminato del
+  // tutto. Annotato nelle note tecniche del progetto.
+  function divStockDocId_(club, garmentKey, genereKey, taglia){ return club + "__" + divStockKey_(garmentKey, genereKey, taglia); }
   function divStockGet(club, garmentKey, genereKey, taglia){
-    var v = divStockMappaForClub_(club)[divStockKey_(garmentKey, genereKey, taglia)];
-    return v != null ? v : 0;
+    var rec = state.diviseStockEntries[divStockDocId_(club, garmentKey, genereKey, taglia)];
+    return (rec && rec.valore != null) ? rec.valore : 0;
   }
-  function divStockSet(club, garmentKey, genereKey, taglia, valore){
-    var mappa = {};
-    var attuale = divStockMappaForClub_(club);
-    Object.keys(attuale).forEach(function(k){ mappa[k] = attuale[k]; });
-    mappa[divStockKey_(garmentKey, genereKey, taglia)] = valore;
-    state.diviseMagazzino[club] = { stock: mappa };
-    if (state.db) state.db.doc("diviseMagazzino/" + club).set({ stock: mappa }).then(hideDbSyncWarning).catch(notifyWriteFailed);
+  function divStockSetAbs_(club, garmentKey, genereKey, taglia, valore){
+    var idKey = divStockDocId_(club, garmentKey, genereKey, taglia);
+    var value = { valore: valore };
+    state.diviseStockEntries[idKey] = value;
+    if (state.db) state.db.doc("diviseStock/" + idKey).set(value).then(hideDbSyncWarning).catch(notifyWriteFailed);
     else showDbSyncWarning();
   }
+  function divStockSet(club, garmentKey, genereKey, taglia, valore){ divStockSetAbs_(club, garmentKey, genereKey, taglia, valore); }
+  // 26/11/2026 (richiesta esplicita di Emanuele: "voglio che scendano [i numeri di
+  // magazzino] in automatico sì... quando quello scende a 0 si ordinerà"): usata da
+  // salva() in renderDiviseCollaboratori_ per restituire/consumare stock quando cambia una
+  // consegna con taglia nota.
+  function divStockAdjust_(club, garmentKey, genereKey, taglia, delta){
+    if (!delta) return;
+    var attuale = divStockGet(club, garmentKey, genereKey, taglia);
+    divStockSetAbs_(club, garmentKey, genereKey, taglia, attuale + delta);
+  }
+  // Migrazione una tantum dal vecchio formato "un documento per club" (diviseMagazzino/
+  // <club>, con dentro {stock:{...}}) al nuovo "un documento per cella" (diviseStock/
+  // <club>__<chiave>) — stesso schema/cautele di ptListMigraVecchioFormatoSeServe_: non
+  // sovrascrive mai una cella già migrata o già presente con un dato più recente.
+  var divMagazzinoMigrazioneInCorso = {};
+  function divMagazzinoMigraVecchioFormatoSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    CLUB_ORDER.forEach(function(club){
+      if (divMagazzinoMigrazioneInCorso[club]) return;
+      var raw = state.diviseMagazzino[club];
+      if (!raw || !raw.stock) return; // niente da migrare in questo club
+      divMagazzinoMigrazioneInCorso[club] = true;
+      var writes = [];
+      Object.keys(raw.stock).forEach(function(key){
+        var idKey = club + "__" + key;
+        if (state.diviseStockEntries[idKey]) return; // già migrata/presente: non sovrascrivere
+        var value = { valore: raw.stock[key] };
+        state.diviseStockEntries[idKey] = value;
+        writes.push({ action: "set", key: "diviseStock/" + idKey, value: value });
+      });
+      delete state.diviseMagazzino[club];
+      writes.push({ action: "delete", key: "diviseMagazzino/" + club });
+      if (state.db.primeCache){
+        writes.forEach(function(w){ if (w.action === "set") state.db.primeCache(w.key, w.value); });
+      }
+      state.db.batchWrite(writes).then(function(){
+        if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+      }).catch(function(){});
+    });
+  }
   // Giacenza di magazzino comunicata da Emanuele il 19/11/2026 per Giulianova — scritta
-  // una sola volta se per quel club non esiste ancora nessun documento diviseMagazzino
+  // una sola volta se per quella cella non esiste ancora nessun documento diviseStock
   // (stesso principio "seed if empty" già usato per mntSeedIfEmpty/ptReqSeedIfEmpty): non
   // sovrascrive mai dati già presenti o modificati in seguito dal CM.
   var DIVISE_MAGAZZINO_SEED_ = {
@@ -2855,13 +2930,22 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   };
   function divMagazzinoSeedIfEmpty_(){
     if (!orFirstDbLoadDone || !state.db) return;
+    var writes = [];
     Object.keys(DIVISE_MAGAZZINO_SEED_).forEach(function(club){
-      if (state.diviseMagazzino[club]) return; // già presente (dato reale o già seminato): non toccare
       var stock = DIVISE_MAGAZZINO_SEED_[club];
-      state.diviseMagazzino[club] = { stock: stock };
-      if (state.db.primeCache) state.db.primeCache("diviseMagazzino/" + club, { stock: stock });
-      state.db.doc("diviseMagazzino/" + club).set({ stock: stock }).catch(function(){});
+      Object.keys(stock).forEach(function(key){
+        var idKey = club + "__" + key;
+        if (state.diviseStockEntries[idKey]) return; // già presente (dato reale o già seminato): non toccare
+        var value = { valore: stock[key] };
+        state.diviseStockEntries[idKey] = value;
+        writes.push({ action: "set", key: "diviseStock/" + idKey, value: value });
+      });
     });
+    if (!writes.length) return;
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
   }
   // 19/11/2026 (richiesta esplicita di Emanuele: "non voglio che per ogni capo segno
   // solo la taglia, ma anche la quantità consegnata a quel collaboratore") — ogni capo
@@ -2880,6 +2964,45 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (raw && typeof raw === "object") return { taglia: raw.taglia || "", qty: raw.qty != null ? raw.qty : 0 };
     if (typeof raw === "string" && raw) return { taglia: raw, qty: garment.qty }; // formato precedente: solo taglia
     return { taglia: "", qty: 0 };
+  }
+  // 26/11/2026 (richiesta esplicita di Emanuele): tutti i collaboratori già presenti, in
+  // tutti e 3 i club, devono risultare da subito come già consegnati dello standard 3 Polo
+  // PT + 3 T-Shirt Coach + 1 Felpa Coach — la taglia non è ancora nota, verrà assegnata in
+  // seguito dal CM ("poi noi inseriamo la taglia e in futuro aggiorniamo con nuove
+  // consegne"): il campo quantità resta modificabile anche senza una taglia scelta, vedi
+  // renderDiviseCollaboratori_ più sotto. Gira UNA SOLA VOLTA (flag in appFlags, stesso
+  // principio di divConfermaSessiDedottiSeServe_ qui sopra): dopo questo giro, un capo
+  // lasciato vuoto di proposito da un CM (es. azzerato togliendo la taglia) NON viene più
+  // riseminato — altrimenti si ricadrebbe nello stesso tipo di bug "un refresh di sfondo
+  // cancella una modifica reale" già risolto altrove in questo file.
+  var DIV_CONSEGNE_DEFAULT_SEED_FLAG_ID = "diviseConsegneDefaultSeminate26nov2026";
+  function divCollabGarmentConsegneDefaultSeedIfEmpty_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    if (state.appFlags[DIV_CONSEGNE_DEFAULT_SEED_FLAG_ID]) return; // già fatto una volta: mai più
+    var collaboratori = Object.keys(state.orariCollaboratori);
+    if (!collaboratori.length) return; // dati non ancora arrivati in questo giro: riprova al prossimo poll, senza segnare il flag
+    var writes = [];
+    collaboratori.forEach(function(full){
+      var c = state.orariCollaboratori[full];
+      if (!c) return;
+      var cambiato = false;
+      DIVISE_GARMENTS.forEach(function(garment){
+        if (c[garment.campo] != null) return; // già impostato (anche solo quantità, o già con taglia): non toccare
+        c[garment.campo] = { taglia: "", qty: garment.qty };
+        cambiato = true;
+      });
+      if (cambiato){
+        state.orariCollaboratori[full] = c;
+        writes.push({ action: "set", key: "orariCollaboratori/" + full, value: c });
+      }
+    });
+    var marcatore = { fatto: true, data: new Date().toISOString() };
+    state.appFlags[DIV_CONSEGNE_DEFAULT_SEED_FLAG_ID] = marcatore;
+    writes.push({ action: "set", key: "appFlags/" + DIV_CONSEGNE_DEFAULT_SEED_FLAG_ID, value: marcatore });
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
   }
   // Quante PERSONE di un certo capo/genere/taglia risultano servite — conta
   // direttamente sui record di Orari & Compensi (orCollabiForClub), nessun doppio
@@ -2902,10 +3025,32 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
     return totale;
   }
+  // 26/11/2026: quanti capi di questo garment risultano consegnati ma SENZA ancora una
+  // taglia assegnata (es. il seed di default 3/3/1, o una consegna registrata prima di
+  // sapere la taglia) — informativo, non entra in nessun conteggio "disponibili" per
+  // taglia finché la taglia non viene assegnata (coerente con "le quantità attuali del
+  // magazzino rimangano tali per il momento").
+  function divPezziInAttesaTagliaCount(club, garment){
+    var totale = 0, persone = 0;
+    orCollabiForClub(club).forEach(function(c){
+      var v = divCollabGarmentValue_(c, garment);
+      if (v.taglia || !v.qty) return;
+      totale += v.qty;
+      persone++;
+    });
+    return { totale: totale, persone: persone };
+  }
 
-  function renderDiviseCollaboratori_(){
+  function renderDiviseCollaboratori_(force){
     var container = document.getElementById("diviseCollabGroups");
     if (!container) return;
+    // 26/11/2026: un refresh di sfondo (poll periodico ogni 15s, o un aggiornamento da un
+    // altro dispositivo) non deve MAI ricostruire questa tabella mentre il CM ha il focus
+    // su un campo al suo interno — altrimenti cancella quello che sta scrivendo in quel
+    // momento (bug "scrivo e si cancella" segnalato da Emanuele il 26/11/2026, stessa causa
+    // già corretta per Mansionario il 23/11/2026). force=true bypassa il controllo solo per
+    // il ri-render che il nostro STESSO salvataggio innesca subito dopo (vedi salva()).
+    if (!force && container.contains(document.activeElement)) return;
     var club = state.club;
     var tutti = orCollabiForClub(club);
     var gruppi = [
@@ -2922,10 +3067,15 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           var opzioni = '<option value="">—</option>' + DIVISE_TAGLIE.map(function(t){
             return '<option value="' + t + '"' + (v.taglia === t ? " selected" : "") + '>' + t + '</option>';
           }).join("");
-          var qtyAttr = v.taglia ? ('value="' + v.qty + '"') : 'value="" disabled';
-          return '<td class="div-collab-cell" data-div-cell="' + c.id + '|' + garment.campo + '">' +
+          // 26/11/2026: il campo quantità NON è più disabilitato in assenza di taglia —
+          // Emanuele vuole poter registrare "già consegnato" prima ancora di sapere la
+          // taglia (assegnata in un secondo momento) — vedi salva() più sotto.
+          var tagliaDaAssegnare = v.qty > 0 && !v.taglia;
+          var qtyAttr = 'value="' + v.qty + '"';
+          return '<td class="div-collab-cell' + (tagliaDaAssegnare ? ' div-taglia-da-assegnare' : '') + '" data-div-cell="' + c.id + '|' + garment.campo + '">' +
             '<select class="div-div-taglia">' + opzioni + '</select>' +
             '<input class="div-div-qty" type="number" min="0" step="1" placeholder="n." title="Quantità consegnata di questa taglia" ' + qtyAttr + '>' +
+            (tagliaDaAssegnare ? '<div class="div-taglia-hint" style="font-size:11px;color:#8a6d00;margin-top:2px;">taglia da assegnare</div>' : '') +
           '</td>';
         }).join("");
         var dedottoTag = c.sessoAuto ? ' <span class="or-sesso-tag" title="Sesso dedotto automaticamente dal nome — verifica in Orari &amp; Compensi">?</span>' : '';
@@ -2946,52 +3096,85 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         var full = orCollabId(club, collabId);
         var c = state.orariCollaboratori[full];
         if (!c) return;
+        var vPrima = divCollabGarmentValue_(c, garment);
         var taglia = selTaglia.value;
-        if (!taglia){
+        var qty = parseInt(inpQty.value, 10);
+        if (isNaN(qty) || qty < 0) qty = 0;
+        // 26/11/2026: questo ramo cancellava SEMPRE il capo (c[campo] = null) quando non
+        // c'era ancora una taglia — anche se nel frattempo era stata scritta una quantità:
+        // era il bug concreto dietro "scrivo [la quantità] e si cancella" segnalato da
+        // Emanuele (il salvataggio della sola quantità, senza taglia, veniva subito
+        // azzerato). Ora si azzera il capo SOLO se non c'è né taglia né quantità;
+        // altrimenti si salva sempre {taglia, qty} — anche con taglia vuota, per
+        // registrare "consegnato, taglia da assegnare in seguito".
+        if (!taglia && !qty){
           c[campo] = null;
         } else {
-          var qty = parseInt(inpQty.value, 10);
-          if (isNaN(qty) || qty < 0) qty = 0;
           c[campo] = { taglia: taglia, qty: qty };
         }
         state.orariCollaboratori[full] = c;
         if (state.db) state.db.doc("orariCollaboratori/" + full).set(c).then(hideDbSyncWarning).catch(notifyWriteFailed);
         else showDbSyncWarning();
-        renderDiviseCollaboratori_(); // riabilita/disabilita il campo quantità in base alla taglia
-        renderDiviseMagazzino_(); // "consegnate"/"disponibili" dipendono da questo dato
+        // 26/11/2026 (richiesta esplicita di Emanuele: "voglio che scendano [i numeri di
+        // magazzino] in automatico sì"): restituisce la vecchia taglia (se c'era) e
+        // consuma la nuova (se c'è) — serve un genere noto (c.sesso), altrimenti questo
+        // collaboratore non è già contato in nessuna cella di magazzino (vedi
+        // divCollabServitiCount/divPezziConsegnatiCount) e lo stock non va toccato.
+        if (c.sesso === "uomo" || c.sesso === "donna"){
+          if (vPrima.taglia) divStockAdjust_(club, garment.key, c.sesso, vPrima.taglia, vPrima.qty);
+          var dopo = divCollabGarmentValue_(c, garment);
+          if (dopo.taglia) divStockAdjust_(club, garment.key, c.sesso, dopo.taglia, -dopo.qty);
+        }
+        renderDiviseCollaboratori_(true); // forza: è il nostro stesso salvataggio, non un refresh di sfondo
+        renderDiviseMagazzino_(true); // il numero in magazzino dipende da questo dato
       }
       selTaglia.addEventListener("change", function(){
-        // alla prima assegnazione di una taglia, precompila la quantità con lo standard
-        // del capo (3 Polo PT/T-Shirt Coach, 1 Felpa Coach) — resta comunque modificabile.
-        if (selTaglia.value && !inpQty.value) inpQty.value = garment ? garment.qty : 1;
+        // alla prima assegnazione di una taglia, se la quantità è ancora vuota/zero,
+        // precompila con lo standard del capo (3 Polo PT/T-Shirt Coach, 1 Felpa Coach) —
+        // resta comunque modificabile. Una quantità già presente (es. dal seed di default,
+        // o inserita prima di scegliere la taglia) NON viene sovrascritta.
+        if (selTaglia.value && (!inpQty.value || inpQty.value === "0")) inpQty.value = garment ? garment.qty : 1;
         salva();
       });
       inpQty.addEventListener("change", salva);
     });
   }
 
-  function renderDiviseMagazzino_(){
+  function renderDiviseMagazzino_(force){
     var container = document.getElementById("diviseMagazzinoGrids");
     if (!container) return;
+    // Stesso motivo del controllo in renderDiviseCollaboratori_ qui sopra: non ricostruire
+    // mentre il CM sta scrivendo un numero di magazzino non ancora confermato.
+    if (!force && container.contains(document.activeElement)) return;
     var club = state.club;
     container.innerHTML = DIVISE_GARMENTS.map(function(garment){
       var head = "<tr><th></th>" + DIVISE_TAGLIE.map(function(t){ return "<th>" + t + "</th>"; }).join("") + "</tr>";
       var righe = DIVISE_GENERI.map(function(genere){
         var celle = DIVISE_TAGLIE.map(function(taglia){
+          // 26/11/2026: "in magazzino" ORA è il numero già al netto delle consegne (scala
+          // da solo quando si assegna una taglia a un collaboratore, vedi salva() in
+          // renderDiviseCollaboratori_) — non c'è più un "disponibili" separato da
+          // calcolare qui sotto (ridondante, richiesta esplicita di Emanuele: "inutile
+          // scriverlo sotto"). Evidenziato quando arriva a 0 (soglia di riordino).
           var inMagazzino = divStockGet(club, garment.key, genere.key, taglia);
           var persone = divCollabServitiCount(club, garment, genere.key, taglia);
           var consegnate = divPezziConsegnatiCount(club, garment, genere.key, taglia);
-          var disponibili = inMagazzino - consegnate;
-          var classeDisp = disponibili < 0 ? "div-disp-negativo" : "div-disp";
+          var classeStock = inMagazzino <= 0 ? " div-stock-zero" : "";
           var dettaglioConsegnate = persone > 0 ? (consegnate + ' (' + persone + (persone === 1 ? ' persona' : ' persone') + ')') : '0';
           return '<td class="div-stock-cell">' +
-            '<input type="number" min="0" step="1" value="' + inMagazzino + '" data-div-stock="' + divStockKey_(garment.key, genere.key, taglia) + '">' +
-            '<div class="' + classeDisp + '">consegnate ' + dettaglioConsegnate + ' · disponibili <b>' + disponibili + '</b></div>' +
+            '<input type="number" min="0" step="1" value="' + inMagazzino + '" class="' + classeStock.trim() + '" data-div-stock="' + divStockKey_(garment.key, genere.key, taglia) + '">' +
+            '<div class="div-disp">consegnate ' + dettaglioConsegnate + '</div>' +
           '</td>';
         }).join("");
         return '<tr><td class="div-genere-label">' + genere.label + '</td>' + celle + '</tr>';
       }).join("");
-      return '<div class="div-group-label">' + garment.label + '</div>' +
+      // 26/11/2026: quanti capi di questo garment sono già "consegnati" ma senza ancora una
+      // taglia assegnata (es. il seed di default appena scritto) — informativo, non tocca
+      // nessun numero "disponibili" per taglia finché la taglia non viene assegnata.
+      var inAttesa = divPezziInAttesaTagliaCount(club, garment);
+      var notaInAttesa = inAttesa.totale ? ('<div class="div-group-note" style="font-size:12px;color:#8a6d00;margin:2px 0 6px;">In attesa di assegnazione taglia: ' +
+        inAttesa.totale + ' capi (' + inAttesa.persone + (inAttesa.persone === 1 ? ' persona' : ' persone') + ')</div>') : '';
+      return '<div class="div-group-label">' + garment.label + '</div>' + notaInAttesa +
         '<div class="tbl-wrap"><table class="or-table div-stock-table">' + head + righe + '</table></div>';
     }).join("");
 
@@ -3001,16 +3184,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         var val = parseInt(inp.value, 10);
         if (isNaN(val) || val < 0) val = 0;
         divStockSet(club, parti[0], parti[1], parti[2], val);
-        renderDiviseMagazzino_();
+        renderDiviseMagazzino_(true); // forza: riflette subito il valore appena salvato
       });
     });
   }
 
-  function renderDivise(){
+  function renderDivise(force){
     var lbl = document.getElementById("diviseClubLabel");
     if (lbl && CLUBS[state.club]) lbl.textContent = CLUBS[state.club].label;
-    renderDiviseCollaboratori_();
-    renderDiviseMagazzino_();
+    renderDiviseCollaboratori_(force);
+    renderDiviseMagazzino_(force);
   }
 
   // 19/11/2026: nuova voce "Procedure" (richiesta esplicita di Emanuele), valida per
@@ -3125,7 +3308,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     renderMansionario(true);
     renderPtReq();
     renderTaskHistoryViews_();
-    renderDivise();
+    renderDivise(true);
+    // Cambiando club richiudo il pannello password: niente modifiche aperte "a
+    // cavallo" tra un club e l'altro per sbaglio.
+    var credPanel = document.getElementById("credenzialiPanel");
+    var credBtn = document.getElementById("credenzialiToggleBtn");
+    if (credPanel) credPanel.hidden = true;
+    if (credBtn) credBtn.setAttribute("aria-expanded", "false");
   }
 
   // ---------- Coach in sala oggi ----------
@@ -6659,20 +6848,204 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     });
     return out;
   }
+  // Slug stabile da un nome, per usarlo come chiave di documento
+  // (ptListEntry/<club>__<slug>): minuscolo, senza accenti, solo lettere/numeri/
+  // trattini. Due nomi diversi che si riducono allo stesso slug (raro: differiscono
+  // solo per accenti/maiuscole/punteggiatura) si scambierebbero il numero — stesso
+  // limite che c'era già prima (i PT si distinguono solo per nome, non per id).
+  function ptListEntrySlug_(nome){
+    var s = (nome || "").trim().toLowerCase();
+    try { s = s.normalize("NFD").replace(/[̀-ͯ]/g, ""); } catch(e){}
+    s = s.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s || "x";
+  }
   // Elenco PT inserito a mano in questa pagina (storico + eventuali PT esterni non
-  // presenti in Orari & Compensi). Dati scritti dal vecchio formato ({names:[...]}
-  // di sole stringhe, già presente in produzione) vengono letti ancora correttamente
-  // qui (telefono vuoto finché non lo si inserisce). Usata SOLO per il controllo
-  // "c'è già qualcosa salvato?" (ptReqSeedIfEmpty): i PT derivati automaticamente da
-  // Orari & Compensi non devono mai contare come "dato già presente" per quel
-  // controllo, altrimenti il seed storico non partirebbe mai in un club che ha già
-  // collaboratori PT impostati.
+  // presenti in Orari & Compensi). DAL 26/11/2026 un documento per PT
+  // (ptListEntry/<club>__<slug>), non più un unico array per club (ptList/<club>):
+  // con un solo documento condiviso, se due dispositivi/schede avevano in memoria lo
+  // stesso elenco e uno salvava DOPO che l'altro aveva già aggiunto un numero, il
+  // secondo salvataggio riscriveva l'INTERO array dalla propria copia (ormai vecchia)
+  // e cancellava senza nessun errore visibile il numero appena aggiunto dall'altro —
+  // il bug segnalato da Emanuele il 26/11 (numeri di Simone, poi di Alessia e
+  // Francesca a Mosciano, spariti da soli dopo essere stati inseriti). Un documento
+  // per PT rende ogni salvataggio indipendente dagli altri: non può più cancellare un
+  // numero scritto da qualcun altro nel frattempo. Si legge ANCHE il vecchio formato
+  // (ptList/<club>, con array "pts" o, più vecchio ancora, "names" di sole stringhe)
+  // finché la migrazione una tantum (ptListMigraVecchioFormatoSeServe_, sotto) non lo
+  // converte: così i dati già salvati non si perdono nel passaggio. Usata anche per
+  // il controllo "c'è già qualcosa salvato?" (ptReqSeedIfEmpty): i PT derivati
+  // automaticamente da Orari & Compensi non devono mai contare come "dato già
+  // presente" per quel controllo, altrimenti il seed storico non partirebbe mai in un
+  // club che ha già collaboratori PT impostati.
   function ptReqListManualeForClub(club){
+    var risultato = [];
+    var visti = {};
+    var prefix = club + "__";
+    Object.keys(state.ptListEntries).forEach(function(key){
+      if (key.indexOf(prefix) !== 0) return;
+      var v = state.ptListEntries[key];
+      if (!v || !v.nome) return;
+      var chiave = v.nome.trim().toLowerCase();
+      if (visti[chiave]) return;
+      visti[chiave] = true;
+      risultato.push({ nome: v.nome, telefono: v.telefono || "" });
+    });
     var raw = state.ptList[club];
-    if (!raw) return [];
-    if (raw.pts) return raw.pts;
-    if (raw.names) return raw.names.map(function(n){ return { nome: n, telefono: "" }; });
-    return [];
+    var vecchie = raw ? (raw.pts || (raw.names ? raw.names.map(function(n){ return { nome: n, telefono: "" }; }) : [])) : [];
+    vecchie.forEach(function(p){
+      var chiave = (p.nome || "").trim().toLowerCase();
+      if (visti[chiave]) return;
+      visti[chiave] = true;
+      risultato.push({ nome: p.nome, telefono: p.telefono || "" });
+    });
+    return risultato;
+  }
+  // Salva/aggiorna UN solo PT manuale (documento a sé, vedi nota sopra) — mai più
+  // tutto l'array del club in un colpo.
+  function ptListEntrySave_(club, nome, telefono){
+    var idKey = club + "__" + ptListEntrySlug_(nome);
+    var value = { nome: nome, telefono: telefono || "" };
+    state.ptListEntries[idKey] = value;
+    if (state.db) state.db.doc("ptListEntry/" + idKey).set(value).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  function ptListEntryDelete_(club, nome){
+    var idKey = club + "__" + ptListEntrySlug_(nome);
+    delete state.ptListEntries[idKey];
+    if (state.db) state.db.doc("ptListEntry/" + idKey).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  // Migrazione una tantum: converte il vecchio ptList/<club> (un array in un unico
+  // documento condiviso, origine del bug di sovrascrittura descritto sopra) in tanti
+  // ptListEntry/<club>__<slug>, poi cancella il vecchio documento. Non tocca le voci
+  // auto-derivate da Orari & Compensi (quelle non sono mai state salvate qui, si
+  // ricalcolano sempre al volo). Se un nome esiste già come documento singolo
+  // (migrazione parziale già avvenuta, o aggiunto nel frattempo), quella voce vince e
+  // non viene sovrascritta dal dato vecchio. Stesso schema/cautele di
+  // ptReqMigraVecchioFormatoSeServe_ qui sopra.
+  var ptListMigrazioneInCorso = {};
+  function ptListMigraVecchioFormatoSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    CLUB_ORDER.forEach(function(club){
+      if (ptListMigrazioneInCorso[club]) return;
+      var raw = state.ptList[club];
+      if (!raw) return; // niente da migrare in questo club
+      ptListMigrazioneInCorso[club] = true;
+      var vecchie = raw.pts || (raw.names ? raw.names.map(function(n){ return { nome: n, telefono: "" }; }) : []);
+      var writes = [];
+      vecchie.forEach(function(p){
+        var idKey = club + "__" + ptListEntrySlug_(p.nome);
+        if (state.ptListEntries[idKey]) return; // già migrato/presente, non sovrascrivere
+        var value = { nome: p.nome, telefono: p.telefono || "" };
+        state.ptListEntries[idKey] = value;
+        writes.push({ action: "set", key: "ptListEntry/" + idKey, value: value });
+      });
+      delete state.ptList[club];
+      writes.push({ action: "delete", key: "ptList/" + club });
+      if (state.db.primeCache){
+        writes.forEach(function(w){ if (w.action === "set") state.db.primeCache(w.key, w.value); });
+      }
+      state.db.batchWrite(writes).then(function(){
+        if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+      }).catch(function(){ /* segnalato da notifyWriteFailed sui prossimi salvataggi */ });
+    });
+  }
+  // ====== PASSWORD / CREDENZIALI DEL CLUB (richiesta di Emanuele, 26/11/2026) ======
+  // Un documento per credenziale (credenziali/<club>__<slug>), stesso schema di
+  // ptListEntry sopra. ATTENZIONE — scelta di sicurezza esplicita: questa app non ha
+  // una vera autenticazione (il blocco per ruolo è solo lato client, aggirabile da
+  // chiunque apra gli strumenti sviluppatore del browser) e il backend Apps Script
+  // risponde con TUTTI i dati salvati a qualsiasi richiesta GET, senza controllo
+  // d'accesso. Una sessione precedente aveva perciò escluso di proposito le password
+  // da questo strumento. Messo di fronte a questo rischio concreto (26/11/2026),
+  // Emanuele ha scelto esplicitamente "Procedi comunque": le password restano nello
+  // stesso database condiviso e non protetto di tutto il resto, senza un livello di
+  // accesso aggiuntivo. Non rimuovere questa nota senza una nuova decisione esplicita.
+  function credenzialiSlug_(servizio){
+    var s = (servizio || "").trim().toLowerCase();
+    try { s = s.normalize("NFD").replace(/[̀-ͯ]/g, ""); } catch(e){}
+    s = s.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    return s || "x";
+  }
+  function credenzialiForClub(club){
+    var risultato = [];
+    var prefix = club + "__";
+    Object.keys(state.credenziali).forEach(function(key){
+      if (key.indexOf(prefix) !== 0) return;
+      var v = state.credenziali[key];
+      if (!v) return;
+      risultato.push({ key: key, servizio: v.servizio || "", utente: v.utente || "", password: v.password || "", nota: v.nota || "" });
+    });
+    risultato.sort(function(a, b){ return a.servizio.localeCompare(b.servizio, "it"); });
+    return risultato;
+  }
+  function credenzialiSave_(club, servizio, patch){
+    var idKey = club + "__" + credenzialiSlug_(servizio);
+    var prev = state.credenziali[idKey] || { servizio: servizio, utente: "", password: "", nota: "" };
+    var value = {
+      servizio: (patch.servizio != null ? patch.servizio : prev.servizio) || servizio,
+      utente: patch.utente != null ? patch.utente : prev.utente,
+      password: patch.password != null ? patch.password : prev.password,
+      nota: patch.nota != null ? patch.nota : prev.nota
+    };
+    state.credenziali[idKey] = value;
+    if (state.db) state.db.doc("credenziali/" + idKey).set(value).then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  function credenzialiDelete_(club, servizio){
+    var idKey = club + "__" + credenzialiSlug_(servizio);
+    delete state.credenziali[idKey];
+    if (state.db) state.db.doc("credenziali/" + idKey).delete().then(hideDbSyncWarning).catch(notifyWriteFailed);
+    else showDbSyncWarning();
+  }
+  // Dati estratti il 26/11/2026 direttamente dai Google Doc "MANSIONARIO STAFF" dei
+  // tre club (sezione PASSWORD di ciascuno), senza alcuna invenzione: dove il
+  // mansionario non riporta un dato (es. sezione presente nell'indice ma senza
+  // contenuto, o password non scritta) il campo è lasciato vuoto con una nota, mai
+  // compilato a caso.
+  var CREDENZIALI_SEED_ = {
+    giulianova: [
+      { servizio: "Wi-Fi ospiti", utente: "", password: "PLANET_OSPITI", nota: "" },
+      { servizio: "PC desk", utente: "", password: "pla---net!!!", nota: "Il trattino è composto da 3 trattini di fila (---). Per bloccare il PC: Windows + L." },
+      { servizio: "PC Sala Virtual", utente: "CBCPLANET8560", password: "01102001", nota: "" }
+    ],
+    roseto: [
+      { servizio: "Wi-Fi ospiti", utente: "planet_ospiti", password: "planet_ospiti", nota: "" },
+      { servizio: "PC desk", utente: "", password: "pla---net!!!", nota: "Il trattino è composto da 3 trattini di fila (---). Per bloccare il PC: Windows + L." },
+      { servizio: "PC Sala Virtual", utente: "", password: "virtual2026", nota: "Codice gestione corsi: 090324" },
+      { servizio: "PagoLight", utente: "1774917500", password: "", nota: "Nel mansionario (aprile 2024) risultava \"Aprile2024\" — cambia ogni mese: password non riportata qui perché ormai scaduta, verificare con la proprietà." },
+      { servizio: "Computer Tanita", utente: "", password: "pla---net!!!", nota: "Il trattino è composto da 3 trattini di fila (---)." },
+      { servizio: "Tuya (gestione rooftop)", utente: "giuliano.appi@gmail.com", password: "pla---net!!!01", nota: "" },
+      { servizio: "eWeLink (gestione rooftop)", utente: "serafini.e92@gmail.com", password: "pla---net!!!01", nota: "" },
+      { servizio: "Meeros", utente: "giuliano.appi@gmail.com", password: "Cbc01102001", nota: "" }
+    ],
+    mosciano: [
+      { servizio: "Wi-Fi ospiti", utente: "planet_ospiti", password: "Planet26", nota: "" },
+      { servizio: "PC desk", utente: "", password: "01102010", nota: "Per bloccare il PC: Windows + L." },
+      { servizio: "PC Sala Virtual", utente: "", password: "virtual2026", nota: "Codice gestione corsi: 090324" },
+      { servizio: "PagoLight", utente: "28391392m0", password: "", nota: "Nel mansionario la password non è riportata (cambia ogni mese): verificare con la proprietà." },
+      { servizio: "SmallPay", utente: "planetmosciano@gmail.com", password: "Planet2026!", nota: "" },
+      { servizio: "Email club", utente: "planetmosciano@gmail.com", password: "Pla- - - net!!!", nota: "Trascritta esattamente come nel mansionario originale; verificare il formato preciso dei trattini con il Club Manager." },
+      { servizio: "Wati", utente: "planetpalestraplanet@gmail.com", password: "Cbcplanet1009!", nota: "Codice ID: 312486" }
+    ]
+  };
+  function credenzialiSeedIfEmpty_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    var writes = [];
+    Object.keys(CREDENZIALI_SEED_).forEach(function(club){
+      CREDENZIALI_SEED_[club].forEach(function(voce){
+        var idKey = club + "__" + credenzialiSlug_(voce.servizio);
+        if (state.credenziali[idKey]) return; // già presente (seminata o modificata da un CM), non sovrascrivere
+        var value = { servizio: voce.servizio, utente: voce.utente || "", password: voce.password || "", nota: voce.nota || "" };
+        state.credenziali[idKey] = value;
+        writes.push({ action: "set", key: "credenziali/" + idKey, value: value });
+      });
+    });
+    if (!writes.length) return;
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){ /* segnalato da notifyWriteFailed sui prossimi salvataggi */ });
   }
   // In Orari & Compensi il collaboratore si inserisce come "Nome Cognome"; in
   // Richieste PT, finora, si è sempre usato solo il nome (richiesta di Emanuele,
@@ -7297,14 +7670,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (!name) return;
       var telefono = telInput ? (telInput.value || "").trim() : "";
       var club = state.club;
-      var list = ptReqListForClub(club);
-      if (list.some(function(p){ return p.nome === name; })){
-        // Nome già presente: non duplicare, aggiorna solo il telefono se fornito.
-        list = list.map(function(p){ return p.nome === name && telefono ? { nome: p.nome, telefono: telefono } : p; });
-      } else {
-        list = list.concat([{ nome: name, telefono: telefono }]);
-      }
-      ptReqSaveList(club, list);
+      // Nome già presente (anche derivato da Orari & Compensi): non duplicare,
+      // aggiorna solo il telefono se è stato digitato, altrimenti conserva quello
+      // già presente. Salvataggio della SOLA voce toccata (vedi nota su
+      // ptListEntrySave_): un'altra voce modificata da un altro dispositivo nel
+      // frattempo non viene toccata né persa.
+      var esistente = ptReqListForClub(club).filter(function(p){ return p.nome === name; })[0];
+      ptListEntrySave_(club, name, telefono || (esistente ? esistente.telefono : ""));
       input.value = "";
       if (telInput) telInput.value = "";
       renderPtReq();
@@ -7313,25 +7685,109 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (chips) chips.addEventListener("click", function(e){
       var btn = e.target.closest("[data-del-pt]");
       if (!btn) return;
-      var club = state.club;
-      var list = ptReqListForClub(club).filter(function(p){ return p.nome !== btn.dataset.delPt; });
-      ptReqSaveList(club, list);
+      ptListEntryDelete_(state.club, btn.dataset.delPt);
       renderPtReq();
     });
     // Modifica/aggiunta del telefono a un PT già in elenco (anche quelli importati
     // dallo storico, che partono senza numero): salva al cambio del campo, senza
-    // dover ricreare la riga.
+    // dover ricreare la riga. Tocca SOLO questa voce (ptListEntrySave_): non
+    // riscrive più l'intero elenco, quindi non può cancellare un numero che un
+    // altro dispositivo ha appena salvato per un altro PT.
     if (chips) chips.addEventListener("change", function(e){
       var input = e.target.closest("[data-tel-pt]");
       if (!input) return;
-      var club = state.club;
       var nome = input.dataset.telPt;
       var telefono = (input.value || "").trim();
-      var list = ptReqListForClub(club).map(function(p){
-        return p.nome === nome ? { nome: p.nome, telefono: telefono } : p;
-      });
-      ptReqSaveList(club, list);
+      ptListEntrySave_(state.club, nome, telefono);
       renderPtReq();
+    });
+  }
+
+  // Elenco password/credenziali del club (vedi CREDENZIALI_SEED_ e nota di sicurezza
+  // più sopra). Il nome del servizio NON è modificabile da qui (è anche la chiave del
+  // documento condiviso): solo utente/password/nota.
+  function renderCredenziali(){
+    var container = document.getElementById("credenzialiList");
+    if (!container) return;
+    // Come per Divise (vedi nota sul parametro "force" più sopra): non interrompere
+    // una modifica in corso quando questo render viene richiamato dal poll di sfondo
+    // (ogni 15s, db.refreshAll) mentre un campo di questo pannello ha ancora il fuoco.
+    if (container.contains(document.activeElement)) return;
+    var club = state.club;
+    var voci = credenzialiForClub(club);
+    if (!voci.length){
+      container.innerHTML = '<div class="sub">Nessuna password salvata per questo club.</div>';
+      return;
+    }
+    var html = voci.map(function(v){
+      var servizioAttr = (v.servizio || "").replace(/"/g, "&quot;");
+      var servizioTxt = (v.servizio || "").replace(/</g, "&lt;");
+      var utenteAttr = (v.utente || "").replace(/"/g, "&quot;");
+      var passwordAttr = (v.password || "").replace(/"/g, "&quot;");
+      var notaAttr = (v.nota || "").replace(/"/g, "&quot;");
+      return '' +
+        '<div class="cred-row" data-cred-servizio="' + servizioAttr + '">' +
+          '<div class="cred-servizio">' + servizioTxt + '</div>' +
+          '<input type="text" class="cred-utente" data-cred-field="utente" placeholder="Utente/account" value="' + utenteAttr + '">' +
+          '<input type="text" class="cred-password" data-cred-field="password" placeholder="Password" value="' + passwordAttr + '">' +
+          '<input type="text" class="cred-nota" data-cred-field="nota" placeholder="Nota" value="' + notaAttr + '">' +
+          '<button type="button" class="cred-del-btn" data-cred-del title="Elimina">✕</button>' +
+        '</div>';
+    }).join("");
+    container.innerHTML = html;
+  }
+  function initCredenzialiForm(){
+    var toggleBtn = document.getElementById("credenzialiToggleBtn");
+    var panel = document.getElementById("credenzialiPanel");
+    if (toggleBtn && panel) toggleBtn.addEventListener("click", function(){
+      var aperto = !panel.hidden;
+      if (aperto){
+        panel.hidden = true;
+        toggleBtn.setAttribute("aria-expanded", "false");
+      } else {
+        renderCredenziali();
+        panel.hidden = false;
+        toggleBtn.setAttribute("aria-expanded", "true");
+      }
+    });
+    var list = document.getElementById("credenzialiList");
+    if (list) list.addEventListener("change", function(e){
+      var input = e.target.closest("[data-cred-field]");
+      if (!input) return;
+      var row = input.closest("[data-cred-servizio]");
+      if (!row) return;
+      var servizio = row.dataset.credServizio;
+      var patch = {};
+      patch[input.dataset.credField] = input.value;
+      credenzialiSave_(state.club, servizio, patch);
+      renderCredenziali();
+    });
+    if (list) list.addEventListener("click", function(e){
+      var btn = e.target.closest("[data-cred-del]");
+      if (!btn) return;
+      var row = btn.closest("[data-cred-servizio]");
+      if (!row) return;
+      var servizio = row.dataset.credServizio;
+      if (!window.confirm("Eliminare definitivamente la credenziale \"" + servizio + "\"? L'operazione non si può annullare.")) return;
+      credenzialiDelete_(state.club, servizio);
+      renderCredenziali();
+    });
+    var addBtn = document.getElementById("credenzialiAddBtn");
+    if (addBtn) addBtn.addEventListener("click", function(){
+      var servizioInput = document.getElementById("credenzialiServizioInput");
+      var utenteInput = document.getElementById("credenzialiUtenteInput");
+      var passwordInput = document.getElementById("credenzialiPasswordInput");
+      var notaInput = document.getElementById("credenzialiNotaInput");
+      var servizio = (servizioInput.value || "").trim();
+      if (!servizio) return;
+      credenzialiSave_(state.club, servizio, {
+        servizio: servizio,
+        utente: (utenteInput.value || "").trim(),
+        password: (passwordInput.value || "").trim(),
+        nota: (notaInput.value || "").trim()
+      });
+      servizioInput.value = ""; utenteInput.value = ""; passwordInput.value = ""; notaInput.value = "";
+      renderCredenziali();
     });
   }
 
@@ -7397,8 +7853,12 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         state.ptRequests[full] = data;
         writes.push({ action: "set", key: "ptRequests/" + full, value: data });
       });
-      state.ptList[club] = { pts: pts };
-      writes.push({ action: "set", key: "ptList/" + club, value: { pts: pts } });
+      pts.forEach(function(p){
+        var idKey = club + "__" + ptListEntrySlug_(p.nome);
+        var value = { nome: p.nome, telefono: p.telefono || "" };
+        state.ptListEntries[idKey] = value;
+        writes.push({ action: "set", key: "ptListEntry/" + idKey, value: value });
+      });
     });
     if (state.db && state.db.primeCache){
       writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
@@ -7851,6 +8311,21 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         });
       } catch(e) { /* no live updates available — elenco PT resta quello già in cache */ }
       try {
+        // Formato nuovo (26/11/2026, un documento per PT — vedi nota su
+        // ptReqListManualeForClub/ptListEntrySave_): sostituisce ptList/<club>.
+        db.collection("ptListEntry").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.ptListEntries[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.ptListEntries).forEach(function(id){ if (!seen[id]) delete state.ptListEntries[id]; });
+          ptListMigraVecchioFormatoSeServe_();
+          renderPtReq();
+        });
+      } catch(e) { /* no live updates available — elenco PT resta quello già in cache */ }
+      try {
         db.collection("flags").onSnapshot(function(snap){
           var seen = {};
           (snap.docs || snap || []).forEach(function(d){
@@ -7941,6 +8416,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           // stesso giro — un sessoAuto:true appena creato da una deduzione nuova.
           divConfermaSessiDedottiSeServe_();
           divInferisciSessoSeServe_();
+          // 26/11/2026: seed una tantum "già consegnato 3 Polo PT/3 T-Shirt Coach/1 Felpa
+          // Coach" per ogni collaboratore ancora senza nulla impostato su quel capo — vedi
+          // la funzione per i dettagli (gira una sola volta, mai più dopo).
+          divCollabGarmentConsegneDefaultSeedIfEmpty_();
           renderOrari();
           renderKPI();
           // 16/11/2026: un collaboratore con ruolo PT aggiunto/tolto in Orari &
@@ -8045,6 +8524,10 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         });
       } catch(e) { /* no live updates available — local taps still work */ }
       try {
+        // 26/11/2026: "diviseMagazzino" resta in ascolto SOLO per ricevere eventuali
+        // documenti rimasti nel vecchio formato (un blob per club) e passarli alla
+        // migrazione una tantum qui sotto — i dati live vivono ora in "diviseStock"
+        // (un documento per singola cella). Vedi la nota sopra divStockDocId_.
         db.collection("diviseMagazzino").onSnapshot(function(snap){
           var seen = {};
           (snap.docs || snap || []).forEach(function(d){
@@ -8053,8 +8536,29 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
             if (id && data) { state.diviseMagazzino[id] = data; seen[id] = true; }
           });
           Object.keys(state.diviseMagazzino).forEach(function(id){ if (!seen[id]) delete state.diviseMagazzino[id]; });
+        });
+        db.collection("diviseStock").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.diviseStockEntries[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.diviseStockEntries).forEach(function(id){ if (!seen[id]) delete state.diviseStockEntries[id]; });
+          divMagazzinoMigraVecchioFormatoSeServe_();
           divMagazzinoSeedIfEmpty_();
           renderDivise();
+        });
+        db.collection("credenziali").onSnapshot(function(snap){
+          var seen = {};
+          (snap.docs || snap || []).forEach(function(d){
+            var data = d.data ? d.data() : d;
+            var id = d.id || (data && data.id);
+            if (id && data) { state.credenziali[id] = data; seen[id] = true; }
+          });
+          Object.keys(state.credenziali).forEach(function(id){ if (!seen[id]) delete state.credenziali[id]; });
+          credenzialiSeedIfEmpty_();
+          renderCredenziali();
         });
       } catch(e) { /* no live updates available — local taps still work */ }
     })();
@@ -8159,6 +8663,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     initPtReqTabs();
     initPtReqAddForm();
     initPtListForm();
+    initCredenzialiForm();
     initNav();
     initStatTiles();
     initRoleGate();
