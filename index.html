@@ -2961,9 +2961,9 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   }
   function divCollabGarmentValue_(c, garment){
     var raw = c[garment.campo];
-    if (raw && typeof raw === "object") return { taglia: raw.taglia || "", qty: raw.qty != null ? raw.qty : 0 };
-    if (typeof raw === "string" && raw) return { taglia: raw, qty: garment.qty }; // formato precedente: solo taglia
-    return { taglia: "", qty: 0 };
+    if (raw && typeof raw === "object") return { taglia: raw.taglia || "", qty: raw.qty != null ? raw.qty : 0, storicoNonScaricato: !!raw.storicoNonScaricato };
+    if (typeof raw === "string" && raw) return { taglia: raw, qty: garment.qty, storicoNonScaricato: false }; // formato precedente: solo taglia
+    return { taglia: "", qty: 0, storicoNonScaricato: false };
   }
   // 26/11/2026 (richiesta esplicita di Emanuele): tutti i collaboratori già presenti, in
   // tutti e 3 i club, devono risultare da subito come già consegnati dello standard 3 Polo
@@ -2988,7 +2988,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       var cambiato = false;
       DIVISE_GARMENTS.forEach(function(garment){
         if (c[garment.campo] != null) return; // già impostato (anche solo quantità, o già con taglia): non toccare
-        c[garment.campo] = { taglia: "", qty: garment.qty };
+        // storicoNonScaricato:true — vedi divStoricoNonScaricatoMigraSeServe_ poco sotto e
+        // salva() in renderDiviseCollaboratori_: questa consegna è già avvenuta PRIMA che
+        // esistesse il magazzino con auto-decremento, quindi la prima volta che il CM le
+        // assegna una taglia non deve scalare nulla — altrimenti si scalerebbe uno stock
+        // che in realtà non è mai stato toccato da questa consegna (già conteggiata come
+        // "attuale" nel magazzino di partenza, su richiesta di Emanuele del 26/11/2026).
+        c[garment.campo] = { taglia: "", qty: garment.qty, storicoNonScaricato: true };
         cambiato = true;
       });
       if (cambiato){
@@ -3004,11 +3010,66 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
     }).catch(function(){});
   }
+  // 26/11/2026 — migrazione una tantum: il seed sopra è già girato in produzione PRIMA
+  // che esistesse il flag storicoNonScaricato (introdotto solo ora, perché Emanuele ha
+  // segnalato che assegnare la taglia a una consegna storica scalava comunque il
+  // magazzino). Qui si marcano retroattivamente come "storico non scaricato" tutti i
+  // capi che risultano già consegnati (qty>0) ma SENZA ancora una taglia assegnata: in
+  // questo momento, prima che qualunque CM abbia assegnato una sola taglia con questa
+  // funzione attiva, un capo in questo stato è SEMPRE una consegna storica del seed di
+  // default, mai una nuova consegna genuina (quel flusso parte sempre da campo vuoto,
+  // non da "qty impostata ma taglia ancora da scegliere" già presente da prima). Gira
+  // una sola volta (flag dedicato in appFlags): un capo lasciato intenzionalmente senza
+  // taglia DOPO questo momento (nuova consegna futura) non viene più toccato.
+  var DIV_STORICO_NON_SCARICATO_MIGRA_FLAG_ID = "diviseStoricoNonScaricatoMigrato26nov2026b";
+  function divStoricoNonScaricatoMigraSeServe_(){
+    if (!orFirstDbLoadDone || !state.db) return;
+    if (state.appFlags[DIV_STORICO_NON_SCARICATO_MIGRA_FLAG_ID]) return;
+    var collaboratori = Object.keys(state.orariCollaboratori);
+    if (!collaboratori.length) return;
+    var writes = [];
+    collaboratori.forEach(function(full){
+      var c = state.orariCollaboratori[full];
+      if (!c) return;
+      var cambiato = false;
+      DIVISE_GARMENTS.forEach(function(garment){
+        var raw = c[garment.campo];
+        if (!raw || typeof raw !== "object") return; // null, o vecchio formato solo-stringa: non riguarda questo caso
+        if (raw.taglia) return; // taglia già assegnata: non è più questo caso, non toccare
+        if (!(raw.qty > 0)) return; // niente di consegnato: non c'è nulla da marcare
+        if (raw.storicoNonScaricato != null) return; // già marcato esplicitamente (vero o falso): non ritoccare
+        raw.storicoNonScaricato = true;
+        cambiato = true;
+      });
+      if (cambiato){
+        state.orariCollaboratori[full] = c;
+        writes.push({ action: "set", key: "orariCollaboratori/" + full, value: c });
+      }
+    });
+    var marcatore = { fatto: true, data: new Date().toISOString() };
+    state.appFlags[DIV_STORICO_NON_SCARICATO_MIGRA_FLAG_ID] = marcatore;
+    writes.push({ action: "set", key: "appFlags/" + DIV_STORICO_NON_SCARICATO_MIGRA_FLAG_ID, value: marcatore });
+    if (state.db.primeCache) writes.forEach(function(w){ state.db.primeCache(w.key, w.value); });
+    state.db.batchWrite(writes).then(function(){
+      if (state.db.refreshAll) state.db.refreshAll().catch(function(){});
+    }).catch(function(){});
+  }
   // Quante PERSONE di un certo capo/genere/taglia risultano servite — conta
   // direttamente sui record di Orari & Compensi (orCollabiForClub), nessun doppio
   // inserimento altrove. Usata solo per il dettaglio "(n persone)" nel magazzino.
+  // 26/11/2026: Divise deve mostrare/contare SOLO i collaboratori davvero in squadra
+  // oggi — stesso filtro mensile già usato ovunque in Orari & Compensi
+  // (orCollabiForClubMonth), non più orCollabiForClub "grezzo". Senza questo filtro
+  // comparivano "doppioni": quando un cambio di tariffa/ruolo apre un nuovo record
+  // storico per la stessa persona (vedi il submit handler di Collaboratori, che
+  // chiude il vecchio con attivoAl ed eredita le divise nel nuovo), restavano
+  // visibili ENTRAMBI i record, vecchio e nuovo, invece del solo record corrente —
+  // e chi è uscito dal team (attivoAl impostato) non spariva mai.
+  function divCollabiAttivi_(club){
+    return orCollabiForClubMonth(club, todayISO().slice(0,7));
+  }
   function divCollabServitiCount(club, garment, genereKey, taglia){
-    return orCollabiForClub(club).filter(function(c){
+    return divCollabiAttivi_(club).filter(function(c){
       return c.sesso === genereKey && divCollabGarmentValue_(c, garment).taglia === taglia;
     }).length;
   }
@@ -3017,7 +3078,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // combinazione sesso+taglia.
   function divPezziConsegnatiCount(club, garment, genereKey, taglia){
     var totale = 0;
-    orCollabiForClub(club).forEach(function(c){
+    divCollabiAttivi_(club).forEach(function(c){
       if (c.sesso !== genereKey) return;
       var v = divCollabGarmentValue_(c, garment);
       if (v.taglia !== taglia) return;
@@ -3032,7 +3093,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // magazzino rimangano tali per il momento").
   function divPezziInAttesaTagliaCount(club, garment){
     var totale = 0, persone = 0;
-    orCollabiForClub(club).forEach(function(c){
+    divCollabiAttivi_(club).forEach(function(c){
       var v = divCollabGarmentValue_(c, garment);
       if (v.taglia || !v.qty) return;
       totale += v.qty;
@@ -3052,7 +3113,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     // il ri-render che il nostro STESSO salvataggio innesca subito dopo (vedi salva()).
     if (!force && container.contains(document.activeElement)) return;
     var club = state.club;
-    var tutti = orCollabiForClub(club);
+    var tutti = divCollabiAttivi_(club);
     var gruppi = [
       { label: "Uomo", collab: tutti.filter(function(c){ return c.sesso === "uomo"; }) },
       { label: "Donna", collab: tutti.filter(function(c){ return c.sesso === "donna"; }) },
@@ -3120,7 +3181,16 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
         // consuma la nuova (se c'è) — serve un genere noto (c.sesso), altrimenti questo
         // collaboratore non è già contato in nessuna cella di magazzino (vedi
         // divCollabServitiCount/divPezziConsegnatiCount) e lo stock non va toccato.
-        if (c.sesso === "uomo" || c.sesso === "donna"){
+        // ECCEZIONE (segnalata da Emanuele il 26/11/2026): se questo capo era marcato
+        // "storicoNonScaricato" (consegna di default già avvenuta PRIMA che esistesse
+        // questo magazzino — seed iniziale 3 Polo/3 T-Shirt/1 Felpa, o lo stesso stato
+        // migrato da una versione precedente), la PRIMA volta che gli si assegna/conferma
+        // una taglia non deve scalare nulla: si sta solo registrando a posteriori la
+        // taglia di qualcosa già dato, non una nuova consegna. Il flag non viene mai
+        // riscritto sul nuovo valore salvato sopra, quindi da questa modifica in poi
+        // il capo torna a comportarsi normalmente (le modifiche successive scalano/
+        // ripristinano lo stock come di consueto).
+        if ((c.sesso === "uomo" || c.sesso === "donna") && !vPrima.storicoNonScaricato){
           if (vPrima.taglia) divStockAdjust_(club, garment.key, c.sesso, vPrima.taglia, vPrima.qty);
           var dopo = divCollabGarmentValue_(c, garment);
           if (dopo.taglia) divStockAdjust_(club, garment.key, c.sesso, dopo.taglia, -dopo.qty);
@@ -8420,6 +8490,11 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
           // Coach" per ogni collaboratore ancora senza nulla impostato su quel capo — vedi
           // la funzione per i dettagli (gira una sola volta, mai più dopo).
           divCollabGarmentConsegneDefaultSeedIfEmpty_();
+          // 26/11/2026: migrazione una tantum che marca retroattivamente come "storico non
+          // scaricato" le consegne di default già seminate PRIMA di questo fix (vedi la
+          // funzione per i dettagli) — altrimenti assegnare la taglia a una di queste
+          // consegne già fatte scalerebbe comunque il magazzino.
+          divStoricoNonScaricatoMigraSeServe_();
           renderOrari();
           renderKPI();
           // 16/11/2026: un collaboratore con ruolo PT aggiunto/tolto in Orari &
