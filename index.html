@@ -3065,8 +3065,17 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   // chiude il vecchio con attivoAl ed eredita le divise nel nuovo), restavano
   // visibili ENTRAMBI i record, vecchio e nuovo, invece del solo record corrente —
   // e chi è uscito dal team (attivoAl impostato) non spariva mai.
+  // 26/11/2026 (richiesta esplicita di Emanuele): in Divise servono solo i
+  // collaboratori che hanno almeno uno dei ruoli che prevedono una divisa — Sala
+  // (coach), PT, Corsi (istruttore), PT Pilates. Chi ha SOLO il ruolo Desk (o solo
+  // Club Manager) non riceve divise e non deve comparire, anche se risulta attivo
+  // questo mese in Orari & Compensi. Una persona con più ruoli (es. Sala + Desk)
+  // compare comunque, perché ha almeno un ruolo che prevede la divisa.
+  var DIVISE_RUOLI_AMMESSI_ = ["sala", "pt", "corsi", "pt_pilates"];
   function divCollabiAttivi_(club){
-    return orCollabiForClubMonth(club, todayISO().slice(0,7));
+    return orCollabiForClubMonth(club, todayISO().slice(0,7)).filter(function(c){
+      return DIVISE_RUOLI_AMMESSI_.some(function(r){ return orHasRole(c, r); });
+    });
   }
   function divCollabServitiCount(club, garment, genereKey, taglia){
     return divCollabiAttivi_(club).filter(function(c){
@@ -8188,6 +8197,43 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function createRemoteDb_(baseUrl){
     var cache = {}; // "<collezione>/<id>" -> valore del documento
     var listeners = {}; // collezione -> [cb]
+    // 26/11/2026 (segnalato da Emanuele: "sto assegnando le taglie ma ogni tanto mi si
+    // cancellano... ora mi sono ricomparse" / "modifico e non vengono salvate le
+    // modifiche, dopo pochi secondi riscrive il numero di prima"): Apps Script/Google
+    // Sheet non garantiscono che una lettura (?action=all) subito dopo una scrittura
+    // rifletta già quella scrittura — specialmente con più Club Manager che scrivono
+    // nello stesso momento (vedi nota già presente sul LockService più sotto).
+    // refreshAll() sostituiva l'INTERA cache con qualunque cosa tornasse il server: se
+    // quel giro di refreshAll (ogni 15s) capitava mentre il backend non aveva ancora
+    // fatto in tempo a riflettere un salvataggio appena fatto, il valore scritto
+    // spariva dalla UI finché un refreshAll successivo (quando il backend si era messo
+    // in pari) non lo faceva ricomparire da solo — esattamente il sintomo descritto.
+    // pendingWrites protegge ogni scrittura recente per una finestra di sicurezza
+    // (circa due cicli di refreshAll): durante quella finestra, il valore scritto qui
+    // vince sempre su quello che torna il server per quella stessa chiave, finché il
+    // server non lo conferma — a quel punto la protezione si toglie SUBITO, per
+    // lasciar passare prima possibile una modifica reale fatta nel frattempo da un
+    // altro dispositivo sulla stessa chiave (non è quindi "le mie scritture vincono
+    // sempre per 30 secondi", ma "vincono finché il server non dimostra di essersi
+    // messo in pari con me, con un limite massimo di sicurezza").
+    var pendingWrites = {}; // path -> { value, deleted, expiresAt }
+    var PENDING_GRACE_MS = 30000;
+    function markPending_(path, value, deleted){
+      pendingWrites[path] = { value: value, deleted: !!deleted, expiresAt: Date.now() + PENDING_GRACE_MS };
+    }
+    function reconcilePending_(fresh){
+      var now = Date.now();
+      Object.keys(pendingWrites).forEach(function(path){
+        var p = pendingWrites[path];
+        if (p.expiresAt <= now){ delete pendingWrites[path]; return; } // scaduta: ci fidiamo ormai del server
+        var presente = Object.prototype.hasOwnProperty.call(fresh, path);
+        var serverSiEAllineato = p.deleted
+          ? !presente
+          : (presente && JSON.stringify(fresh[path]) === JSON.stringify(p.value));
+        if (serverSiEAllineato){ delete pendingWrites[path]; return; } // confermato: libera subito la chiave
+        if (p.deleted) delete fresh[path]; else fresh[path] = p.value;
+      });
+    }
 
     function notify(collection){
       var cbs = listeners[collection];
@@ -8226,6 +8272,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       }, 3, 400).then(function(all){
         var fresh = {};
         Object.keys(all).forEach(function(key){ fresh[key] = all[key].value; });
+        reconcilePending_(fresh);
         cache = fresh;
         // Deve diventare true PRIMA di notify(): notify() qui sotto è quello che
         // innesca mntSeedIfEmpty() con i dati reali appena arrivati — se il flag
@@ -8254,11 +8301,13 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
       return {
         set: function(value){
           cache[path] = value;
+          markPending_(path, value, false);
           notify(path.split("/")[0]);
           return postWrite_({ action: "set", key: path, value: value });
         },
         delete: function(){
           delete cache[path];
+          markPending_(path, null, true);
           notify(path.split("/")[0]);
           return postWrite_({ action: "delete", key: path });
         }
@@ -8275,8 +8324,8 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     function batchWrite(writes){
       var collections = {};
       writes.forEach(function(w){
-        if (w.action === "delete") delete cache[w.key];
-        else cache[w.key] = w.value;
+        if (w.action === "delete"){ delete cache[w.key]; markPending_(w.key, null, true); }
+        else { cache[w.key] = w.value; markPending_(w.key, w.value, false); }
         collections[w.key.split("/")[0]] = true;
       });
       Object.keys(collections).forEach(notify);
