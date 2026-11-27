@@ -4531,10 +4531,18 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
     if (input && input.value) return input.value;
     return new Date().toISOString().slice(0,7);
   }
-  function orPopulateCollabSelect(selectEl, club, monthKey){
+  function orPopulateCollabSelect(selectEl, club, monthKey, soloRuolo){
     if (!selectEl) return;
     var prev = selectEl.value;
     var list = monthKey ? orCollabiForClubMonth(club, monthKey) : orCollabiForClub(club);
+    // 27/11/2026 (richiesta esplicita di Emanuele): le Presenze coprono la sala, quindi il
+    // menu per inserirle deve proporre solo i collaboratori con ruolo "sala" (coach) — chi
+    // ha solo Desk/PT/Corsi/PT Pilates/Club Manager non compare qui, anche se attivo questo
+    // mese (coerente con DIVISE_RUOLI_AMMESSI_: stesso principio, filtro diverso per
+    // contesto diverso). Parametro facoltativo: senza, il comportamento resta quello di
+    // prima (nessun filtro di ruolo) per non toccare altri eventuali usi futuri di questa
+    // funzione condivisa.
+    if (soloRuolo) list = list.filter(function(c){ return orHasRole(c, soloRuolo); });
     selectEl.innerHTML = list.length ? "" : '<option value="">Nessun collaboratore — aggiungine uno in "Collaboratori"</option>';
     list.forEach(function(c){
       var opt = document.createElement("option");
@@ -4559,7 +4567,7 @@ NOTA: le password di accesso a Wi-Fi, PC, sistema virtual, PagoLight, SmallPay, 
   function renderOrariPresenze(){
     var table = document.getElementById("orPresTable");
     if (!table) return;
-    orPopulateCollabSelect(document.getElementById("orPresCollab"), state.club, orSharedMonthKey());
+    orPopulateCollabSelect(document.getElementById("orPresCollab"), state.club, orSharedMonthKey(), "sala");
     var monthInput = document.getElementById("orPresMonth");
     if (monthInput && !monthInput.value) monthInput.value = new Date().toISOString().slice(0,7);
     var monthKey = orCurrentMonthKey();
